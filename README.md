@@ -1,5 +1,4 @@
 # Leaflet D3 Hexbin Plugin
-> Dynamic d3.js hexbin overlays on Leaflet maps
 
 [![Build Status][travis-image]][travis-url]
 
