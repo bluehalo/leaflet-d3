@@ -13,7 +13,7 @@ hexLayer.update([...data...]);
 
 
 # Credits
-This plugin was based on [[http://www.delimited.io/blog/2013/12/1/hexbins-with-d3-and-leaflet-maps][the work of Steven Hall]].
+This plugin was based on [the work of Steven Hall](http://www.delimited.io/blog/2013/12/1/hexbins-with-d3-and-leaflet-maps).
 
 
 [downloads-image]: http://img.shields.io/npm/dm/leaflet-hexbin.svg
