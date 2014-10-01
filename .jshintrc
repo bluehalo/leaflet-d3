@@ -1,0 +1,10 @@
+{
+	"eqnull": true,
+	"undef": "true",
+	"strict": "true",
+
+	"globals": {
+		"L": true,
+		"d3": true
+	}
+}
