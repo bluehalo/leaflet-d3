@@ -20,5 +20,5 @@ This plugin was based on [the work of Steven Hall](http://www.delimited.io/blog/
 [npm-url]: https://npmjs.org/package/leaflet-hexbin
 [npm-image]: http://img.shields.io/npm/v/leaflet-hexbin.svg
 
-[travis-url]: https://travis-ci.org/Asymmetrik/leaflet-hexbin
-[travis-image]: http://img.shields.io/travis/Asymmetrik/leaflet-hexbin.svg
+[travis-url]: https://travis-ci.org/Asymmetrik/leaflet-hexbin/
+[travis-image]: https://travis-ci.org/Asymmetrik/leaflet-hexbin.svg
