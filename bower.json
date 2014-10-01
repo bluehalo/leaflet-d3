@@ -1,16 +1,29 @@
 {
   "name": "leaflet-hexbin",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "authors": [
     "reblace <reblace@gmail.com>"
   ],
+  "main": "leaflet-hexbin.js",
+  "scripts": [
+    "leaflet-hexbin.js"
+  ],
   "license": "MIT",
   "ignore": [
-    "**/.*",
+    ".DS_Store",
+    ".git",
+    ".gitignore",
+    ".travis.yml",
+    ".bowerrc",
+    ".jshintrc",
+    ".project",
+    "gulpfile.js",
+    "package.json",
+    "examples",
     "node_modules",
-    "bower_components",
-    "test",
-    "tests"
+    "package.json",
+    "src",
+    "test"
   ],
   "dependencies": {
     "d3": "~3.4.11",
