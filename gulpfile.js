@@ -5,7 +5,7 @@ var gulp = require('gulp'),
 
 var banner = '/*! ' + p.name + '.js Version: ' + p.version + ' */\n';
 
-gulp.task('default', ['watch']);
+gulp.task('default', ['build']);
 
 gulp.task('watch', function(){
 	gulp.watch(['src/**/*', '!/src/lib/**/*'], ['build']);
