@@ -9,10 +9,17 @@ This is a Leaflet plugin that enables you to place a d3.js hexbin heatmap overla
 To use, simply declare a hexbin layer and add it to your map. You can then add data to the layer.
 
 ```js
-var hexLayer = L.hexbinLayer({}).addTo(map);
-hexLayer.update([...data...]);
+var options = {
+	radius : 10,
+	opacity: 0.5,
+	lng: function(d){ return d[0]; },
+	lat: function(d){ return d[1]; },
+	colorRange: ['#f7fbff', '#08306b']
+};
+
+var hexLayer = L.hexbinLayer(options).addTo(map);
+hexLayer.update([[lng1, lat1], [lng2, lat2], ... [lngN, latN]]);
 ```
-There are several customizations. You can override the way that data is accessed by providing accessor functions.
 
 ## How do I include this plugin in my project?
 The easiest way to include this plugin in your project, use [Bower](http://bower.io)
