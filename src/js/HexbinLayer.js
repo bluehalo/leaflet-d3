@@ -6,9 +6,6 @@
 		options : {
 			radius : 10,
 			opacity: 0.5,
-			geo: function(d){
-				return d.geo;
-			},
 			lng: function(d){
 				return d[0];
 			},
@@ -21,11 +18,15 @@
 		initialize : function(options) {
 			L.setOptions(this, options);
 
-			this._hexLayout = d3.hexbin().radius(this.options.radius);
+			this._hexLayout = d3.hexbin()
+				.radius(this.options.radius)
+				.x(function(d){ return d.point[0]; })
+				.y(function(d){ return d.point[1]; });
+
 			this._data = [];
 			this._colorScale = d3.scale.linear().range(this.options.colorRange);
 		},
-	
+
 		onAdd : function(map) {
 			this._map = map;
 
@@ -57,79 +58,80 @@
 
 		_initContainer : function() {
 			var container = null;
-	
+
 			// If the container is null or the overlay pane is empty, create the svg element for drawing
 			if (null == this._container) {
 				var overlayPane = this._map.getPanes().overlayPane;
 				container = d3.select(overlayPane).append('svg')
 					.attr('class', 'leaflet-layer leaflet-zoom-hide');
 			}
-	
+
 			return container;
 		},
-	
+
 		_destroyContainer: function(){
 			// Remove the svg element
 			if(null != this._container){
 				this._container.remove();
 			}
 		},
-	
+
 		// (Re)draws the hexbin group
 		_redraw : function(){
-			if (!this._map) {
+			var that = this;
+
+			if (!that._map) {
 				return;
 			}
-	
+
+			// Generate the mapped version of the data
+			var data = that._data.map(function(d) {
+				var lng = that.options.lng(d);
+				var lat = that.options.lat(d);
+
+				var point = that._project([lng, lat]);
+				return { o: d, point: point };
+			});
+
 			var zoom = this._map.getZoom();
-	
+
 			// Determine the bounds from the data and scale the overlay
 			var padding = this.options.radius * 2;
-			var geoBounds = this._getBounds(this._data);
-			var bounds = this._translateBounds(geoBounds);
-			var width = bounds.getSize().x + (2 * padding),
-				height = bounds.getSize().y + (2 * padding),
-				marginTop = bounds.min.y - padding,
-				marginLeft = bounds.min.x - padding;
-	
+			var bounds = this._getBounds(data);
+			var width = (bounds.max[0] - bounds.min[0]) + (2 * padding),
+				height = (bounds.max[1] - bounds.min[1]) + (2 * padding),
+				marginTop = bounds.min[1] - padding,
+				marginLeft = bounds.min[0] - padding;
+
 			this._hexLayout.size([ width, height ]);
 			this._container
 				.attr('width', width).attr('height', height)
 				.style('margin-left', marginLeft + 'px')
 				.style('margin-top', marginTop + 'px');
-	
+
 			// Select the hex group for the current zoom level. This has 
 			// the effect of recreating the group if the zoom level has changed
 			var join = this._container.selectAll('g.hexbin')
 				.data([zoom], function(d){ return d; });
-	
+
 			// enter
 			join.enter().append('g')
 				.attr('class', function(d) { return 'hexbin zoom-' + d; });
-	
+
 			// enter + update
 			join.attr('transform', 'translate(' + -marginLeft + ',' + -marginTop + ')');
-	
+
 			// exit
 			join.exit().remove();
-	
+
 			// add the hexagons to the select
-			this._createHexagons(join);
-	
+			this._createHexagons(join, data);
+
 		},
-	
-		_createHexagons : function(g) {
+
+		_createHexagons : function(g, data) {
 			var that = this;
-	
-			// Generate the mapped version of the data
-			var data = that._data.map(function(d) {
-				var geo = that.options.geo(d);
-				var lng = that.options.lng(geo);
-				var lat = that.options.lat(geo);
-	
-				return that._project([lng, lat]);
-			});
-	
+
 			// Create the bins using the hexbin layout
 			var bins = that._hexLayout(data);
 			that._colorScale.domain([0, bins.reduce(function(val, element){
@@ -162,40 +164,33 @@
 			return [ point.x, point.y ];
 		},
 
-		_translateBounds : function(bounds) {
-			var nw = this._project([ bounds[0][0], bounds[1][1] ]), 
-				se = this._project([ bounds[1][0], bounds[0][1] ]);
-			return L.bounds(nw, se);
-		},
-
 		_getBounds: function(data){
 			var that = this;
 
 			if(null == data || data.length < 1){
-				return [[0, 0], [0, 0]];
+				return { min: [0,0], max: [0,0]};
 			}
 
 			// bounds is [[min long, min lat], [max long, max lat]]
 			var bounds = [[999, 999], [-999, -999]];
 
 			data.forEach(function(element){
-				var geo = that.options.geo(element);
-				var lng = that.options.lng(geo);
-				var lat = that.options.lat(geo);
+				var x = element.point[0];
+				var y = element.point[1];
 
-				bounds[0][0] = Math.min(bounds[0][0], lng);
-				bounds[0][1] = Math.min(bounds[0][1], lat);
-				bounds[1][0] = Math.max(bounds[1][0], lng);
-				bounds[1][1] = Math.max(bounds[1][1], lat);
+				bounds[0][0] = Math.min(bounds[0][0], x);
+				bounds[0][1] = Math.min(bounds[0][1], y);
+				bounds[1][0] = Math.max(bounds[1][0], x);
+				bounds[1][1] = Math.max(bounds[1][1], y);
 			});
 
-			return bounds;
+			return { min: bounds[0], max: bounds[1] };
 		},
 
 		/* 
 		 * This is the method that changes the data array
 		 */
-		update : function(data){
+		data : function(data){
 			this._data = (null != data)? data : [];
 			this._redraw();
 		}

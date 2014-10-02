@@ -33,7 +33,6 @@
 			map = new L.Map('map', {layers: [osm], center: new L.LatLng(center[0], center[1]), zoom: 7});
 
 		var hexLayer = L.hexbinLayer({}).addTo(map);
-		hexLayer.update([]);
 
 		var latFn = d3.random.normal(center[0], 1);
 		var longFn = d3.random.normal(center[1], 1);
@@ -41,11 +40,9 @@
 		function generateData(){
 			var data = [];
 			for(i=0; i<1000; i++){
-				data.push({ geo: 
-					[longFn(),  latFn()]
-				});
+				data.push([longFn(),  latFn()]);
 			}
-			hexLayer.update(data);
+			hexLayer.data(data);
 		};
 	</script>
 </body>
