@@ -30,7 +30,9 @@
 				.y(function(d){ return d.point[1]; });
 
 			this._data = [];
-			this._colorScale = d3.scale.linear().range(this.options.colorRange);
+			this._colorScale = d3.scale.linear()
+				.range(this.options.colorRange)
+				.clamp(true);
 		},
 
 		onAdd : function(map) {
@@ -203,11 +205,25 @@
 		},
 
 		/* 
-		 * This is the method that changes the data array
+		 * Setter for the data
 		 */
-		data : function(data){
+		data : function(data) {
 			this._data = (null != data)? data : [];
 			this._redraw();
+			return this;
+		},
+
+		/*
+		 * Getter/setter for the colorScale
+		 */
+		colorScale: function(colorScale) {
+			if(undefined === colorScale){
+				return this._colorScale;
+			}
+
+			this._colorScale = colorScale;
+			this._redraw();
+			return this;
 		}
 
 	});

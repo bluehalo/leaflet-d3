@@ -204,13 +204,9 @@
 		},
 
 		/* 
-		 * Getter/setter for the data
+		 * Setter for the data
 		 */
 		data : function(data) {
-			if(undefined === data){
-				return this._data;
-			}
-
 			this._data = (null != data)? data : [];
 			this._redraw();
 			return this;

@@ -18,11 +18,18 @@ var options = {
 	value: function(d){ return d.length; },	// value accessor function for deriving the value of the bin
 	valueFloor: 0,							// the low value of the domain for the color scale
 	valueCeil: undefined,					// the high value of the domain for the color scale
-	colorRange: ['#f7fbff', '#08306b']	// range of colors for the heatmap
+	colorRange: ['#f7fbff', '#08306b']		// the default range of colors for the heat map
 };
 
+// Create the hexbin layer and add it to the map
 var hexLayer = L.hexbinLayer(options).addTo(map);
+
+// Optionally, access the d3 color scale directly and modify it (can also be used to set the color scale)
+hexLayer.colorScale().range('white', 'blue');
+
+// Set the data (can be set multiple times)
 hexLayer.data([[lng1, lat1], [lng2, lat2], ... [lngN, latN]]);
+
 ```
 
 ## How do I include this plugin in my project?

@@ -45,10 +45,11 @@
 				return d.length;
 			},
 			valueFloor: 0,
-			valueCeil: undefined,
-			colorRange: ['#f7fbff', '#08306b']
+			valueCeil: undefined
 		};
-		var hexLayer = L.hexbinLayer(options).addTo(map);
+		var hexLayer = L.hexbinLayer(options).addTo(map)
+		hexLayer.colorScale().range(['white', 'blue']);
+		hexLayer.data([[center[1], center[0]]]);
 
 		var latFn = d3.random.normal(center[0], 1);
 		var longFn = d3.random.normal(center[1], 1);
@@ -61,7 +62,6 @@
 			hexLayer.data(data);
 		};
 
-		generateData();
 	</script>
 </body>
 </html>
