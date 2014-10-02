@@ -223,6 +223,19 @@
 			this._colorScale = colorScale;
 			this._redraw();
 			return this;
+		},
+
+		/*
+		 * Getter/Setter for the value function
+		 */
+		value: function(valueFn){
+			if(undefined === valueFn){
+				return this.options.value;
+			}
+
+			this.options.value = valueFn;
+			this._redraw();
+			return this;
 		}
 
 	});
