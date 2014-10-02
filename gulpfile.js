@@ -21,14 +21,14 @@ gulp.task('js', function(){
 		.pipe(plugins.jshint.reporter('jshint-stylish'))
 
 		// Concatenate
-		.pipe(plugins.concat('leaflet-hexbin.js'))
+		.pipe(plugins.concat(p.name + '.js'))
 		.pipe(plugins.insert.prepend(banner))
 		.pipe(gulp.dest('dist'))
 		.pipe(plugins.filesize())
 
 		// Uglify
 		.pipe(plugins.uglify())
-		.pipe(plugins.rename('leaflet-hexbin.min.js'))
+		.pipe(plugins.rename(p.name + '.min.js'))
 		.pipe(plugins.insert.prepend(banner))
 		.pipe(gulp.dest('dist'))
 		.pipe(plugins.filesize())

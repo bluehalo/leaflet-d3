@@ -1,8 +1,9 @@
-/*! leaflet-hexbin.js Version: 0.1.0 */
+/*! leaflet-hexbin.js Version: 0.1.1 */
 (function(){
 	"use strict";
 
 	L.HexbinLayer = L.Class.extend({
+		includes: [L.Mixin.Events],
 
 		options : {
 			radius : 10,

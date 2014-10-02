@@ -2,6 +2,7 @@
 	"use strict";
 
 	L.HexbinLayer = L.Class.extend({
+		includes: [L.Mixin.Events],
 
 		options : {
 			radius : 10,
