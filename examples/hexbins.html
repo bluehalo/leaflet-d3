@@ -32,7 +32,23 @@
 			osm = L.tileLayer(osmUrl, {maxZoom: 18, attribution: osmAttrib});
 			map = new L.Map('map', {layers: [osm], center: new L.LatLng(center[0], center[1]), zoom: 7});
 
-		var hexLayer = L.hexbinLayer({}).addTo(map);
+		var options = {
+			radius : 12,
+			opacity: 0.5,
+			lng: function(d){
+				return d[0];
+			},
+			lat: function(d){
+				return d[1];
+			},
+			value: function(d){
+				return d.length;
+			},
+			valueFloor: 0,
+			valueCeil: undefined,
+			colorRange: ['#f7fbff', '#08306b']
+		};
+		var hexLayer = L.hexbinLayer(options).addTo(map);
 
 		var latFn = d3.random.normal(center[0], 1);
 		var longFn = d3.random.normal(center[1], 1);
@@ -44,6 +60,8 @@
 			}
 			hexLayer.data(data);
 		};
+
+		generateData();
 	</script>
 </body>
 </html>

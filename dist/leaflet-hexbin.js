@@ -13,6 +13,11 @@
 			lat: function(d){
 				return d[1];
 			},
+			value: function(d){
+				return d.length;
+			},
+			valueFloor: 0,
+			valueCeil: undefined,
 			colorRange: ['#f7fbff', '#08306b']
 		},
 
@@ -135,10 +140,19 @@
 
 			// Create the bins using the hexbin layout
 			var bins = that._hexLayout(data);
-			that._colorScale.domain([0, bins.reduce(function(val, element){
-				return Math.max(val, element.length);
-			}, 0)]);
-	
+
+			// Determine the extent of the values
+			var extent = d3.extent(bins, function(d){
+				return that.options.value(d);
+			});
+			if(null == extent[0]) extent[0] = 0;
+			if(null == extent[1]) extent[1] = 0;
+			if(null != that.options.valueFloor) extent[0] = that.options.valueFloor;
+			if(null != that.options.valueCeil) extent[1] = that.options.valueCeil;
+
+			// Set the colorscale domain to be the extent (after we muck with it a bit)
+			that._colorScale.domain(extent);
+
 			// Update the d3 visualization
 			var join = g.selectAll('path.hexbin-hexagon')
 				.data(bins, function(d){ return d.i + ':' + d.j; });

@@ -9,16 +9,20 @@ This is a Leaflet plugin that enables you to place a d3.js hexbin heatmap overla
 To use, simply declare a hexbin layer and add it to your map. You can then add data to the layer.
 
 ```js
+// Options for the hexbin layer
 var options = {
-	radius : 10,
-	opacity: 0.5,
-	lng: function(d){ return d[0]; },
-	lat: function(d){ return d[1]; },
-	colorRange: ['#f7fbff', '#08306b']
+	radius : 10,							// Sets the size of the hexagons/bins
+	opacity: 0.5,							// Sets the opacity of the hexagonal layer
+	lng: function(d){ return d[0]; },		// longitude accessor function
+	lat: function(d){ return d[1]; },		// latitude accessor function
+	value: function(d){ return d.length; },	// value accessor function for deriving the value of the bin
+	valueFloor: 0,							// the low value of the domain for the color scale
+	valueCeil: undefined,					// the high value of the domain for the color scale
+	colorRange: ['#f7fbff', '#08306b']	// range of colors for the heatmap
 };
 
 var hexLayer = L.hexbinLayer(options).addTo(map);
-hexLayer.update([[lng1, lat1], [lng2, lat2], ... [lngN, latN]]);
+hexLayer.data([[lng1, lat1], [lng2, lat2], ... [lngN, latN]]);
 ```
 
 ## How do I include this plugin in my project?
