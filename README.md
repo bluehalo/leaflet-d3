@@ -11,20 +11,21 @@ To use, simply declare a hexbin layer and add it to your map. You can then add d
 ```js
 // Options for the hexbin layer
 var options = {
-	radius : 10,							// Sets the size of the hexagons/bins
-	opacity: 0.5,							// Sets the opacity of the hexagonal layer
-	lng: function(d){ return d[0]; },		// longitude accessor function
-	lat: function(d){ return d[1]; },		// latitude accessor function
-	value: function(d){ return d.length; },	// value accessor function for deriving the value of the bin
-	valueFloor: 0,							// the low value of the domain for the color scale
-	valueCeil: undefined,					// the high value of the domain for the color scale
-	colorRange: ['#f7fbff', '#08306b']		// the default range of colors for the heat map
+	radius : 10,							// Size of the hexagons/bins
+	opacity: 0.5,							// Opacity of the hexagonal layer
+	lng: function(d){ return d[0]; },		// longitude accessor
+	lat: function(d){ return d[1]; },		// latitude accessor
+	value: function(d){ return d.length; },	// value accessor - derives the bin value
+	valueFloor: 0,							// override the color scale domain low value
+	valueCeil: undefined,					// override the color scale domain high value
+	colorRange: ['#f7fbff', '#08306b']		// default color range for the heat map
 };
 
 // Create the hexbin layer and add it to the map
 var hexLayer = L.hexbinLayer(options).addTo(map);
 
-// Optionally, access the d3 color scale directly and modify it (can also be used to set the color scale)
+// Optionally, access the d3 color scale directly
+// Can also set scale via hexLayer.colorScale(d3.scale.linear()...)
 hexLayer.colorScale().range('white', 'blue');
 
 // Set the data (can be set multiple times)
