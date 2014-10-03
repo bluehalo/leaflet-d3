@@ -18,3 +18,6 @@ node_modules
 
 # Bower modules
 src/lib
+
+# Distribution folder
+dist
