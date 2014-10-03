@@ -12,6 +12,7 @@ node_modules
 
 # project files
 .project
+.idea
 
 # Mac OS
 .DS_Store
