@@ -44,10 +44,11 @@ Alternatively, you can download the source or minified javascript files yourself
 
 Alter-alternatively, you can clone this repo and build it yourself.
 
-You will also need to install the dependencies, which include [d3.js](http://www.d3js.org) and [leaflet.js](http://leafletjs.com/).
+You will also need to install the dependencies, which include [d3.js](http://www.d3js.org), [d3-plugins](https://github.com/d3/d3-plugins), and [leaflet.js](http://leafletjs.com/).
 
 ```bash
 bower install -S d3
+bower install -S d3-plugins
 bower install -S leaflet
 ```
 
