@@ -33,6 +33,8 @@ hexLayer.data([[lng1, lat1], [lng2, lat2], ... [lngN, latN]]);
 
 ```
 
+If you would like to use this plugin with the [Angular Leaflet Directive](https://github.com/tombatossals/angular-leaflet-directive), use the [Angular Directive Extension project](https://github.com/Asymmetrik/angular-leaflet-directive-ext)
+
 ## How do I include this plugin in my project?
 The easiest way to include this plugin in your project, use [Bower](http://bower.io)
 
