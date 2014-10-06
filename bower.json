@@ -16,6 +16,7 @@
     ".travis.yml",
     ".bowerrc",
     ".jshintrc",
+    ".csslintrc",
     ".project",
     "gulpfile.js",
     "package.json",
