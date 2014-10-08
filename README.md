@@ -33,7 +33,7 @@ hexLayer.data([[lng1, lat1], [lng2, lat2], ... [lngN, latN]]);
 
 ```
 
-If you would like to use this plugin with the [Angular Leaflet Directive](https://github.com/tombatossals/angular-leaflet-directive), use the [Angular Directive Extension project](https://github.com/Asymmetrik/angular-leaflet-directive-ext)
+If you would like to use this plugin with the [Angular Leaflet Directive](https://github.com/tombatossals/angular-leaflet-directive), use the [Angular Leaflet Directive Extension ](https://github.com/Asymmetrik/angular-leaflet-directive-ext) project
 
 ## How do I include this plugin in my project?
 The easiest way to include this plugin in your project, use [Bower](http://bower.io)
@@ -72,7 +72,7 @@ gulp
 ```
 
 ## Credits
-This plugin was based on [the work of Steven Hall](http://www.delimited.io/blog/2013/12/1/hexbins-with-d3-and-leaflet-maps).
+This plugin was based on [the work of Steven Hall](http://www.delimited.io/blog/2013/12/1/hexbins-with-d3-and-leaflet-maps). Check out his other awesome work at [Delimited](http://www.delimited.io/)
 
 [travis-url]: https://travis-ci.org/Asymmetrik/leaflet-hexbin/
 [travis-image]: https://travis-ci.org/Asymmetrik/leaflet-hexbin.svg
