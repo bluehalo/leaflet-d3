@@ -11,6 +11,7 @@ pids
 node_modules
 
 # project files
+.settings
 .project
 .idea
 
