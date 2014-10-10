@@ -1,12 +1,12 @@
 {
-  "name": "leaflet-hexbin",
+  "name": "leaflet-d3",
   "version": "0.1.1",
   "authors": [
     "reblace <reblace@gmail.com>"
   ],
-  "main": "leaflet-hexbin.js",
+  "main": "leaflet-d3.js",
   "scripts": [
-    "leaflet-hexbin.js"
+    "leaflet-d3.js"
   ],
   "license": "MIT",
   "ignore": [

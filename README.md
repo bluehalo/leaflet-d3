@@ -1,11 +1,13 @@
-# Leaflet D3 Hexbin Plugin
+# Leaflet D3 Plugin
 
 [![Build Status][travis-image]][travis-url]
 
 ## What is it?
-This is a Leaflet plugin that enables you to place a d3.js hexbin heatmap overlay onto your maps. This plugin is based on [the work of Steven Hall](http://www.delimited.io/blog/2013/12/1/hexbins-with-d3-and-leaflet-maps). The primary difference is that this plugin leverages the data-binding power of d3 to allow you to dynamically update the data and visualize the transitions.
+A collection of Leaflet plugins that enable you to leverage various d3.js visualizations directly on Leaflet maps. If you would like to use these plugins with the [Angular Leaflet Directive](https://github.com/tombatossals/angular-leaflet-directive), use the [Angular Leaflet Directive Extension ](https://github.com/Asymmetrik/angular-leaflet-directive-ext) project.
 
-## How do I use it?
+## Hexbins
+Create dynamic hexbin-based heatmaps on Leaflet maps. This plugin is based on [the work of Steven Hall](http://www.delimited.io/blog/2013/12/1/hexbins-with-d3-and-leaflet-maps). The primary difference is that this plugin leverages the data-binding power of d3 to allow you to dynamically update the data and visualize the transitions.
+
 To use, simply declare a hexbin layer and add it to your map. You can then add data to the layer.
 
 ```js
@@ -33,13 +35,11 @@ hexLayer.data([[lng1, lat1], [lng2, lat2], ... [lngN, latN]]);
 
 ```
 
-If you would like to use this plugin with the [Angular Leaflet Directive](https://github.com/tombatossals/angular-leaflet-directive), use the [Angular Leaflet Directive Extension ](https://github.com/Asymmetrik/angular-leaflet-directive-ext) project
-
 ## How do I include this plugin in my project?
 The easiest way to include this plugin in your project, use [Bower](http://bower.io)
 
 ```bash
-bower install -S leaflet-hexbin
+bower install -S leaflet-d3
 ```
 
 Alternatively, you can download the source or minified javascript files yourself from the GitHub repository (they are contained in the dist directory).
@@ -72,7 +72,11 @@ gulp
 ```
 
 ## Credits
-This plugin was based on [the work of Steven Hall](http://www.delimited.io/blog/2013/12/1/hexbins-with-d3-and-leaflet-maps). Check out his other awesome work at [Delimited](http://www.delimited.io/)
+The hexbin portion of this plugin was based on [the work of Steven Hall](http://www.delimited.io/blog/2013/12/1/hexbins-with-d3-and-leaflet-maps). Check out his other awesome work at [Delimited](http://www.delimited.io/)
 
-[travis-url]: https://travis-ci.org/Asymmetrik/leaflet-hexbin/
-[travis-image]: https://travis-ci.org/Asymmetrik/leaflet-hexbin.svg
+d3.js was created by the legendary [Mike Bostock](https://github.com/mbostock).
+
+[Leaflet](http://leafletjs.com/) is maintained by [lots of cool people](https://github.com/Leaflet/Leaflet/graphs/contributors).
+
+[travis-url]: https://travis-ci.org/Asymmetrik/leaflet-d3/
+[travis-image]: https://travis-ci.org/Asymmetrik/leaflet-d3.svg
