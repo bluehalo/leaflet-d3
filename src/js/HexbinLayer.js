@@ -1,6 +1,7 @@
 (function(){
 	"use strict";
 
+  // L is defined by the Leaflet library, see git://github.com/Leaflet/Leaflet.git for documentation
 	L.HexbinLayer = L.Class.extend({
 		includes: [L.Mixin.Events],
 
