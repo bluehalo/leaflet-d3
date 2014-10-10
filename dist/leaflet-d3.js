@@ -1,4 +1,4 @@
-/*! leaflet-d3.js Version: 0.1.0 */
+/*! leaflet-d3.js Version: 0.1.2 */
 (function(){
 	"use strict";
 
