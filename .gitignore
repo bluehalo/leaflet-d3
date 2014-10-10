@@ -12,9 +12,13 @@ node_modules
 
 # project files
 .project
+.idea
 
 # Mac OS
 .DS_Store
 
 # Bower modules
 src/lib
+
+# Distribution folder
+dist
