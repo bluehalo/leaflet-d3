@@ -9,6 +9,7 @@ A collection of Leaflet plugins that enable you to leverage various d3.js visual
 Create dynamic hexbin-based heatmaps on Leaflet maps. This plugin is based on [the work of Steven Hall](http://www.delimited.io/blog/2013/12/1/hexbins-with-d3-and-leaflet-maps). The primary difference is that this plugin leverages the data-binding power of d3 to allow you to dynamically update the data and visualize the transitions.
 
 <img src="https://cloud.githubusercontent.com/assets/480701/4594707/d995541a-5091-11e4-9955-5938b1cb977a.png" alt="map with hexbins"/>
+[Live Demo](http://jsfiddle.net/mut7pbqp/embedded/result/)
 
 To use, simply declare a hexbin layer and add it to your map. You can then add data to the layer.
 
