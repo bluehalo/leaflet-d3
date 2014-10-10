@@ -21,4 +21,4 @@ node_modules
 src/lib
 
 # Distribution folder
-dist
+# dist -- Keep the dist folder intact for bower dependency management
