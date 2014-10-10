@@ -46,6 +46,11 @@ Alternatively, you can download the source or minified javascript files yourself
 
 Alter-alternatively, you can clone this repo and build it yourself.
 
+Then, you can just include the src javascript file in your project.
+```html
+<script src="../dist/leaflet-d3.js" charset="utf-8"></script>
+```
+
 You will also need to install the dependencies, which include [d3.js](http://www.d3js.org), [d3-plugins](https://github.com/d3/d3-plugins), and [leaflet.js](http://leafletjs.com/).
 
 ```bash
@@ -53,7 +58,6 @@ bower install -S d3
 bower install -S d3-plugins
 bower install -S leaflet
 ```
-
 
 ## How do I build this project?
 There are several tools you will need to install to build this project:
