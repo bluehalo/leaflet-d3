@@ -12,7 +12,7 @@
 			lat: function(d){
 				return d[1];
 			},
-			duration: 500
+			duration: 800
 		},
 
 		initialize : function(options) {
