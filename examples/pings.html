@@ -1,27 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Leaflet d3 HexBin Layer</title>
+	<title>Leaflet d3 Ping Layer</title>
 
 	<link rel="stylesheet" href="../src/lib/leaflet/dist/leaflet.css" />
 
 	<script src="../src/lib/d3/d3.js" charset="utf-8"></script>
-	<script src="../src/lib/d3-plugins/hexbin/hexbin.js" charset="utf-8"></script>
 	<script src="../src/lib/leaflet/dist/leaflet-src.js"></script>
 
 	<script src="../dist/leaflet-d3.js" charset="utf-8"></script>
 
 <style>
-	.hexbin-hexagon {
-		stroke: #000;
-		stroke-width: .5px;
+	circle.ping {
+		stroke: #eee;
+		fill: #666;
 	}
 </style>
 
 </head>
 <body>
 	<div id="map" style="width: 600px; height: 400px; border: 1px solid #ccc"></div>
-	<button onclick="generateData()">Generate Data</button>
 
 	<script>
 
@@ -33,34 +31,25 @@
 			map = new L.Map('map', {layers: [osm], center: new L.LatLng(center[0], center[1]), zoom: 7});
 
 		var options = {
-			radius : 12,
-			opacity: 0.5,
 			lng: function(d){
 				return d[0];
 			},
 			lat: function(d){
 				return d[1];
-			},
-			value: function(d){
-				return d.length;
-			},
-			valueFloor: 0,
-			valueCeil: undefined
+			}
 		};
-		var hexLayer = L.hexbinLayer(options).addTo(map)
-		hexLayer.colorScale().range(['white', 'blue']);
-		hexLayer.data([[center[1], center[0]]]);
+		var pingLayer = L.pingLayer(options).addTo(map);
+		pingLayer.radiusScale().range([3, 15]);
+		pingLayer.opacityScale().range([1, 0]);
 
 		var latFn = d3.random.normal(center[0], 1);
 		var longFn = d3.random.normal(center[1], 1);
 
-		function generateData(){
-			var data = [];
-			for(i=0; i<1000; i++){
-				data.push([longFn(),  latFn()]);
-			}
-			hexLayer.data(data);
+		var update = function(){
+			pingLayer.ping([latFn(), longFn()]);
+			window.setTimeout(update, 100 + Math.random()*400);
 		};
+		window.setTimeout(update);
 
 	</script>
 </body>
