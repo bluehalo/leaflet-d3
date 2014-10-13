@@ -293,13 +293,13 @@
 				return !that._running;
 			};
 
-			this._radiusScale = d3.scale.linear()
+			this._radiusScale = d3.scale.pow().exponent(0.35)
 				.domain([0, this.options.duration])
 				.range([3, 15])
 				.clamp(true);
 			this._opacityScale = d3.scale.linear()
-				.range([1, 0])
 				.domain([0, this.options.duration])
+				.range([1, 0])
 				.clamp(true);
 		},
 
@@ -311,6 +311,7 @@
 
 			// Create a container for svg.
 			this._container = this._initContainer();
+			this._updateContainer();
 
 			// Set up events
 			map.on({'moveend': this._refreshPoints}, this);
@@ -345,6 +346,13 @@
 			return container;
 		},
 
+		_updateContainer : function() {
+			var width = this._map._size.x;
+			var height = this._map._size.y;
+
+			this._container.attr('width', width).attr('height', height);
+		},
+
 		_destroyContainer: function() {
 			// Remove the svg element
 			if(null != this._container){
@@ -376,7 +384,7 @@
 				x: point.x, y: point.y,
 				ts: Date.now()
 			};
-			circle.c = this._container.append('circle')
+			circle.c = this._container.append('circle').attr('class', 'ping')
 				.attr('cx', circle.x)
 				.attr('cy', circle.y)
 				.attr('r', this.radiusScale().range()[0]);

@@ -12,8 +12,8 @@
 
 <style>
 	circle.ping {
-		stroke: #eee;
-		fill: #666;
+		stroke: #222;
+		fill: red;
 	}
 </style>
 
@@ -36,10 +36,11 @@
 			},
 			lat: function(d){
 				return d[1];
-			}
+			},
+			duration: 800
 		};
 		var pingLayer = L.pingLayer(options).addTo(map);
-		pingLayer.radiusScale().range([3, 15]);
+		pingLayer.radiusScale().range([2, 18]);
 		pingLayer.opacityScale().range([1, 0]);
 
 		var latFn = d3.random.normal(center[0], 1);
