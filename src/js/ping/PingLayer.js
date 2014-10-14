@@ -33,7 +33,8 @@
 						d.c.remove();
 						that._data.splice(i, 1);
 					} else {
-						d.c.attr('r', that.radiusScale()(age)).attr('opacity', that.opacityScale()(age));
+						d.c.attr('r', that.radiusScale()(age))
+							.attr('opacity', that.opacityScale()(age));
 					}
 				}
 
