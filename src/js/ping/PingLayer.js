@@ -63,14 +63,14 @@
 			this._updateContainer();
 
 			// Set up events
-			map.on({'moveend': this._refreshPoints}, this);
+			map.on({'move': this._move}, this);
 		},
 
 		onRemove : function(map) {
 			this._destroyContainer();
 
 			// Remove events
-			map.off({'moveend': this._refreshPoints}, this);
+			map.off({'move': this._move}, this);
 
 			this._container = null;
 			this._map = null;
@@ -96,10 +96,12 @@
 		},
 
 		_updateContainer : function() {
-			var width = this._map._size.x;
-			var height = this._map._size.y;
+			var bounds = this._mapBounds();
 
-			this._container.attr('width', width).attr('height', height);
+			this._container
+				.attr('width', bounds.width).attr('height', bounds.height)
+				.style('margin-left', bounds.left + 'px')
+				.style('margin-top', bounds.top + 'px');
 		},
 
 		_destroyContainer: function() {
@@ -109,8 +111,24 @@
 			}
 		},
 
-		// Refresh the locations of the points after zoom/pan
-		_refreshPoints : function() {
+		_mapBounds: function(){
+			var latLongBounds = this._map.getBounds();
+			var ne = this._map.latLngToLayerPoint(latLongBounds.getNorthEast());
+			var sw = this._map.latLngToLayerPoint(latLongBounds.getSouthWest());
+
+			var bounds = {
+				width: ne.x - sw.x,
+				height: sw.y - ne.y,
+				left: sw.x,
+				top: ne.y
+			};
+
+			return bounds;
+		},
+
+		// Update the map based on zoom/pan/move
+		_move : function() {
+			this._updateContainer();
 		},
 
 		// Main update loop
@@ -126,11 +144,12 @@
 			// Derive the spatial data
 			var geo = [this.options.lng(data), this.options.lat(data)];
 			var point = this._map.latLngToLayerPoint(geo);
+			var mapBounds = this._mapBounds();
 
 			// Add the data to the list of pings
 			var circle = {
 				geo: geo,
-				x: point.x, y: point.y,
+				x: point.x - mapBounds.left, y: point.y - mapBounds.top,
 				ts: Date.now()
 			};
 			circle.c = this._container.append('circle').attr('class', 'ping')
