@@ -43,14 +43,14 @@
 		pingLayer.radiusScale().range([2, 18]);
 		pingLayer.opacityScale().range([1, 0]);
 
-		//var latFn = d3.random.normal(center[0], 1);
-		//var longFn = d3.random.normal(center[1], 1);
+		var latFn = d3.random.normal(center[0], 1);
+		var longFn = d3.random.normal(center[1], 1);
 
-		var latFn = function(){ return center[0]; };
-		var longFn = function(){ return center[1]; };
+		//var latFn = function(){ return center[0]; };
+		//var longFn = function(){ return center[1]; };
 
 		var update = function(){
-			pingLayer.ping([latFn(), longFn()]);
+			pingLayer.ping([longFn(), latFn()]);
 			window.setTimeout(update, 100 + Math.random()*400);
 		};
 		window.setTimeout(update);

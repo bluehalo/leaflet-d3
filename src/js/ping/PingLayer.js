@@ -143,7 +143,7 @@
 			if(null == this._data) this._data = [];
 
 			// Derive the spatial data
-			var geo = [this.options.lng(data), this.options.lat(data)];
+			var geo = [this.options.lat(data), this.options.lng(data)];
 			var point = this._map.latLngToLayerPoint(geo);
 			var mapBounds = this._mapBounds();
 
