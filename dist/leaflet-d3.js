@@ -1,4 +1,4 @@
-/*! leaflet-d3.js Version: 0.2.2 */
+/*! leaflet-d3.js Version: 0.2.3 */
 (function(){
 	"use strict";
 
@@ -9,6 +9,7 @@
 		options : {
 			radius : 10,
 			opacity: 0.5,
+			duration: 200,
 			lng: function(d){
 				return d[0];
 			},
@@ -161,7 +162,7 @@
 			var join = g.selectAll('path.hexbin-hexagon')
 				.data(bins, function(d){ return d.i + ':' + d.j; });
 
-			join.transition().duration(200)
+			join.transition().duration(that.options.duration)
 				.attr('fill', function(d){ return that._colorScale(d.length); });
 	
 			join.enter().append('path').attr('class', 'hexbin-hexagon')
@@ -170,10 +171,10 @@
 				})
 				.attr('fill', function(d){ return that._colorScale(d.length); })
 				.attr('opacity', 0.01)
-				.transition().duration(200)
+				.transition().duration(that.options.duration)
 				.attr('opacity', that.options.opacity);
 	
-			join.exit().transition().duration(200)
+			join.exit().transition().duration(that.options.duration)
 				.attr('opacity', 0.01)
 				.remove();
 		},
