@@ -46,9 +46,6 @@
 		var latFn = d3.random.normal(center[0], 1);
 		var longFn = d3.random.normal(center[1], 1);
 
-		//var latFn = function(){ return center[0]; };
-		//var longFn = function(){ return center[1]; };
-
 		var update = function(){
 			pingLayer.ping([longFn(), latFn()]);
 			window.setTimeout(update, 100 + Math.random()*400);

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Leaflet d3 HexBin Layer - Continuous Modification</title>
+
+	<link rel="stylesheet" href="../../src/lib/leaflet/dist/leaflet.css" />
+
+	<script src="../../src/lib/d3/d3.js" charset="utf-8"></script>
+	<script src="../../src/lib/d3-plugins/hexbin/hexbin.js" charset="utf-8"></script>
+	<script src="../../src/lib/leaflet/dist/leaflet-src.js"></script>
+
+	<script src="../../dist/leaflet-d3.js" charset="utf-8"></script>
+
+<style>
+	.hexbin-hexagon {
+		stroke: #000;
+		stroke-width: .5px;
+	}
+</style>
+
+</head>
+<body>
+	<h2>Leaflet d3 Hexbin Example</h2>
+	<p>Demonstrates continuously changing data</p>
+
+	<!-- The map element -->
+	<div id="map" style="width: 600px; height: 400px; border: 1px solid #ccc"></div>
+	<button onclick="togglePlay()">Pause</button>
+
+	<script>
+
+		// Lat/Long coordinates of the Washington DC/Baltimore Metro area
+		var center = [38.991709, -76.886109];
+
+		// Setup for the map
+		var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+			osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+			osm = L.tileLayer(osmUrl, {maxZoom: 18, attribution: osmAttrib});
+
+		// Create the map
+		var map = new L.Map('map', {layers: [osm], center: new L.LatLng(center[0], center[1]), zoom: 7});
+
+
+		// Options for the Hexbin
+		var options = {
+
+			// Size of the hexagons
+			radius : 12,
+
+			// Default opacity of the hexagons
+			opacity: 0.5,
+
+			// Transition duration for animations
+			duration: 50,
+
+			// Accessor functions for lat/long
+			lng: function(d){
+				return d[0];
+			},
+			lat: function(d){
+				return d[1];
+			},
+
+			// Value accessor function for deriving the color of the hexagons
+			value: function(d){
+				return d.length;
+			},
+
+			// Override the extent of the value domain
+			valueFloor: undefined,
+			valueCeil: undefined
+		};
+
+		// Create the hexlayer
+		var hexLayer = L.hexbinLayer(options).addTo(map);
+
+		// Set the colorScale range - colorScale() returns a reference to the scale used to map the color of each hexbin
+		hexLayer.colorScale().range(['white', 'blue']);
+
+
+		// Random data generators
+		var latFn = d3.random.normal(center[0], 1);
+		var longFn = d3.random.normal(center[1], 1);
+
+		var data = [];
+		var paused = false;
+		setInterval(function() {
+			if(!paused){
+
+				// Modify the data array
+				data.push([longFn(), latFn()]);
+				if(data.length > 50){
+					data.shift();
+				}
+
+				// Pass the updated data array to the hexlayer
+				hexLayer.data(data);
+			}
+		}, 100);
+
+
+		function togglePlay(){
+			paused = !paused;
+			d3.select('button').text((paused)? 'Play' : 'Pause')
+		}
+	</script>
+</body>
+</html>
+

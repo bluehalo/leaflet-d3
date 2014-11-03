@@ -18,7 +18,7 @@
 			value: function(d){
 				return d.length;
 			},
-			valueFloor: 0,
+			valueFloor: undefined,
 			valueCeil: undefined,
 			colorRange: ['#f7fbff', '#08306b']
 		},
@@ -35,6 +35,7 @@
 			this._colorScale = d3.scale.linear()
 				.range(this.options.colorRange)
 				.clamp(true);
+
 		},
 
 		onAdd : function(map) {
@@ -157,25 +158,28 @@
 			// Set the colorscale domain to be the extent (after we muck with it a bit)
 			that._colorScale.domain(extent);
 
-			// Update the d3 visualization
+			// Join - Join the Hexagons to the data
 			var join = g.selectAll('path.hexbin-hexagon')
 				.data(bins, function(d){ return d.i + ':' + d.j; });
 
+			// Update - set the fill and opacity on a transition (opacity is re-applied in case the enter transition was cancelled)
 			join.transition().duration(that.options.duration)
-				.attr('fill', function(d){ return that._colorScale(d.length); });
+				.attr('fill', function(d){ return that._colorScale(d.length); })
+				.attr('opacity', that.options.opacity);
 	
+			// Enter - establish the path, the fill, and the initial opacity
 			join.enter().append('path').attr('class', 'hexbin-hexagon')
-				.attr('d', function(d){
-					return 'M' + d.x + ',' + d.y + that._hexLayout.hexagon();
-				})
+				.attr('d', function(d){ return 'M' + d.x + ',' + d.y + that._hexLayout.hexagon(); })
 				.attr('fill', function(d){ return that._colorScale(d.length); })
 				.attr('opacity', 0.01)
 				.transition().duration(that.options.duration)
-				.attr('opacity', that.options.opacity);
-	
+					.attr('opacity', that.options.opacity);
+
+			// Exit
 			join.exit().transition().duration(that.options.duration)
 				.attr('opacity', 0.01)
 				.remove();
+
 		},
 
 		_project : function(coord) {
