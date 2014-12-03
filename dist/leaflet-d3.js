@@ -1,4 +1,4 @@
-/*! leaflet-d3.js Version: 0.2.4 */
+/*! leaflet-d3.js Version: 0.2.5 */
 (function(){
 	"use strict";
 
@@ -165,13 +165,13 @@
 
 			// Update - set the fill and opacity on a transition (opacity is re-applied in case the enter transition was cancelled)
 			join.transition().duration(that.options.duration)
-				.attr('fill', function(d){ return that._colorScale(d.length); })
+				.attr('fill', function(d){ return that._colorScale(that.options.value(d)); })
 				.attr('opacity', that.options.opacity);
 	
 			// Enter - establish the path, the fill, and the initial opacity
 			join.enter().append('path').attr('class', 'hexbin-hexagon')
 				.attr('d', function(d){ return 'M' + d.x + ',' + d.y + that._hexLayout.hexagon(); })
-				.attr('fill', function(d){ return that._colorScale(d.length); })
+				.attr('fill', function(d){ return that._colorScale(that.options.value(d)); })
 				.attr('opacity', 0.01)
 				.transition().duration(that.options.duration)
 					.attr('opacity', that.options.opacity);
