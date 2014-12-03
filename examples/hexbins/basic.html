@@ -62,12 +62,10 @@
 			},
 
 			// Value accessor function for deriving the color of the hexagons
-			value: function(d){
-				return d.length;
-			},
+			value: function(d){ return d.length; },
 
 			// Override the extent of the value domain
-			valueFloor: 0,
+			valueFloor: undefined,
 			valueCeil: undefined
 		};
 
