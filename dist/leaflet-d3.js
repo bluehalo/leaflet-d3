@@ -1,4 +1,4 @@
-/*! leaflet-d3.js Version: 0.2.5 */
+/*! leaflet-d3.js Version: 0.2.6 */
 (function(){
 	"use strict";
 
@@ -268,6 +268,10 @@
 			lat: function(d){
 				return d[1];
 			},
+			efficient: {
+				enabled: false,
+				fps: 8
+			},
 			duration: 800
 		},
 
@@ -276,7 +280,7 @@
 
 			var that = this;
 
-			that._update = function(){
+			that._update = function() {
 				var nowTs = Date.now();
 				if(null == that._data) that._data = [];
 
@@ -286,11 +290,24 @@
 					var age = nowTs - d.ts;
 
 					if(that.options.duration < age){
+						// If the blip is beyond it's life, remove it from the list of blips
 						d.c.remove();
 						that._data.splice(i, 1);
+
 					} else {
-						d.c.attr('r', that.radiusScale()(age))
-							.attr('opacity', that.opacityScale()(age));
+
+						// If the blip is still alive, process it
+						if(that.options.efficient.enabled) {
+							if(d.nts < nowTs) {
+								d.c.attr('r', that.radiusScale()(age))
+									.attr('opacity', that.opacityScale()(age));
+								d.nts = nowTs + 1000/that.options.efficient.fps;
+							}
+						} else {
+							d.c.attr('r', that.radiusScale()(age))
+								.attr('opacity', that.opacityScale()(age));
+						}
+
 					}
 				}
 
@@ -407,7 +424,8 @@
 			var circle = {
 				geo: geo,
 				x: point.x - mapBounds.left, y: point.y - mapBounds.top,
-				ts: Date.now()
+				ts: Date.now(),
+				nts: 0
 			};
 			circle.c = this._container.append('circle').attr('class', 'ping')
 				.attr('cx', circle.x)

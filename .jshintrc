@@ -5,6 +5,7 @@
 
 	"globals": {
 		"L": true,
-		"d3": true
+		"d3": true,
+		"console": true
 	}
 }

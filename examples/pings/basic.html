@@ -3,12 +3,12 @@
 <head>
 	<title>Leaflet d3 Ping Layer</title>
 
-	<link rel="stylesheet" href="../src/lib/leaflet/dist/leaflet.css" />
+	<link rel="stylesheet" href="../../src/lib/leaflet/dist/leaflet.css" />
 
-	<script src="../src/lib/d3/d3.js" charset="utf-8"></script>
-	<script src="../src/lib/leaflet/dist/leaflet-src.js"></script>
+	<script src="../../src/lib/d3/d3.js" charset="utf-8"></script>
+	<script src="../../src/lib/leaflet/dist/leaflet-src.js"></script>
 
-	<script src="../dist/leaflet-d3.js" charset="utf-8"></script>
+	<script src="../../dist/leaflet-d3.js" charset="utf-8"></script>
 
 <style>
 	circle.ping {
@@ -37,7 +37,7 @@
 			lat: function(d){
 				return d[1];
 			},
-			duration: 800
+			duration: 1000
 		};
 		var pingLayer = L.pingLayer(options).addTo(map);
 		pingLayer.radiusScale().range([2, 18]);
@@ -48,7 +48,7 @@
 
 		var update = function(){
 			pingLayer.ping([longFn(), latFn()]);
-			window.setTimeout(update, 100 + Math.random()*400);
+			window.setTimeout(update, 100 + Math.random()*300);
 		};
 		window.setTimeout(update);
 
