@@ -53,10 +53,18 @@ To use, simply declare a ping layer and add it to your map. You can then add dat
 
 ```js
 // Options for the ping layer
+// lat & lng - custom accessor functions for accessing the latitude and longitude of the data object
+// duration - how long the blip animation will last
+// efficient.enabled - toggles 'efficient mode'
+// efficient.fps - establishes the target framerate (rate of DOM updates for each individual object) when running in efficient mode
 var options = {
 	lng: function(d){ return d[0]; },
 	lat: function(d){ return d[1]; },
-	duration: 800
+	duration: 800,
+	efficient: {
+		enabled: false,
+		fps: 8
+	}
 };
 
 // Create the ping layer
