@@ -411,7 +411,9 @@
 		/*
 		 * Method by which to "add" pings
 		 */
-		ping : function(data) {
+		ping : function(data, className) {
+
+            className = className || 'ping';
 			// Lazy init the data array
 			if(null == this._data) this._data = [];
 
@@ -427,7 +429,7 @@
 				ts: Date.now(),
 				nts: 0
 			};
-			circle.c = this._container.append('circle').attr('class', 'ping')
+			circle.c = this._container.append('circle').attr('class', className)
 				.attr('cx', circle.x)
 				.attr('cy', circle.y)
 				.attr('r', this.radiusScale().range()[0]);

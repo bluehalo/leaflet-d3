@@ -5,7 +5,7 @@
 	L.PingLayer = L.Class.extend({
 		includes: [L.Mixin.Events],
 
-		options : {
+		options: {
 			lng: function(d){
 				return d[0];
 			},
@@ -19,7 +19,7 @@
 			duration: 800
 		},
 
-		initialize : function(options) {
+		initialize: function(options) {
 			L.setOptions(this, options);
 
 			var that = this;
@@ -70,7 +70,7 @@
 				.clamp(true);
 		},
 
-		onAdd : function(map) {
+		onAdd: function(map) {
 			this._map = map;
 
 			// Init the state of the simulation
@@ -84,7 +84,7 @@
 			map.on({'move': this._move}, this);
 		},
 
-		onRemove : function(map) {
+		onRemove: function(map) {
 			this._destroyContainer();
 
 			// Remove events
@@ -95,12 +95,12 @@
 			this._data = null;
 		},
 
-		addTo : function(map) {
+		addTo: function(map) {
 			map.addLayer(this);
 			return this;
 		},
 
-		_initContainer : function() {
+		_initContainer: function() {
 			var container = null;
 
 			// If the container is null or the overlay pane is empty, create the svg element for drawing
@@ -113,7 +113,7 @@
 			return container;
 		},
 
-		_updateContainer : function() {
+		_updateContainer: function() {
 			var bounds = this._mapBounds();
 
 			this._container
@@ -145,17 +145,19 @@
 		},
 
 		// Update the map based on zoom/pan/move
-		_move : function() {
+		_move: function() {
 			this._updateContainer();
 		},
 
 		// Main update loop
-		_update : undefined,
+		_update: undefined,
 
 		/*
 		 * Method by which to "add" pings
 		 */
-		ping : function(data) {
+		ping: function(data, className) {
+
+            className = className || 'ping';
 			// Lazy init the data array
 			if(null == this._data) this._data = [];
 
@@ -171,7 +173,7 @@
 				ts: Date.now(),
 				nts: 0
 			};
-			circle.c = this._container.append('circle').attr('class', 'ping')
+			circle.c = this._container.append('circle').attr('class', className)
 				.attr('cx', circle.x)
 				.attr('cy', circle.y)
 				.attr('r', this.radiusScale().range()[0]);
