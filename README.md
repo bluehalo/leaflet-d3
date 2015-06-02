@@ -33,7 +33,7 @@ var hexLayer = L.hexbinLayer(options).addTo(map);
 
 // Optionally, access the d3 color scale directly
 // Can also set scale via hexLayer.colorScale(d3.scale.linear()...)
-hexLayer.colorScale().range('white', 'blue');
+hexLayer.colorScale().range(['white', 'blue']);
 
 // Set the data (can be set multiple times)
 hexLayer.data([[lng1, lat1], [lng2, lat2], ... [lngN, latN]]);
