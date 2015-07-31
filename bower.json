@@ -1,12 +1,12 @@
 {
   "name": "leaflet-d3",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "authors": [
     "reblace <reblace@gmail.com>"
   ],
-  "main": "leaflet-d3.js",
+  "main": "dist/leaflet-d3.js",
   "scripts": [
-    "leaflet-d3.js"
+    "dist/leaflet-d3.js"
   ],
   "license": "MIT",
   "ignore": [
