@@ -275,7 +275,10 @@
 			duration: 800
 		},
 
-		mapBounds: undefined,
+		_lastUpdate: Date.now(),
+		_fps: 0,
+
+		_mapBounds: undefined,
 
 		/*
 		 * Public Methods
@@ -362,11 +365,17 @@
 			// Start timer if not active
 			if(!this._running && this._data.length > 0) {
 				this._running = true;
+				this._lastUpdate = Date.now();
+
 				var that = this;
 				d3.timer(function() { that._update.apply(that); });
 			}
 
 			return this;
+		},
+
+		getFps : function() {
+			return this._fps;
 		},
 
 		/*
@@ -389,8 +398,8 @@
 
 		// Update the container - Updates the dimensions of the svg pane
 		_updateContainer : function() {
-			var bounds = this._mapBounds();
-			this.mapBounds = bounds;
+			var bounds = this._getMapBounds();
+			this._mapBounds = bounds;
 
 			this._container
 				.attr('width', bounds.width).attr('height', bounds.height)
@@ -407,7 +416,7 @@
 		},
 
 		// Calculate the current map bounds
-		_mapBounds: function(){
+		_getMapBounds: function(){
 			var latLongBounds = this._map.getBounds();
 			var ne = this._map.latLngToLayerPoint(latLongBounds.getNorthEast());
 			var sw = this._map.latLngToLayerPoint(latLongBounds.getSouthWest());
@@ -435,7 +444,7 @@
 			// Derive the spatial data
 			var geo = [this.options.lat(data), this.options.lng(data)];
 			var point = this._map.latLngToLayerPoint(geo);
-			var mapBounds = this.mapBounds;
+			var mapBounds = this._mapBounds;
 
 			// Add the data to the list of pings
 			var circle = {
@@ -476,7 +485,7 @@
 					if(d.nts < nowTs) {
 						d.c.attr('r', this.radiusScale()(age))
 						   .attr('opacity', this.opacityScale()(age));
-						d.nts = nowTs + 1000/this.options.fps;
+						d.nts = Math.round(nowTs + 1000/this.options.fps);
 					}
 				}
 			}
@@ -488,6 +497,12 @@
 
 			// The return function dictates whether the timer loop will continue
 			this._running = (this._data.length > 0);
+
+			if(this._running) {
+				this._fps = 1000/(nowTs - this._lastUpdate);
+				this._lastUpdate = nowTs;
+			}
+
 			return !this._running;
 		},
 
