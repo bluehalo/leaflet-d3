@@ -7,13 +7,13 @@ var banner = '/*! ' + p.name + '.js Version: ' + p.version + ' */\n';
 
 gulp.task('default', ['build']);
 
-gulp.task('watch', function(){
+gulp.task('watch', function() {
 	gulp.watch(['src/**/*', '!/src/lib/**/*'], ['build']);
 });
 
 gulp.task('build', ['js'] );
 
-gulp.task('js', function(){
+gulp.task('js', function() {
 	return gulp.src('src/js/**/*.js')
 
 		// JS Hint
@@ -21,6 +21,7 @@ gulp.task('js', function(){
 		.pipe(plugins.jshint.reporter('jshint-stylish'))
 
 		// Concatenate
+		.pipe(plugins.sort())
 		.pipe(plugins.concat(p.name + '.js'))
 		.pipe(plugins.insert.prepend(banner))
 		.pipe(gulp.dest('dist'))

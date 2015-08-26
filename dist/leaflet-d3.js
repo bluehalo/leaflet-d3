@@ -261,6 +261,9 @@
 	L.PingLayer = L.Class.extend({
 		includes: [L.Mixin.Events],
 
+		/*
+		 * Configuration
+		 */
 		options : {
 			lng: function(d){
 				return d[0];
@@ -268,180 +271,15 @@
 			lat: function(d){
 				return d[1];
 			},
-			efficient: {
-				enabled: false,
-				fps: 8
-			},
+			fps: 8,
 			duration: 800
 		},
 
-		initialize : function(options) {
-			L.setOptions(this, options);
-
-			var that = this;
-
-			that._update = function() {
-				var nowTs = Date.now();
-				if(null == that._data) that._data = [];
-
-				// Update everything
-				for(var i=that._data.length-1; i>=0; i--) {
-					var d = that._data[i];
-					var age = nowTs - d.ts;
-
-					if(that.options.duration < age){
-						// If the blip is beyond it's life, remove it from the list of blips
-						d.c.remove();
-						that._data.splice(i, 1);
-
-					} else {
-
-						// If the blip is still alive, process it
-						if(that.options.efficient.enabled) {
-							if(d.nts < nowTs) {
-								d.c.attr('r', that.radiusScale()(age))
-									.attr('opacity', that.opacityScale()(age));
-								d.nts = nowTs + 1000/that.options.efficient.fps;
-							}
-						} else {
-							d.c.attr('r', that.radiusScale()(age))
-								.attr('opacity', that.opacityScale()(age));
-						}
-
-					}
-				}
-
-				// The return function dictates whether the timer loop will continue
-				that._running = (null != that._data && that._data.length > 0);
-				return !that._running;
-			};
-
-			this._radiusScale = d3.scale.pow().exponent(0.35)
-				.domain([0, this.options.duration])
-				.range([3, 15])
-				.clamp(true);
-			this._opacityScale = d3.scale.linear()
-				.domain([0, this.options.duration])
-				.range([1, 0])
-				.clamp(true);
-		},
-
-		onAdd : function(map) {
-			this._map = map;
-
-			// Init the state of the simulation
-			this._running = false;
-
-			// Create a container for svg.
-			this._container = this._initContainer();
-			this._updateContainer();
-
-			// Set up events
-			map.on({'move': this._move}, this);
-		},
-
-		onRemove : function(map) {
-			this._destroyContainer();
-
-			// Remove events
-			map.off({'move': this._move}, this);
-
-			this._container = null;
-			this._map = null;
-			this._data = null;
-		},
-
-		addTo : function(map) {
-			map.addLayer(this);
-			return this;
-		},
-
-		_initContainer : function() {
-			var container = null;
-
-			// If the container is null or the overlay pane is empty, create the svg element for drawing
-			if (null == this._container) {
-				var overlayPane = this._map.getPanes().overlayPane;
-				container = d3.select(overlayPane).append('svg')
-					.attr('class', 'leaflet-layer leaflet-zoom-hide');
-			}
-
-			return container;
-		},
-
-		_updateContainer : function() {
-			var bounds = this._mapBounds();
-
-			this._container
-				.attr('width', bounds.width).attr('height', bounds.height)
-				.style('margin-left', bounds.left + 'px')
-				.style('margin-top', bounds.top + 'px');
-		},
-
-		_destroyContainer: function() {
-			// Remove the svg element
-			if(null != this._container){
-				this._container.remove();
-			}
-		},
-
-		_mapBounds: function(){
-			var latLongBounds = this._map.getBounds();
-			var ne = this._map.latLngToLayerPoint(latLongBounds.getNorthEast());
-			var sw = this._map.latLngToLayerPoint(latLongBounds.getSouthWest());
-
-			var bounds = {
-				width: ne.x - sw.x,
-				height: sw.y - ne.y,
-				left: sw.x,
-				top: ne.y
-			};
-
-			return bounds;
-		},
-
-		// Update the map based on zoom/pan/move
-		_move : function() {
-			this._updateContainer();
-		},
-
-		// Main update loop
-		_update : undefined,
+		mapBounds: undefined,
 
 		/*
-		 * Method by which to "add" pings
+		 * Public Methods
 		 */
-		ping : function(data) {
-			// Lazy init the data array
-			if(null == this._data) this._data = [];
-
-			// Derive the spatial data
-			var geo = [this.options.lat(data), this.options.lng(data)];
-			var point = this._map.latLngToLayerPoint(geo);
-			var mapBounds = this._mapBounds();
-
-			// Add the data to the list of pings
-			var circle = {
-				geo: geo,
-				x: point.x - mapBounds.left, y: point.y - mapBounds.top,
-				ts: Date.now(),
-				nts: 0
-			};
-			circle.c = this._container.append('circle').attr('class', 'ping')
-				.attr('cx', circle.x)
-				.attr('cy', circle.y)
-				.attr('r', this.radiusScale().range()[0]);
-
-			this._data.push(circle);
-
-			// Start timer if not active
-			if(!this._running && this._data.length > 0){
-				this._running = true;
-				d3.timer(this._update);
-			}
-
-			return this;
-		},
 
 		/*
 		 * Getter/setter for the radius
@@ -466,6 +304,217 @@
 			this._opacityScale = opacityScale;
 			return this;
 		},
+
+		// Initialization of the plugin
+		initialize : function(options) {
+			L.setOptions(this, options);
+
+			this._radiusScale = d3.scale.pow().exponent(0.35)
+				.domain([0, this.options.duration])
+				.range([3, 15])
+				.clamp(true);
+			this._opacityScale = d3.scale.linear()
+				.domain([0, this.options.duration])
+				.range([1, 0])
+				.clamp(true);
+		},
+
+		// Called when the plugin layer is added to the map
+		onAdd : function(map) {
+			this._map = map;
+
+			// Init the state of the simulation
+			this._running = false;
+
+			// Create a container for svg.
+			this._container = this._initContainer();
+			this._updateContainer();
+
+			// Set up events
+			map.on({'move': this._move}, this);
+		},
+
+		// Called when the plugin layer is removed from the map
+		onRemove : function(map) {
+			this._destroyContainer();
+
+			// Remove events
+			map.off({'move': this._move}, this);
+
+			this._container = null;
+			this._map = null;
+			this._data = null;
+		},
+
+		// Add the layer to the map
+		addTo : function(map) {
+			map.addLayer(this);
+			return this;
+		},
+
+		/*
+		 * Method by which to "add" pings
+		 */
+		ping : function(data) {
+			this._add(data);
+			this._expire();
+
+			// Start timer if not active
+			if(!this._running && this._data.length > 0) {
+				this._running = true;
+				var that = this;
+				d3.timer(function() { that._update.apply(that); });
+			}
+
+			return this;
+		},
+
+		/*
+		 * Private Methods
+		 */
+
+		// Initialize the Container - creates the svg pane
+		_initContainer : function() {
+			var container = null;
+
+			// If the container is null or the overlay pane is empty, create the svg element for drawing
+			if (null == this._container) {
+				var overlayPane = this._map.getPanes().overlayPane;
+				container = d3.select(overlayPane).append('svg')
+					.attr('class', 'leaflet-layer leaflet-zoom-hide');
+			}
+
+			return container;
+		},
+
+		// Update the container - Updates the dimensions of the svg pane
+		_updateContainer : function() {
+			var bounds = this._mapBounds();
+			this.mapBounds = bounds;
+
+			this._container
+				.attr('width', bounds.width).attr('height', bounds.height)
+				.style('margin-left', bounds.left + 'px')
+				.style('margin-top', bounds.top + 'px');
+		},
+
+		// Cleanup the svg pane
+		_destroyContainer: function() {
+			// Remove the svg element
+			if(null != this._container){
+				this._container.remove();
+			}
+		},
+
+		// Calculate the current map bounds
+		_mapBounds: function(){
+			var latLongBounds = this._map.getBounds();
+			var ne = this._map.latLngToLayerPoint(latLongBounds.getNorthEast());
+			var sw = this._map.latLngToLayerPoint(latLongBounds.getSouthWest());
+
+			var bounds = {
+				width: ne.x - sw.x,
+				height: sw.y - ne.y,
+				left: sw.x,
+				top: ne.y
+			};
+
+			return bounds;
+		},
+
+		// Update the map based on zoom/pan/move
+		_move : function() {
+			this._updateContainer();
+		},
+
+		// Add a ping to the map
+		_add : function(data) {
+			// Lazy init the data array
+			if(null == this._data) this._data = [];
+
+			// Derive the spatial data
+			var geo = [this.options.lat(data), this.options.lng(data)];
+			var point = this._map.latLngToLayerPoint(geo);
+			var mapBounds = this.mapBounds;
+
+			// Add the data to the list of pings
+			var circle = {
+				geo: geo,
+				x: point.x - mapBounds.left, y: point.y - mapBounds.top,
+				ts: Date.now(),
+				nts: 0
+			};
+			circle.c = this._container.append('circle')
+				.attr('class', 'ping')
+				.attr('cx', circle.x)
+				.attr('cy', circle.y)
+				.attr('r', this.radiusScale().range()[0]);
+
+			// Push new circles
+			this._data.push(circle);
+		},
+
+		// Main update loop
+		_update : function() {
+			var nowTs = Date.now();
+			if(null == this._data) this._data = [];
+
+			var maxIndex = -1;
+
+			// Update everything
+			for(var i=0; i < this._data.length; i++) {
+				var d = this._data[i];
+				var age = nowTs - d.ts;
+
+				if(this.options.duration < age){
+					// If the blip is beyond it's life, remove it from the dom and track the lowest index to remove
+					d.c.remove();
+					maxIndex = i;
+				} else {
+
+					// If the blip is still alive, process it
+					if(d.nts < nowTs) {
+						d.c.attr('r', this.radiusScale()(age))
+						   .attr('opacity', this.opacityScale()(age));
+						d.nts = nowTs + 1000/this.options.fps;
+					}
+				}
+			}
+
+			// Delete all the aged off data at once
+			if(maxIndex > -1) {
+				this._data.splice(0, maxIndex + 1);
+			}
+
+			// The return function dictates whether the timer loop will continue
+			this._running = (this._data.length > 0);
+			return !this._running;
+		},
+
+		// Expire old pings
+		_expire : function() {
+			var maxIndex = -1;
+			var nowTs = Date.now();
+
+			// Search from the front of the array
+			for(var i=0; i < this._data.length; i++) {
+				var d = this._data[i];
+				var age = nowTs - d.ts;
+
+				if(this.options.duration < age) {
+					// If the blip is beyond it's life, remove it from the dom and track the lowest index to remove
+					d.c.remove();
+					maxIndex = i;
+				} else {
+					break;
+				}
+			}
+
+			// Delete all the aged off data at once
+			if(maxIndex > -1) {
+				this._data.splice(0, maxIndex + 1);
+			}
+		}
 
 	});
 

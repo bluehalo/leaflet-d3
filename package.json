@@ -9,6 +9,7 @@
     "gulp-jshint": "^1.8.5",
     "gulp-load-plugins": "^0.7.0",
     "gulp-rename": "^1.2.0",
+    "gulp-sort": "^1.1.1",
     "gulp-uglify": "^1.0.1",
     "gulp-util": "^3.0.1",
     "jshint-stylish": "^1.0.0"

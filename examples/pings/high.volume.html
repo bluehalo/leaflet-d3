@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Leaflet d3 Ping Layer</title>
+
+	<link rel="stylesheet" href="../../src/lib/leaflet/dist/leaflet.css" />
+
+	<script src="../../src/lib/d3/d3.js" charset="utf-8"></script>
+	<script src="../../src/lib/leaflet/dist/leaflet-src.js"></script>
+
+	<script src="../../dist/leaflet-d3.js" charset="utf-8"></script>
+
+<style>
+	circle.ping {
+		stroke: #222;
+		fill: red;
+	}
+</style>
+
+</head>
+<body>
+	<div id="map" style="width: 600px; height: 400px; border: 1px solid #ccc"></div>
+
+	<script>
+
+		var center = [38.991709, -76.886109];
+
+		var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+			osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+			osm = L.tileLayer(osmUrl, {maxZoom: 18, attribution: osmAttrib});
+			map = new L.Map('map', {layers: [osm], center: new L.LatLng(center[0], center[1]), zoom: 7});
+
+		var options = {
+			lng: function(d){
+				return d[0];
+			},
+			lat: function(d){
+				return d[1];
+			},
+			duration: 800,
+			fps: 4
+		};
+		var pingLayer = L.pingLayer(options).addTo(map);
+		pingLayer.radiusScale().range([2, 18]);
+		pingLayer.opacityScale().range([1, 0]);
+
+		var latFn = d3.random.normal(center[0], 1);
+		var longFn = d3.random.normal(center[1], 1);
+
+		// We are going to use a loop to make sure we can force consistent population of the map
+		// Browsers throttle setTimeout callbacks when a tab is out of focus. We want to get around that
+		// throttling so we can spam the crap out of the plugin.
+		function update() {
+			for(var i=0; i<1000; i++) {
+				pingLayer.ping([longFn(), latFn()]);
+			}
+			setTimeout(update);
+		}
+		update();
+
+	</script>
+</body>
+</html>
+
