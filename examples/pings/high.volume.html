@@ -53,7 +53,7 @@
 		// Browsers throttle setTimeout callbacks when a tab is out of focus. We want to get around that
 		// throttling so we can spam the crap out of the plugin.
 		function update() {
-			for(var i=0; i<1000; i++) {
+			for(var i=0; i<100; i++) {
 				pingLayer.ping([longFn(), latFn()]);
 				fpsField.value = pingLayer.getFps();
 			}
