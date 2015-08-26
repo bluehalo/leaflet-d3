@@ -38,11 +38,7 @@
 				return d[1];
 			},
 			duration: 800,
-			efficient: {
-				// Enabling "efficient" mode, where only efficient.fps DOM updates are made for each blip per seecond
-				enabled: true,
-				fps: 16
-			}
+			fps: 8
 		};
 		var pingLayer = L.pingLayer(options).addTo(map);
 		pingLayer.radiusScale().range([2, 18]);
