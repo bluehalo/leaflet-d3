@@ -15,7 +15,7 @@
 			lat: function(d){
 				return d[1];
 			},
-			fps: 8,
+			fps: 32,
 			duration: 800
 		},
 

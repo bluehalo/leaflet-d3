@@ -1,4 +1,4 @@
-/*! leaflet-d3.js Version: 0.3.1 */
+/*! leaflet-d3.js Version: 0.3.2 */
 (function(){
 	"use strict";
 
@@ -271,7 +271,7 @@
 			lat: function(d){
 				return d[1];
 			},
-			fps: 8,
+			fps: 32,
 			duration: 800
 		},
 

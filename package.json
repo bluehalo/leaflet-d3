@@ -1,17 +1,17 @@
 {
   "name": "leaflet-d3",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "devDependencies": {
-    "gulp": "^3.8.8",
-    "gulp-concat": "^2.4.1",
-    "gulp-filesize": "0.0.6",
-    "gulp-insert": "^0.4.0",
-    "gulp-jshint": "^1.8.5",
-    "gulp-load-plugins": "^0.7.0",
-    "gulp-rename": "^1.2.0",
-    "gulp-sort": "^1.1.1",
-    "gulp-uglify": "^1.0.1",
-    "gulp-util": "^3.0.1",
-    "jshint-stylish": "^1.0.0"
+    "gulp": "^3.8",
+    "gulp-concat": "^2.4",
+    "gulp-filesize": "0.0",
+    "gulp-insert": "^0.4",
+    "gulp-jshint": "^1.8",
+    "gulp-load-plugins": "^0.7",
+    "gulp-rename": "^1.2",
+    "gulp-sort": "^1.1",
+    "gulp-uglify": "^1.0",
+    "gulp-util": "^3.0",
+    "jshint-stylish": "^1.0"
   }
 }
