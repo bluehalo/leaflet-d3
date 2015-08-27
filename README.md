@@ -61,10 +61,7 @@ var options = {
 	lng: function(d){ return d[0]; },
 	lat: function(d){ return d[1]; },
 	duration: 800,
-	efficient: {
-		enabled: false,
-		fps: 8
-	}
+	fps: 32
 };
 
 // Create the ping layer
