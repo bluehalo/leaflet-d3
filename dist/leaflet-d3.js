@@ -404,8 +404,8 @@
 		/*
 		 * Method by which to "add" pings
 		 */
-		ping : function(data) {
-			this._add(data);
+		ping : function(data, cssClass) {
+			this._add(data, cssClass);
 			this._expire();
 
 			// Start timer if not active
@@ -478,12 +478,12 @@
 		},
 
 		// Update the map based on zoom/pan/move
-		_move : function() {
+		_move: function() {
 			this._updateContainer();
 		},
 
 		// Add a ping to the map
-		_add : function(data) {
+		_add : function(data, cssClass) {
 			// Lazy init the data array
 			if(null == this._data) this._data = [];
 
@@ -500,7 +500,7 @@
 				nts: 0
 			};
 			circle.c = this._container.append('circle')
-				.attr('class', 'ping')
+				.attr('class', (null != cssClass)? 'ping ' + cssClass : 'ping')
 				.attr('cx', circle.x)
 				.attr('cy', circle.y)
 				.attr('r', this.radiusScale().range()[0]);

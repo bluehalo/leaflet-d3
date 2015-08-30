@@ -25,7 +25,10 @@ var options = {
 	value: function(d){ return d.length; },	// value accessor - derives the bin value
 	valueFloor: 0,							// override the color scale domain low value
 	valueCeil: undefined,					// override the color scale domain high value
-	colorRange: ['#f7fbff', '#08306b']		// default color range for the heat map
+	colorRange: ['#f7fbff', '#08306b']		// default color range for the heat map,
+	onmouseover: function(d, node, layer) {},
+	onmouseout: function(d, node, layer) {},
+	onclick: function(d, node, layer) {}
 };
 
 // Create the hexbin layer and add it to the map
@@ -71,8 +74,8 @@ var pingLayer = L.pingLayer(options).addTo(map);
 pingLayer.radiusScale().range([2, 18]);
 pingLayer.opacityScale().range([1, 0]);
 
-// Submit data so that it shows up as a ping
-pingLayer.ping([longFn(), latFn()]);
+// Submit data so that it shows up as a ping with an optional per-ping css class
+pingLayer.ping([longFn(), latFn()], 'myCustomCssClass');
 
 ```
 
