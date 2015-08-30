@@ -112,7 +112,7 @@
 				this._lastUpdate = Date.now();
 
 				var that = this;
-				d3.timer(function() { that._update.apply(that); });
+				d3.timer(function() { return that._update.apply(that); });
 			}
 
 			return this;
@@ -120,6 +120,10 @@
 
 		getFps : function() {
 			return this._fps;
+		},
+
+		getCount : function() {
+			return this._data.length;
 		},
 
 		/*

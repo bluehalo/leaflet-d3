@@ -20,6 +20,7 @@
 </head>
 <body>
 	fps: <input id="fps" type="text" /><br/>
+	count: <input id="count" type="text" /><br/>
 	<div id="map" style="width: 600px; height: 400px; border: 1px solid #ccc"></div>
 
 	<script>
@@ -47,15 +48,17 @@
 
 		var latFn = d3.random.normal(center[0], 1);
 		var longFn = d3.random.normal(center[1], 1);
-		var fpsField = document.getElementById("fps");
+		var fpsField = document.getElementById('fps');
+		var count = document.getElementById('count');
 
 		// We are going to use a loop to make sure we can force consistent population of the map
 		// Browsers throttle setTimeout callbacks when a tab is out of focus. We want to get around that
 		// throttling so we can spam the crap out of the plugin.
 		function update() {
-			for(var i=0; i<100; i++) {
+			for(var i=0; i<10; i++) {
 				pingLayer.ping([longFn(), latFn()]);
 				fpsField.value = pingLayer.getFps();
+				count.value = pingLayer.getCount();
 			}
 			setTimeout(update);
 		}
