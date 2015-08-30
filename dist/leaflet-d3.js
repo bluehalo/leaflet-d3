@@ -1,4 +1,4 @@
-/*! leaflet-d3.js Version: 0.3.4 */
+/*! leaflet-d3.js Version: 0.3.5 */
 (function(){
 	"use strict";
 
@@ -64,7 +64,9 @@
 
 			this._container = null;
 			this._map = null;
-			this._data = null;
+
+			// Explicitly will leave the data array alone in case the layer will be shown again
+			//this._data = [];
 		},
 
 		addTo : function(map) {

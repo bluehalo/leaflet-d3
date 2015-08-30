@@ -63,7 +63,9 @@
 
 			this._container = null;
 			this._map = null;
-			this._data = [];
+
+			// Explicitly will leave the data array alone in case the layer will be shown again
+			//this._data = [];
 		},
 
 		addTo : function(map) {
