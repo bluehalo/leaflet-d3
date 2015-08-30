@@ -63,7 +63,7 @@
 
 			this._container = null;
 			this._map = null;
-			this._data = null;
+			this._data = [];
 		},
 
 		addTo : function(map) {
