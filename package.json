@@ -1,6 +1,6 @@
 {
   "name": "leaflet-d3",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "devDependencies": {
     "gulp": "^3.8",
     "gulp-concat": "^2.4",

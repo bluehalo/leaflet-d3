@@ -20,7 +20,11 @@
 			},
 			valueFloor: undefined,
 			valueCeil: undefined,
-			colorRange: ['#f7fbff', '#08306b']
+			colorRange: ['#f7fbff', '#08306b'],
+
+			onmouseover: undefined,
+			onmouseout: undefined,
+			click: undefined
 		},
 
 		initialize : function(options) {
@@ -172,6 +176,21 @@
 				.attr('d', function(d){ return 'M' + d.x + ',' + d.y + that._hexLayout.hexagon(); })
 				.attr('fill', function(d){ return that._colorScale(that.options.value(d)); })
 				.attr('opacity', 0.01)
+				.on('mouseover', function(d, i) {
+					if(null != that.options.onmouseover) {
+						that.options.onmouseover(d, this, that);
+					}
+				})
+				.on('mouseout', function(d, i) {
+					if(null != that.options.onmouseout) {
+						that.options.onmouseout(d, this, that);
+					}
+				})
+				.on('click', function(d, i) {
+					if(null != that.options.onclick) {
+						that.options.onclick(d, this, that);
+					}
+				})
 				.transition().duration(that.options.duration)
 					.attr('opacity', that.options.opacity);
 
@@ -235,12 +254,39 @@
 		/*
 		 * Getter/Setter for the value function
 		 */
-		value: function(valueFn){
+		value: function(valueFn) {
 			if(undefined === valueFn){
 				return this.options.value;
 			}
 
 			this.options.value = valueFn;
+			this._redraw();
+			return this;
+		},
+
+		/*
+		 * Getter/setter for the mouseover function
+		 */
+		onmouseover: function(mouseoverFn) {
+			this.options.onmouseover = mouseoverFn;
+			this._redraw();
+			return this;
+		},
+
+		/*
+		 * Getter/setter for the mouseout function
+		 */
+		onmouseout: function(mouseoutFn) {
+			this.options.onmouseout = mouseoutFn;
+			this._redraw();
+			return this;
+		},
+
+		/*
+		 * Getter/setter for the click function
+		 */
+		onclick: function(clickFn) {
+			this.options.onclick = clickFn;
 			this._redraw();
 			return this;
 		}

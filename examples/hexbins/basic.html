@@ -66,7 +66,17 @@
 
 			// Override the extent of the value domain
 			valueFloor: undefined,
-			valueCeil: undefined
+			valueCeil: undefined,
+
+			onmouseover: function(d, node, layer) {
+				console.log('mouseover: ' + d.length);
+			},
+			onmouseout: function(d, node, layer) {
+				console.log('mouseout: ' + d.length);
+			},
+			onclick: function(d, node, layer) {
+				console.log('click: ' + d.length);
+			}
 		};
 
 		// Create the hexlayer
