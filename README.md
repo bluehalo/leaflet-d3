@@ -25,7 +25,7 @@ var options = {
 	value: function(d){ return d.length; },	// value accessor - derives the bin value
 	valueFloor: 0,							// override the color scale domain low value
 	valueCeil: undefined,					// override the color scale domain high value
-	colorRange: ['#f7fbff', '#08306b']		// default color range for the heat map,
+	colorRange: ['#f7fbff', '#08306b'],		// default color range for the heat map
 	onmouseover: function(d, node, layer) {},
 	onmouseout: function(d, node, layer) {},
 	onclick: function(d, node, layer) {}
