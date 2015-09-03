@@ -407,19 +407,19 @@
 		 * Method by which to "add" pings
 		 */
 		ping : function(data, cssClass) {
-			this._add(data, cssClass);
-			this._expire();
+			var that = this;
+			that._add(data, cssClass);
+			that._expire();
 
 			// Start timer if not active
-			if(!this._running && this._data.getLength() > 0) {
-				this._running = true;
-				this._lastUpdate = Date.now();
+			if(!that._running && that._data.getLength() > 0) {
+				that._running = true;
+				that._lastUpdate = Date.now();
 
-				var that = this;
 				d3.timer(function() { return that._update.apply(that); });
 			}
 
-			return this;
+			return that;
 		},
 
 		getFps : function() {
@@ -490,10 +490,12 @@
 
 		// Add a ping to the map
 		_add : function(data, cssClass) {
+			var that = this;
+
 			// Derive the spatial data
-			var geo = [this.options.lat(data), this.options.lng(data)];
-			var point = this._map.latLngToLayerPoint(geo);
-			var mapBounds = this._mapBounds;
+			var geo = [that.options.lat(data), that.options.lng(data)];
+			var point = that._map.latLngToLayerPoint(geo);
+			var mapBounds = that._mapBounds;
 
 			// Add the data to the list of pings
 			var circle = {
@@ -502,27 +504,28 @@
 				ts: Date.now(),
 				nts: 0
 			};
-			circle.c = this._container.append('circle')
+			circle.c = that._container.append('circle')
 				.attr('class', (null != cssClass)? 'ping ' + cssClass : 'ping')
 				.attr('cx', circle.x)
 				.attr('cy', circle.y)
-				.attr('r', this.radiusScale().range()[0]);
+				.attr('r', that.radiusScale().range()[0]);
 
 			// Push new circles
-			this._data.push(circle);
+			that._data.push(circle);
 		},
 
 		// Main update loop
 		_update : function() {
+			var that = this;
+
 			var nowTs = Date.now();
 			var maxIndex = -1;
 
 			// Update everything
-			for(var i=0; i < this._data.getLength(); i++) {
-				var d = this._data.get(i);
+			that._data.forEach(function(d, i) {
 				var age = nowTs - d.ts;
 
-				if(this.options.duration < age){
+				if(that.options.duration < age){
 					// If the blip is beyond it's life, remove it from the dom and track the lowest index to remove
 					d.c.remove();
 					maxIndex = i;
@@ -530,51 +533,53 @@
 
 					// If the blip is still alive, process it
 					if(d.nts < nowTs) {
-						d.c.attr('r', this.radiusScale()(age))
-						   .attr('opacity', this.opacityScale()(age));
-						d.nts = Math.round(nowTs + 1000/this.options.fps);
+						d.c.attr('r', that.radiusScale()(age))
+						   .attr('opacity', that.opacityScale()(age));
+						d.nts = Math.round(nowTs + 1000/that.options.fps);
 					}
 				}
-			}
+			});
 
 			// Delete all the aged off data at once
 			if(maxIndex > -1) {
-				this._data.splice(0, maxIndex + 1);
+				that._data.splice(0, maxIndex + 1);
 			}
 
 			// The return function dictates whether the timer loop will continue
-			this._running = (this._data.getLength() > 0);
+			that._running = (that._data.getLength() > 0);
 
-			if(this._running) {
-				this._fps = 1000/(nowTs - this._lastUpdate);
-				this._lastUpdate = nowTs;
+			if(that._running) {
+				that._fps = 1000/(nowTs - that._lastUpdate);
+				that._lastUpdate = nowTs;
 			}
 
-			return !this._running;
+			return !that._running;
 		},
 
 		// Expire old pings
 		_expire : function() {
+			var that = this;
+
 			var maxIndex = -1;
 			var nowTs = Date.now();
 
 			// Search from the front of the array
-			for(var i=0; i < this._data.getLength(); i++) {
-				var d = this._data.get(i);
+			that._data.some(function(d, i) {
 				var age = nowTs - d.ts;
 
-				if(this.options.duration < age) {
+				if(that.options.duration < age) {
 					// If the blip is beyond it's life, remove it from the dom and track the lowest index to remove
 					d.c.remove();
 					maxIndex = i;
+					return false;
 				} else {
-					break;
+					return true;
 				}
-			}
+			});
 
 			// Delete all the aged off data at once
 			if(maxIndex > -1) {
-				this._data.splice(0, maxIndex + 1);
+				that._data.splice(0, maxIndex + 1);
 			}
 		}
 
