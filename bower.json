@@ -28,7 +28,8 @@
   ],
   "dependencies": {
     "d3": "~3.5",
+    "d3-plugins": "*",
     "leaflet": "~0.7.3",
-    "d3-plugins": "*"
+    "sentio-data-js": "~0.0"
   }
 }

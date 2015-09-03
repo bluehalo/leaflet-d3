@@ -5,6 +5,7 @@
 
 	"globals": {
 		"L": true,
+		"sentio": true,
 		"d3": true,
 		"console": true
 	}

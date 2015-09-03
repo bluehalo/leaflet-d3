@@ -6,6 +6,7 @@
 	<link rel="stylesheet" href="../../src/lib/leaflet/dist/leaflet.css" />
 
 	<script src="../../src/lib/d3/d3.js" charset="utf-8"></script>
+	<script src="../../src/lib/sentio-data-js/dist/sentio-data.js" charset="utf-8"></script>
 	<script src="../../src/lib/leaflet/dist/leaflet-src.js"></script>
 
 	<script src="../../dist/leaflet-d3.js" charset="utf-8"></script>
@@ -55,7 +56,7 @@
 		// Browsers throttle setTimeout callbacks when a tab is out of focus. We want to get around that
 		// throttling so we can spam the crap out of the plugin.
 		function update() {
-			for(var i=0; i<10; i++) {
+			for(var i=0; i<50; i++) {
 				pingLayer.ping([longFn(), latFn()]);
 				fpsField.value = pingLayer.getFps();
 				count.value = pingLayer.getCount();

@@ -23,6 +23,7 @@
 		_fps: 0,
 
 		_mapBounds: undefined,
+		_data: sentio.data.cachedLinkedList(),
 
 		/*
 		 * Public Methods
@@ -90,7 +91,6 @@
 
 			this._container = null;
 			this._map = null;
-			this._data = null;
 		},
 
 		// Add the layer to the map
@@ -107,7 +107,7 @@
 			this._expire();
 
 			// Start timer if not active
-			if(!this._running && this._data.length > 0) {
+			if(!this._running && this._data.getLength() > 0) {
 				this._running = true;
 				this._lastUpdate = Date.now();
 
@@ -123,7 +123,7 @@
 		},
 
 		getCount : function() {
-			return this._data.length;
+			return this._data.getLength();
 		},
 
 		/*
@@ -186,9 +186,6 @@
 
 		// Add a ping to the map
 		_add : function(data, cssClass) {
-			// Lazy init the data array
-			if(null == this._data) this._data = [];
-
 			// Derive the spatial data
 			var geo = [this.options.lat(data), this.options.lng(data)];
 			var point = this._map.latLngToLayerPoint(geo);
@@ -214,13 +211,11 @@
 		// Main update loop
 		_update : function() {
 			var nowTs = Date.now();
-			if(null == this._data) this._data = [];
-
 			var maxIndex = -1;
 
 			// Update everything
-			for(var i=0; i < this._data.length; i++) {
-				var d = this._data[i];
+			for(var i=0; i < this._data.getLength(); i++) {
+				var d = this._data.get(i);
 				var age = nowTs - d.ts;
 
 				if(this.options.duration < age){
@@ -244,7 +239,7 @@
 			}
 
 			// The return function dictates whether the timer loop will continue
-			this._running = (this._data.length > 0);
+			this._running = (this._data.getLength() > 0);
 
 			if(this._running) {
 				this._fps = 1000/(nowTs - this._lastUpdate);
@@ -260,8 +255,8 @@
 			var nowTs = Date.now();
 
 			// Search from the front of the array
-			for(var i=0; i < this._data.length; i++) {
-				var d = this._data[i];
+			for(var i=0; i < this._data.getLength(); i++) {
+				var d = this._data.get(i);
 				var age = nowTs - d.ts;
 
 				if(this.options.duration < age) {
