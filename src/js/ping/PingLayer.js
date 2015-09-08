@@ -232,7 +232,8 @@
 					// If the blip is still alive, process it
 					if(d.nts < nowTs) {
 						d.c.attr('r', this.radiusScale()(age))
-						   .attr('opacity', this.opacityScale()(age));
+						   .attr('fill-opacity', this.opacityScale()(age))
+						   .attr('stroke-opacity', this.opacityScale()(age));
 						d.nts = Math.round(nowTs + 1000/this.options.fps);
 					}
 				}

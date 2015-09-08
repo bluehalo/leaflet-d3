@@ -172,13 +172,15 @@
 			// Update - set the fill and opacity on a transition (opacity is re-applied in case the enter transition was cancelled)
 			join.transition().duration(that.options.duration)
 				.attr('fill', function(d){ return that._colorScale(that.options.value(d)); })
-				.attr('opacity', that.options.opacity);
+				.attr('fill-opacity', that.options.opacity)
+				.attr('stroke-opacity', that.options.opacity);
 	
 			// Enter - establish the path, the fill, and the initial opacity
 			join.enter().append('path').attr('class', 'hexbin-hexagon')
 				.attr('d', function(d){ return 'M' + d.x + ',' + d.y + that._hexLayout.hexagon(); })
 				.attr('fill', function(d){ return that._colorScale(that.options.value(d)); })
-				.attr('opacity', 0.01)
+				.attr('fill-opacity', 0.01)
+				.attr('stroke-opacity', 0.01)
 				.on('mouseover', function(d, i) {
 					if(null != that.options.onmouseover) {
 						that.options.onmouseover(d, this, that);
@@ -195,11 +197,13 @@
 					}
 				})
 				.transition().duration(that.options.duration)
-					.attr('opacity', that.options.opacity);
+					.attr('fill-opacity', that.options.opacity)
+					.attr('stroke-opacity', that.options.opacity);
 
 			// Exit
 			join.exit().transition().duration(that.options.duration)
-				.attr('opacity', 0.01)
+				.attr('fill-opacity', 0.01)
+				.attr('stroke-opacity', 0.01)
 				.remove();
 
 		},
@@ -536,7 +540,8 @@
 					// If the blip is still alive, process it
 					if(d.nts < nowTs) {
 						d.c.attr('r', this.radiusScale()(age))
-						   .attr('opacity', this.opacityScale()(age));
+						   .attr('fill-opacity', this.opacityScale()(age))
+						   .attr('stroke-opacity', this.opacityScale()(age));
 						d.nts = Math.round(nowTs + 1000/this.options.fps);
 					}
 				}

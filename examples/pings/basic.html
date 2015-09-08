@@ -11,14 +11,14 @@
 	<script src="../../dist/leaflet-d3.js" charset="utf-8"></script>
 
 <style>
-	circle.ping {
+	circle.red {
 		stroke: #222;
 		fill: red;
 	}
-    circle.test {
-        stroke: #00ff00;
-        fill: #00ff00;
-    }
+	circle.blue {
+		stroke: #222;
+		fill: steelblue;
+	}
 </style>
 
 </head>
@@ -51,8 +51,8 @@
 		var longFn = d3.random.normal(center[1], 1);
 
 		var update = function(){
-            // Randomly change the pingLayer class:
-            (Math.random() * 2 > 1) ? pingLayer.ping([longFn(), latFn()]) : pingLayer.ping([longFn(), latFn()], 'test');
+			// Randomly change the pingLayer class:
+			pingLayer.ping([longFn(), latFn()], (Math.random() > 0.5)? 'red' : 'blue');
 			window.setTimeout(update, 100 + Math.random()*300);
 		};
 		window.setTimeout(update);
