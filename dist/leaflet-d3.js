@@ -241,7 +241,7 @@
 
 		_linearlySpace: function(from, to, length){
 			var arr = new Array(length);
-			var step = (to - from) / (length - 1);
+			var step = (to - from) / Math.max(length - 1, 1);
 
 			for (var i = 0; i < length; ++i) {
 				arr[i] = from + (i * step);
