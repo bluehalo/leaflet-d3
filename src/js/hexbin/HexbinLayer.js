@@ -161,8 +161,11 @@
 			if(null != that.options.valueFloor) extent[0] = that.options.valueFloor;
 			if(null != that.options.valueCeil) extent[1] = that.options.valueCeil;
 
-			// Set the colorscale domain to be the extent (after we muck with it a bit)
-			that._colorScale.domain(extent);
+			// Match the domain cardinality to that of the color range, to allow for a polylinear scale
+			var domain = that._linearlySpace(extent[0], extent[1], that._colorScale.range().length);
+
+			// Set the colorscale domain
+			that._colorScale.domain(domain);
 
 			// Join - Join the Hexagons to the data
 			var join = g.selectAll('path.hexbin-hexagon')
@@ -233,6 +236,17 @@
 			});
 
 			return { min: bounds[0], max: bounds[1] };
+		},
+
+		_linearlySpace: function(from, to, length){
+			var arr = new Array(length);
+			var step = (to - from) / Math.max(length - 1, 1);
+
+			for (var i = 0; i < length; ++i) {
+				arr[i] = from + (i * step);
+			}
+
+			return arr;
 		},
 
 		/* 
