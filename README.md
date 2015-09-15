@@ -25,7 +25,7 @@ var options = {
 	value: function(d){ return d.length; },	// value accessor - derives the bin value
 	valueFloor: 0,							// override the color scale domain low value
 	valueCeil: undefined,					// override the color scale domain high value
-	colorRange: ['#f7fbff', '#08306b'],		// default color range for the heat map (list more than two colors to use a polylinear color scale)
+	colorRange: ['#f7fbff', '#08306b'],		// default color range for the heat map (see note below)
 	onmouseover: function(d, node, layer) {},
 	onmouseout: function(d, node, layer) {},
 	onclick: function(d, node, layer) {}
@@ -44,6 +44,8 @@ hexLayer.data([[lng1, lat1], [lng2, lat2], ... [lngN, latN]]);
 ```
 
 Special note regarding transition durations: If your data is transforming faster than the transition duration, you may encounter unexpected behavior. You should reduce the transition duration or eliminate it entirely if you are going to be using this plugin in a realtime manner.
+
+Special note regarding color scales: To use a polylinear color scale, simply provide more than two colors in the range. The domain cardinality will be adjusted automatically. A minimum of two values is required in the color range, but a single-color range is possible by using `['blue', 'blue']` for example.
 
 ### Pings
 Create realtime animated drops/pings/blips on a map. This plugin can be used to indicate a transient event, such as a real-time occurrance of an event at a specific geographical location.
