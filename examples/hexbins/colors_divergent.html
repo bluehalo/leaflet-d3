@@ -16,18 +16,36 @@
 		stroke: #000;
 		stroke-width: .5px;
 	}
+	.color-tile {
+		float: left; width: 14px; height: 14px;
+	}
+	.description {
+		margin-left: 20px;
+		font: 14px sans-serif;
+	}
 </style>
 
 </head>
 <body>
 	<h2>Leaflet d3 Hexbin Example With Divergent Color Scale</h2>
-	<p>red = lowest hexbin value<br/>red-orange to orange-yellow = less than half of highest hexbin value<br/>yellow = half of highest hexbin value<br/>yellow-green to green-blue = more than half of highest hexbin value<br />blue = highest hexbin value</p>
+	<div class="legend"></div>
+	<br/>
 
 	<!-- The map element -->
 	<div id="map" style="width: 600px; height: 400px; border: 1px solid #ccc"></div>
 	<button onclick="generateData()">Generate Data</button>
 
 	<script>
+
+		// Make a reusable color scale array
+		var colorRange = ['red', 'yellow', 'blue'];
+
+		// Create the legend to illustrate the color scale being divergent
+		var legendEntries = [ '0% - lowest value', '25%', '50%', '75%', '100% - max value' ];
+		var colorScale = d3.scale.linear().domain([0, 2, 4]).range(colorRange);
+		var legend = d3.select('.legend').selectAll('.legend-entry').data(legendEntries).enter().append('div').attr('class', 'legend-entry');
+		legend.append('div').attr('class', 'color-tile').style('background-color', function(d, i) { return colorScale(i); });
+		legend.append('div').attr('class', 'description').text(function(d) { return d; });
 
 		// Lat/Long coordinates of the Washington DC/Baltimore Metro area
 		var center = [38.991709, -76.886109];
@@ -84,7 +102,7 @@
 
 		// Set the colorScale range
 		// Domain automatically becomes a linearly spaced array based on the number of colors in the range - for example, if the extent of the domain is [1, 10], then the domain would be [1, 5.5, 10] if there are three colors in the range
-		hexLayer.colorScale().range(['red', 'yellow', 'blue']);
+		hexLayer.colorScale().range(colorRange);
 
 
 		// Random data generators
