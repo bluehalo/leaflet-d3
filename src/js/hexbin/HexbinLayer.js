@@ -10,18 +10,18 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		radius : 10,
 		opacity: 0.5,
 		duration: 200,
-		lng: function(d){
+		lng: function(d) {
 			return d[0];
 		},
-		lat: function(d){
+		lat: function(d) {
 			return d[1];
 		},
-		value: function(d){
+		value: function(d) {
 			return d.length;
 		},
 		valueFloor: undefined,
 		valueCeil: undefined,
-		colorRange: ['#f7fbff', '#08306b'],
+		colorRange: [ '#f7fbff', '#08306b' ],
 
 		onmouseover: undefined,
 		onmouseout: undefined,
@@ -99,7 +99,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 			var lng = that.options.lng(d);
 			var lat = that.options.lat(d);
 
-			var point = that._project([lng, lat]);
+			var point = that._project([ lng, lat ]);
 			return { o: d, point: point };
 		});
 
@@ -122,7 +122,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		// Select the hex group for the current zoom level. This has
 		// the effect of recreating the group if the zoom level has changed
 		var join = this._container.selectAll('g.hexbin')
-			.data([zoom], function(d) { return d; });
+			.data([ zoom ], function(d) { return d; });
 
 		// enter
 		var enter = join.enter().append('g')
@@ -147,7 +147,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		var bins = that._hexLayout(data);
 
 		// Determine the extent of the values
-		var extent = d3.extent(bins, function(d){
+		var extent = d3.extent(bins, function(d) {
 			return that.options.value(d);
 		});
 		if (null == extent[0]) extent[0] = 0;
@@ -210,15 +210,15 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		return [ point.x, point.y ];
 	},
 
-	_getBounds: function(data){
-		if(null == data || data.length < 1){
-			return { min: [0,0], max: [0,0]};
+	_getBounds: function(data) {
+		if(null == data || data.length < 1) {
+			return { min: [ 0, 0 ], max: [ 0, 0 ]};
 		}
 
 		// bounds is [[min long, min lat], [max long, max lat]]
-		var bounds = [[999, 999], [-999, -999]];
+		var bounds = [ [ 999, 999 ], [ -999, -999 ] ];
 
-		data.forEach(function(element){
+		data.forEach(function(element) {
 			var x = element.point[0];
 			var y = element.point[1];
 
@@ -231,7 +231,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		return { min: bounds[0], max: bounds[1] };
 	},
 
-	_linearlySpace: function(from, to, length){
+	_linearlySpace: function(from, to, length) {
 		var arr = new Array(length);
 		var step = (to - from) / Math.max(length - 1, 1);
 
@@ -255,7 +255,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 * Getter/setter for the colorScale
 	 */
 	colorScale: function(colorScale) {
-		if(undefined === colorScale){
+		if(undefined === colorScale) {
 			return this._colorScale;
 		}
 
@@ -268,7 +268,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 * Getter/Setter for the value function
 	 */
 	value: function(valueFn) {
-		if(undefined === valueFn){
+		if(undefined === valueFn) {
 			return this.options.value;
 		}
 

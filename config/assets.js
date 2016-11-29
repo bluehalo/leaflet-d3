@@ -8,7 +8,8 @@ module.exports = {
 
 	// Source files and directories
 	src: {
-		js: 'src/js/index.js'
+		entry: 'src/js/index.js',
+		js: 'src/js/**/*.js',
 	},
 
 	// Distribution related items

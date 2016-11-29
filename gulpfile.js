@@ -49,7 +49,7 @@ gulp.task('build-js', ['rollup-js'], () => {
 
 gulp.task('rollup-js', () => {
 	return rollup.rollup({
-			entry: assets.src.js
+			entry: assets.src.entry
 		})
 		.then((bundle) => {
 			return bundle.write({

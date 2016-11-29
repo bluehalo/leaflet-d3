@@ -12,7 +12,13 @@
 
 	"rules": {
 		"no-unused-vars": [ "error", { "args": "none" } ],
-		"no-mixed-spaces-and-tabs": [ "error", "smart-tabs" ]
+
+		"no-mixed-spaces-and-tabs": [ "error", "smart-tabs" ],
+		"array-bracket-spacing": [ "error", "always" ],
+		"block-spacing": [ "error", "always" ],
+		"brace-style": [ "error", "stroustrup", { "allowSingleLine": true } ],
+		"comma-spacing": [ "error" ],
+		"space-before-blocks": [ "error", "always" ]
 	},
 
 	"globals": {

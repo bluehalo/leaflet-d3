@@ -10,10 +10,10 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 * Configuration
 	 */
 	options : {
-		lng: function(d){
+		lng: function(d) {
 			return d[0];
 		},
-		lat: function(d){
+		lat: function(d) {
 			return d[1];
 		},
 		fps: 32,
@@ -33,7 +33,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 * Getter/setter for the radius
 	 */
 	radiusScale: function(radiusScale) {
-		if(undefined === radiusScale){
+		if(undefined === radiusScale) {
 			return this._radiusScale;
 		}
 
@@ -45,7 +45,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 * Getter/setter for the opacity
 	 */
 	opacityScale: function(opacityScale) {
-		if(undefined === opacityScale){
+		if(undefined === opacityScale) {
 			return this._opacityScale;
 		}
 
@@ -58,12 +58,12 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 		L.setOptions(this, options);
 
 		this._radiusScale = d3.scalePow().exponent(0.35)
-			.domain([0, this.options.duration])
-			.range([3, 15])
+			.domain([ 0, this.options.duration ])
+			.range([ 3, 15 ])
 			.clamp(true);
 		this._opacityScale = d3.scaleLinear()
-			.domain([0, this.options.duration])
-			.range([1, 0])
+			.domain([ 0, this.options.duration ])
+			.range([ 1, 0 ])
 			.clamp(true);
 	},
 
@@ -153,13 +153,13 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 	// Cleanup the svg pane
 	_destroyContainer: function() {
 		// Remove the svg element
-		if(null != this._container){
+		if(null != this._container) {
 			this._container.remove();
 		}
 	},
 
 	// Calculate the current map bounds
-	_getMapBounds: function(){
+	_getMapBounds: function() {
 		var latLongBounds = this._map.getBounds();
 		var ne = this._map.latLngToLayerPoint(latLongBounds.getNorthEast());
 		var sw = this._map.latLngToLayerPoint(latLongBounds.getSouthWest());
@@ -185,7 +185,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 		if(null == this._data) this._data = [];
 
 		// Derive the spatial data
-		var geo = [this.options.lat(data), this.options.lng(data)];
+		var geo = [ this.options.lat(data), this.options.lng(data) ];
 		var point = this._map.latLngToLayerPoint(geo);
 		var mapBounds = this._mapBounds;
 
@@ -218,11 +218,12 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 			var d = this._data[i];
 			var age = nowTs - d.ts;
 
-			if(this.options.duration < age){
+			if(this.options.duration < age) {
 				// If the blip is beyond it's life, remove it from the dom and track the lowest index to remove
 				d.c.remove();
 				maxIndex = i;
-			} else {
+			}
+ else {
 
 				// If the blip is still alive, process it
 				if(d.nts < nowTs) {
@@ -264,7 +265,8 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 				// If the blip is beyond it's life, remove it from the dom and track the lowest index to remove
 				d.c.remove();
 				maxIndex = i;
-			} else {
+			}
+ else {
 				break;
 			}
 		}
