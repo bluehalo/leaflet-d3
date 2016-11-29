@@ -54,15 +54,15 @@
 			duration: 500,
 
 			// Accessor functions for lat/long
-			lng: function(d){
+			lng: function(d) {
 				return d[0];
 			},
-			lat: function(d){
+			lat: function(d) {
 				return d[1];
 			},
 
 			// Value accessor function for deriving the color of the hexagons
-			value: function(d){ return d.length; },
+			value: function(d) { return d.length; },
 
 			// Override the extent of the value domain
 			valueFloor: undefined,
@@ -83,7 +83,7 @@
 		var hexLayer = L.hexbinLayer(options).addTo(map);
 
 		// Set the colorScale range - colorScale() returns a reference to the scale used to map the color of each hexbin
-		hexLayer.colorScale().range(['white', 'blue']);
+		hexLayer.colorScale().range(['green', 'red']);
 
 
 		// Random data generators

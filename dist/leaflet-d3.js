@@ -40,8 +40,8 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 		this._hexLayout = d3_hexbin.hexbin()
 			.radius(this.options.radius)
-			.x(function(d){ return d.point[0]; })
-			.y(function(d){ return d.point[1]; });
+			.x(function(d) { return d.point[0]; })
+			.y(function(d) { return d.point[1]; });
 
 		this._data = [];
 		this._colorScale = d3.scaleLinear()
@@ -54,7 +54,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		this._map = map;
 
 		// Create a container for svg.
-		this._container = this._initContainer();
+		this._initContainer();
 
 		// Set up events
 		map.on({ 'moveend': this._redraw }, this);
@@ -77,27 +77,24 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	},
 
 	_initContainer : function() {
-		var container = null;
-
 		// If the container is null or the overlay pane is empty, create the svg element for drawing
 		if (null == this._container) {
 			var overlayPane = this._map.getPanes().overlayPane;
-			container = d3.select(overlayPane).append('svg')
+			this._container = d3.select(overlayPane).append('svg')
 				.attr('class', 'leaflet-layer leaflet-zoom-hide');
 		}
 
-		return container;
 	},
 
-	_destroyContainer: function(){
+	_destroyContainer: function() {
 		// Remove the svg element
-		if(null != this._container){
+		if (null != this._container) {
 			this._container.remove();
 		}
 	},
 
 	// (Re)draws the hexbin group
-	_redraw : function(){
+	_redraw : function() {
 		var that = this;
 
 		if (!that._map) {
@@ -132,20 +129,21 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		// Select the hex group for the current zoom level. This has
 		// the effect of recreating the group if the zoom level has changed
 		var join = this._container.selectAll('g.hexbin')
-			.data([zoom], function(d){ return d; });
+			.data([zoom], function(d) { return d; });
 
 		// enter
-		join.enter().append('g')
+		var enter = join.enter().append('g')
 			.attr('class', function(d) { return 'hexbin zoom-' + d; });
 
 		// enter + update
-		join.attr('transform', 'translate(' + -marginLeft + ',' + -marginTop + ')');
+		var enterUpdate = enter.merge(join);
+		enterUpdate.attr('transform', 'translate(' + -marginLeft + ',' + -marginTop + ')');
 
 		// exit
 		join.exit().remove();
 
 		// add the hexagons to the select
-		this._createHexagons(join, data);
+		this._createHexagons(enterUpdate, data);
 
 	},
 
@@ -172,18 +170,18 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 		// Join - Join the Hexagons to the data
 		var join = g.selectAll('path.hexbin-hexagon')
-			.data(bins, function(d){ return d.i + ':' + d.j; });
+			.data(bins, function(d) { return d.x + ':' + d.y; });
 
 		// Update - set the fill and opacity on a transition (opacity is re-applied in case the enter transition was cancelled)
 		join.transition().duration(that.options.duration)
-			.attr('fill', function(d){ return that._colorScale(that.options.value(d)); })
+			.attr('fill', function(d) { return that._colorScale(that.options.value(d)); })
 			.attr('fill-opacity', that.options.opacity)
 			.attr('stroke-opacity', that.options.opacity);
 
 		// Enter - establish the path, the fill, and the initial opacity
 		join.enter().append('path').attr('class', 'hexbin-hexagon')
-			.attr('d', function(d){ return 'M' + d.x + ',' + d.y + that._hexLayout.hexagon(); })
-			.attr('fill', function(d){ return that._colorScale(that.options.value(d)); })
+			.attr('d', function(d) { return 'M' + d.x + ',' + d.y + that._hexLayout.hexagon(); })
+			.attr('fill', function(d) { return that._colorScale(that.options.value(d)); })
 			.attr('fill-opacity', 0.01)
 			.attr('stroke-opacity', 0.01)
 			.on('mouseover', function(d, i) {
@@ -206,7 +204,8 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 				.attr('stroke-opacity', that.options.opacity);
 
 		// Exit
-		join.exit().transition().duration(that.options.duration)
+		join.exit()
+			.transition().duration(that.options.duration)
 			.attr('fill-opacity', 0.01)
 			.attr('stroke-opacity', 0.01)
 			.remove();
