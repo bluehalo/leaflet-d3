@@ -3,10 +3,10 @@
 <head>
 	<title>Leaflet d3 Ping Layer</title>
 
-	<link rel="stylesheet" href="../../src/lib/leaflet/dist/leaflet.css" />
+	<link rel="stylesheet" href="../../node_modules/leaflet/dist/leaflet.css" />
 
-	<script src="../../src/lib/d3/d3.js" charset="utf-8"></script>
-	<script src="../../src/lib/leaflet/dist/leaflet-src.js"></script>
+	<script src="../../node_modules/d3/build/d3.js" charset="utf-8"></script>
+	<script src="../../node_modules/leaflet/dist/leaflet-src.js"></script>
 
 	<script src="../../dist/leaflet-d3.js" charset="utf-8"></script>
 
@@ -23,13 +23,19 @@
 
 	<script>
 
-		var center = [38.991709, -76.886109];
+		// Set up the map
+		var center = [ 38.991709, -76.886109 ];
+		var layer = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			maxZoom: 18,
+			attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+		});
+		var map = L.map('map', {
+			layers: [ layer ],
+			center: L.latLng(center[0], center[1]), zoom: 7
+		});
 
-		var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-			osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-			osm = L.tileLayer(osmUrl, {maxZoom: 18, attribution: osmAttrib});
-			map = new L.Map('map', {layers: [osm], center: new L.LatLng(center[0], center[1]), zoom: 7});
 
+		// Create the ping layer and configure it
 		var options = {
 			lng: function(d){
 				return d[0];
@@ -38,15 +44,17 @@
 				return d[1];
 			},
 			duration: 800,
-			fps: 8
+			fps: 12
 		};
+
 		var pingLayer = L.pingLayer(options).addTo(map);
 		pingLayer.radiusScale().range([2, 18]);
 		pingLayer.opacityScale().range([1, 0]);
 
-		var latFn = d3.random.normal(center[0], 1);
-		var longFn = d3.random.normal(center[1], 1);
 
+		// Demo code that will randomly generate pings
+		var latFn = d3.randomNormal(center[0], 1);
+		var longFn = d3.randomNormal(center[1], 1);
 		var update = function(){
 			pingLayer.ping([longFn(), latFn()]);
 			window.setTimeout(update, 100 + Math.random()*300);

@@ -1,25 +1,62 @@
-# Logs
-logs
-*.log
+###################
+# Project Specific
+###################
 
-# Runtime data
-pids
-*.pid
-*.seed
 
-# Node modules
-node_modules
+###################
+# Editors
+###################
 
-# project files
-.settings
+# Eclipse
 .project
-.idea
+.settings
+.classpath
 
-# Mac OS
+# IntelliJ
+.idea/
+*.iml
+*.iws
+
+# Net Beans
+nbactions.xml
+nb-configuration.xml
+
+# VS
+.vscode
+
+# Vi, etc
+*.swp
+*.tmp
+*.bak
+
+# General
+*~
+
+
+###################
+# Build
+###################
+
+# Node
+node_modules/
+*.tgz
+
+# Common
+bin/
+tmp/
+
+# Apple
+*~.nib
+
+
+###################
+# OS
+###################
+
+# MacOS
 .DS_Store
 
-# Bower modules
-src/lib
 
-# Distribution folder
-# dist -- Keep the dist folder intact for bower dependency management
+###################
+# Tests
+###################

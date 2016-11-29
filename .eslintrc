@@ -1,0 +1,36 @@
+{
+	"parserOptions": {
+		"sourceType": "module"
+	},
+
+	"env": {
+		"es6": true,
+		"browser": true
+	},
+
+	"extends": "eslint:recommended",
+
+	"rules": {
+		"no-unused-vars": [ "error", { "args": "none" } ],
+		"no-mixed-spaces-and-tabs": [ "error", "smart-tabs" ]
+	},
+
+	"globals": {
+		"console": true,
+		"window": true,
+
+		"d3": true,
+		"d3_hexbin": true,
+		"sentio": true,
+		"L": true,
+
+		"after": true,
+		"afterEach": true,
+		"before": true,
+		"beforeEach": true,
+		"context": true,
+		"describe": true,
+		"it": true,
+		"should": true
+	}
+}

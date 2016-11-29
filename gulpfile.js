@@ -1,37 +1,80 @@
-var gulp = require('gulp'),
-	p = require('./package.json'),
+'use strict';
+
+let
+	glob = require('glob'),
+	gulp = require('gulp'),
 	gulpLoadPlugins = require('gulp-load-plugins'),
-	plugins = gulpLoadPlugins();
+	path = require('path'),
+	rollup = require('rollup'),
+	runSequence = require('run-sequence'),
 
-var banner = '/*! ' + p.name + '.js Version: ' + p.version + ' */\n';
+	plugins = gulpLoadPlugins(),
+	assets = require('./config/assets'),
+	pkg = require('./package.json');
 
-gulp.task('default', ['build']);
 
-gulp.task('watch', function() {
-	gulp.watch(['src/**/*', '!/src/lib/**/*'], ['build']);
+// Banner to append to generated files
+let bannerString = '/*! ' + pkg.name + '-' + pkg.version + ' - ' + pkg.copyright + '*/'
+
+
+/**
+ * Validation Tasks
+ */
+
+gulp.task('validate-js', () => {
+
+	return gulp.src(assets.src.js)
+
+		// ESLint
+		.pipe(plugins.eslint())
+		.pipe(plugins.eslint.format())
+		.pipe(plugins.eslint.failAfterError());
+
 });
 
-gulp.task('build', ['js'] );
 
-gulp.task('js', function() {
-	return gulp.src('src/js/**/*.js')
+/**
+ * Build
+ */
 
-		// JS Hint
-		.pipe(plugins.jshint('.jshintrc'))
-		.pipe(plugins.jshint.reporter('jshint-stylish'))
+gulp.task('build-js', ['rollup-js'], () => {
 
-		// Concatenate
-		.pipe(plugins.sort())
-		.pipe(plugins.concat(p.name + '.js'))
-		.pipe(plugins.insert.prepend(banner))
-		.pipe(gulp.dest('dist'))
-		.pipe(plugins.filesize())
+	// Uglify
+	return gulp.src(path.join(assets.dist.dir, (pkg.artifactName + '.js')))
+		.pipe(plugins.uglify({ preserveComments: 'license' }))
+		.pipe(plugins.rename(pkg.artifactName + '.min.js'))
+		.pipe(gulp.dest(assets.dist.dir));
 
-		// Uglify
-		.pipe(plugins.uglify())
-		.pipe(plugins.rename(p.name + '.min.js'))
-		.pipe(plugins.insert.prepend(banner))
-		.pipe(gulp.dest('dist'))
-		.pipe(plugins.filesize())
-		.on('error', plugins.util.log);
 });
+
+gulp.task('rollup-js', () => {
+	return rollup.rollup({
+			entry: assets.src.js
+		})
+		.then((bundle) => {
+			return bundle.write({
+				dest: path.join(assets.dist.dir, (pkg.artifactName + '.js')),
+				format: 'umd',
+				moduleName: 'leafletD3',
+				sourceMap: true,
+				banner: bannerString
+			});
+		});
+
+});
+
+gulp.task('watch', [ 'build' ], () => {
+	gulp.watch([ assets.src.js ], [ 'build' ]);
+});
+
+
+/**
+ * --------------------------
+ * Main Tasks
+ * --------------------------
+ */
+
+gulp.task('build', (done) => { runSequence('validate-js', [ 'build-js' ], done); } );
+
+// Default task builds and tests
+gulp.task('default', [ 'build' ]);

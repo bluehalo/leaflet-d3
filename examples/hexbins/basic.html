@@ -3,11 +3,11 @@
 <head>
 	<title>Leaflet d3 HexBin Layer</title>
 
-	<link rel="stylesheet" href="../../src/lib/leaflet/dist/leaflet.css" />
+	<link rel="stylesheet" href="../../node_modules/leaflet/dist/leaflet.css" />
 
-	<script src="../../src/lib/d3/d3.js" charset="utf-8"></script>
-	<script src="../../src/lib/d3-plugins/hexbin/hexbin.js" charset="utf-8"></script>
-	<script src="../../src/lib/leaflet/dist/leaflet-src.js"></script>
+	<script src="../../node_modules/d3/build/d3.js" charset="utf-8"></script>
+	<script src="../../node_modules/d3-hexbin/build/d3-hexbin.js" charset="utf-8"></script>
+	<script src="../../node_modules/leaflet/dist/leaflet-src.js"></script>
 
 	<script src="../../dist/leaflet-d3.js" charset="utf-8"></script>
 
@@ -29,16 +29,16 @@
 
 	<script>
 
-		// Lat/Long coordinates of the Washington DC/Baltimore Metro area
-		var center = [38.991709, -76.886109];
+		var center = [ 38.991709, -76.886109 ];
+		var layer = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			maxZoom: 18,
+			attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+		});
 
-		// Setup for the map
-		var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-			osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-			osm = L.tileLayer(osmUrl, {maxZoom: 18, attribution: osmAttrib});
-
-		// Create the map
-		var map = new L.Map('map', {layers: [osm], center: new L.LatLng(center[0], center[1]), zoom: 7});
+		var map = L.map('map', {
+			layers: [ layer ],
+			center: L.latLng(center[0], center[1]), zoom: 7
+		});
 
 
 		// Options for the Hexbin
@@ -87,8 +87,8 @@
 
 
 		// Random data generators
-		var latFn = d3.random.normal(center[0], 1);
-		var longFn = d3.random.normal(center[1], 1);
+		var latFn = d3.randomNormal(center[0], 1);
+		var longFn = d3.randomNormal(center[1], 1);
 
 		function generateData(){
 			var data = [];
