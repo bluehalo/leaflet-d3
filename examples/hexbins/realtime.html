@@ -5,8 +5,8 @@
 
 	<link rel="stylesheet" href="../../node_modules/leaflet/dist/leaflet.css" />
 
-	<script src="../../node_modules/d3/d3.js" charset="utf-8"></script>
-	<script src="../../node_modules/d3-plugins-dist/dist/mbostock/hexbin/hexbin/globals/main.js" charset="utf-8"></script>
+	<script src="../../node_modules/d3/build/d3.js" charset="utf-8"></script>
+	<script src="../../node_modules/d3-hexbin/build/d3-hexbin.js" charset="utf-8"></script>
 	<script src="../../node_modules/leaflet/dist/leaflet-src.js"></script>
 
 	<script src="../../dist/leaflet-d3.js" charset="utf-8"></script>
@@ -54,10 +54,10 @@
 			duration: 50,
 
 			// Accessor functions for lat/long
-			lng: function(d){
+			lng: function(d) {
 				return d[0];
 			},
-			lat: function(d){
+			lat: function(d) {
 				return d[1];
 			},
 
@@ -85,7 +85,7 @@
 		var hexLayer = L.hexbinLayer(options).addTo(map);
 
 		// Set the colorScale range - colorScale() returns a reference to the scale used to map the color of each hexbin
-		hexLayer.colorScale().range(['white', 'blue']);
+		hexLayer.colorScale().range([ 'white', 'blue' ]);
 
 
 		// Random data generators
@@ -95,10 +95,10 @@
 		var data = [];
 		var paused = false;
 		setInterval(function() {
-			if(!paused){
+			if(!paused) {
 
 				// Modify the data array
-				data.push([longFn(), latFn()]);
+				data.push([ longFn(), latFn() ]);
 				if(data.length > 50){
 					data.shift();
 				}
@@ -109,7 +109,7 @@
 		}, 100);
 
 
-		function togglePlay(){
+		function togglePlay() {
 			paused = !paused;
 			d3.select('button').text((paused)? 'Play' : 'Pause')
 		}

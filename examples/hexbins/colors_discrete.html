@@ -3,10 +3,10 @@
 <head>
 	<title>Leaflet d3 HexBin Layer - Discrete Colors</title>
 
-	<link rel="stylesheet" href="../../src/lib/leaflet/dist/leaflet.css" />
+	<link rel="stylesheet" href="../../node_modules/leaflet/dist/leaflet.css" />
 
-	<script src="../../node_modules/d3/d3.js" charset="utf-8"></script>
-	<script src="../../node_modules/d3-plugins-dist/dist/mbostock/hexbin/hexbin/globals/main.js" charset="utf-8"></script>
+	<script src="../../node_modules/d3/build/d3.js" charset="utf-8"></script>
+	<script src="../../node_modules/d3-hexbin/build/d3-hexbin.js" charset="utf-8"></script>
 	<script src="../../node_modules/leaflet/dist/leaflet-src.js"></script>
 
 	<script src="../../dist/leaflet-d3.js" charset="utf-8"></script>
@@ -53,15 +53,15 @@
 			duration: 500,
 
 			// Accessor functions for lat/long
-			lng: function(d){
+			lng: function(d) {
 				return d[0];
 			},
-			lat: function(d){
+			lat: function(d) {
 				return d[1];
 			},
 
 			// Value accessor function for deriving the color of the hexagons
-			value: function(d){ return d.length; },
+			value: function(d) { return d.length; },
 
 			// Override the extent of the value domain
 			// To ensure discrete colors, valueFloor and valueCeil should be specified
@@ -83,17 +83,17 @@
 		var hexLayer = L.hexbinLayer(options).addTo(map);
 
 		// Provide one color for each integer that falls within the extent of the color scale's domain
-		hexLayer.colorScale().range(['red', 'red', 'orange', 'orange', 'yellow', 'yellow', 'green', 'green', 'blue', 'blue']);
+		hexLayer.colorScale().range([ 'red', 'red', 'orange', 'orange', 'yellow', 'yellow', 'green', 'green', 'blue', 'blue' ]);
 
 
 		// Random data generators
 		var latFn = d3.randomNormal(center[0], 1);
 		var longFn = d3.randomNormal(center[1], 1);
 
-		function generateData(){
+		function generateData() {
 			var data = [];
-			for(i=0; i<1000; i++){
-				data.push([longFn(),  latFn()]);
+			for(var i=0; i<1000; i++) {
+				data.push([ longFn(),  latFn() ]);
 			}
 			hexLayer.data(data);
 		};

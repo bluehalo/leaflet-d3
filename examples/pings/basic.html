@@ -51,8 +51,8 @@
 		};
 
 		var pingLayer = L.pingLayer(options).addTo(map);
-		pingLayer.radiusScale().range([2, 18]);
-		pingLayer.opacityScale().range([1, 0]);
+		pingLayer.radiusScale().range([ 2, 18 ]);
+		pingLayer.opacityScale().range([ 1, 0 ]);
 
 
 		// Demo code that will randomly generate pings
@@ -60,7 +60,7 @@
 		var longFn = d3.randomNormal(center[1], 1);
 		var update = function(){
 			// Randomly change the pingLayer class:
-			pingLayer.ping([longFn(), latFn()], (Math.random() > 0.5)? 'red' : 'blue');
+			pingLayer.ping([ longFn(), latFn() ], (Math.random() > 0.5)? 'red' : 'blue');
 			window.setTimeout(update, 100 + Math.random()*300);
 		};
 		window.setTimeout(update);

@@ -83,7 +83,7 @@
 		var hexLayer = L.hexbinLayer(options).addTo(map);
 
 		// Set the colorScale range - colorScale() returns a reference to the scale used to map the color of each hexbin
-		hexLayer.colorScale().range(['green', 'red']);
+		hexLayer.colorScale().range([ 'green', 'red' ]);
 
 
 		// Random data generators
@@ -92,8 +92,8 @@
 
 		function generateData(){
 			var data = [];
-			for(i=0; i<1000; i++){
-				data.push([longFn(),  latFn()]);
+			for(var i = 0; i < 1000; i++)
+				data.push([ longFn(), latFn() ]);
 			}
 			hexLayer.data(data);
 		};
