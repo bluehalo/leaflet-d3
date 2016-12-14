@@ -90,13 +90,13 @@
 		var latFn = d3.randomNormal(center[0], 1);
 		var longFn = d3.randomNormal(center[1], 1);
 
-		function generateData(){
+		function generateData() {
 			var data = [];
-			for(var i = 0; i < 1000; i++)
+			for(var i = 0; i < 1000; i++) {
 				data.push([ longFn(), latFn() ]);
 			}
 			hexLayer.data(data);
-		};
+		}
 
 	</script>
 </body>

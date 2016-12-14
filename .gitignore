@@ -39,6 +39,7 @@ nb-configuration.xml
 
 # Node
 node_modules/
+npm-debug.log
 *.tgz
 
 # Common
