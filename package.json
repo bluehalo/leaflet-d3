@@ -1,17 +1,40 @@
 {
-  "name": "leaflet-d3",
-  "version": "0.3.8",
-  "devDependencies": {
-    "gulp": "^3.8",
-    "gulp-concat": "^2.4",
-    "gulp-filesize": "0.0",
-    "gulp-insert": "^0.4",
-    "gulp-jshint": "^1.8",
-    "gulp-load-plugins": "^0.7",
-    "gulp-rename": "^1.2",
-    "gulp-sort": "^1.1",
-    "gulp-uglify": "^1.0",
-    "gulp-util": "^3.0",
-    "jshint-stylish": "^1.0"
-  }
+	"name": "@asymmetrik/leaflet-d3",
+	"artifactName": "leaflet-d3",
+	"description": "Custom d3 layers for leaflet",
+	"version": "1.0.0",
+	"author": "Asymmetrik, Ltd.",
+	"copyright": "Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation",
+	"license": "MIT",
+
+	"main": "dist/leaflet-d3.umd.js",
+	"module": "./index.js",
+	"typings": "./index.d.ts",
+
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Asymmetrik/leaflet-d3.git"
+	},
+	
+	"peerDependencies": {
+		"d3": "4",
+		"d3-hexbin": "0.2",
+		"leaflet": "1"
+	},
+	
+	"devDependencies": {
+		"d3": "4.4",
+		"d3-hexbin": "0.2",
+		"leaflet": "1.0",
+
+		"rollup": "0.36",
+
+		"gulp": "3.9",
+		"gulp-eslint": "3.0",
+		"gulp-load-plugins": "1.4",
+		"gulp-rename": "1.2",
+		"gulp-sourcemaps": "2.2",
+		"gulp-uglify": "2.0",
+		"run-sequence": "1.2"
+	}
 }
