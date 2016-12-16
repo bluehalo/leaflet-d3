@@ -16,10 +16,14 @@
 
 
 ## Install 
-Install the package via npm:
+Install the package and its peer dependencies via npm:
 ```
+npm install d3
+npm install d3-hexbin
+npm install leaflet
 npm install @asymmetrik/sentio
 ```
+
 
 ## Usage
 
@@ -118,6 +122,7 @@ The hexbin portion of this plugin was based on [the work of Steven Hall](http://
 D3.js was created by the legendary [Mike Bostock](https://github.com/mbostock).
 
 [Leaflet](http://leafletjs.com/) is maintained by [lots of cool people](https://github.com/Leaflet/Leaflet/graphs/contributors).
+
 
 [travis-url]: https://travis-ci.org/Asymmetrik/leaflet-d3/
 [travis-image]: https://travis-ci.org/Asymmetrik/leaflet-d3.svg
