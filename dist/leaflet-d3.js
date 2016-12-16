@@ -1,4 +1,4 @@
-/*! @asymmetrik/leaflet-d3-1.0.0 - Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation*/
+/*! @asymmetrik/leaflet-d3-1.0.1 - Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation*/
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
