@@ -3,11 +3,11 @@
 <head>
 	<title>Leaflet d3 HexBin Layer - Divergent Color Scale</title>
 
-	<link rel="stylesheet" href="../../src/lib/leaflet/dist/leaflet.css" />
+	<link rel="stylesheet" href="../../node_modules/leaflet/dist/leaflet.css" />
 
-	<script src="../../src/lib/d3/d3.js" charset="utf-8"></script>
-	<script src="../../src/lib/d3-plugins/hexbin/hexbin.js" charset="utf-8"></script>
-	<script src="../../src/lib/leaflet/dist/leaflet-src.js"></script>
+	<script src="../../node_modules/d3/build/d3.js" charset="utf-8"></script>
+	<script src="../../node_modules/d3-hexbin/build/d3-hexbin.js" charset="utf-8"></script>
+	<script src="../../node_modules/leaflet/dist/leaflet-src.js"></script>
 
 	<script src="../../dist/leaflet-d3.js" charset="utf-8"></script>
 
@@ -38,26 +38,25 @@
 	<script>
 
 		// Make a reusable color scale array
-		var colorRange = ['red', 'yellow', 'blue'];
+		var colorRange = [ 'red', 'yellow', 'blue' ];
 
 		// Create the legend to illustrate the color scale being divergent
 		var legendEntries = [ '0% - lowest value', '25%', '50%', '75%', '100% - max value' ];
-		var colorScale = d3.scale.linear().domain([0, 2, 4]).range(colorRange);
+		var colorScale = d3.scaleLinear().domain([ 0, 2, 4 ]).range(colorRange);
 		var legend = d3.select('.legend').selectAll('.legend-entry').data(legendEntries).enter().append('div').attr('class', 'legend-entry');
 		legend.append('div').attr('class', 'color-tile').style('background-color', function(d, i) { return colorScale(i); });
 		legend.append('div').attr('class', 'description').text(function(d) { return d; });
 
-		// Lat/Long coordinates of the Washington DC/Baltimore Metro area
-		var center = [38.991709, -76.886109];
+		var center = [ 38.991709, -76.886109 ];
+		var layer = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			maxZoom: 18,
+			attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+		});
 
-		// Setup for the map
-		var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-			osmAttrib = '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-			osm = L.tileLayer(osmUrl, {maxZoom: 18, attribution: osmAttrib});
-
-		// Create the map
-		var map = new L.Map('map', {layers: [osm], center: new L.LatLng(center[0], center[1]), zoom: 7});
-
+		var map = L.map('map', {
+			layers: [ layer ],
+			center: L.latLng(center[0], center[1]), zoom: 7
+		});
 
 		// Options for the Hexbin
 		var options = {
@@ -72,15 +71,15 @@
 			duration: 500,
 
 			// Accessor functions for lat/long
-			lng: function(d){
+			lng: function(d) {
 				return d[0];
 			},
-			lat: function(d){
+			lat: function(d) {
 				return d[1];
 			},
 
 			// Value accessor function for deriving the color of the hexagons
-			value: function(d){ return d.length; },
+			value: function(d) { return d.length; },
 
 			// Override the extent of the value domain
 			valueFloor: undefined,
@@ -106,13 +105,13 @@
 
 
 		// Random data generators
-		var latFn = d3.random.normal(center[0], 1);
-		var longFn = d3.random.normal(center[1], 1);
+		var latFn = d3.randomNormal(center[0], 1);
+		var longFn = d3.randomNormal(center[1], 1);
 
-		function generateData(){
+		function generateData() {
 			var data = [];
-			for(i=0; i<1000; i++){
-				data.push([longFn(),  latFn()]);
+			for(var i=0; i<1000; i++) {
+				data.push([ longFn(),  latFn() ]);
 			}
 			hexLayer.data(data);
 		};
