@@ -319,19 +319,21 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 * Returns an array of the points in the path, or nested arrays of points in case of multi-polyline.
 	 */
 	getLatLngs: function () {
-		return this._data.map(function(d) { return L.latLng(d[0], d[1]); });
+		var that = this;
+
+		// Map the data into an array of latLngs using the configured lat/lng accessors
+		return this._data.map(function(d) {
+			return L.latLng(that.options.lat(d), that.options.lng(d));
+		});
 	},
 
 	/*
 	 * Get path geometry as GeoJSON
 	 */
 	toGeoJSON: function () {
-		var latLngs = this._data.map(function(d) { return L.latLng(d[0], d[1]); });
-		var multi = latLngs[0].isArray && latLngs[0] instanceof Array;
-		var coords = L.GeoJSON.latLngsToCoords(latLngs, multi ? 1 : 0);
 		return L.GeoJSON.getFeature(this, {
-			type: (multi ? 'Multi' : '') + 'LineString',
-			coordinates: coords
+			type: 'LineString',
+			coordinates: L.GeoJSON.latLngsToCoords(this.getLatLngs(), 0)
 		});
 	}
 
@@ -566,7 +568,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 				d.c.remove();
 				maxIndex = i;
 			}
- else {
+			else {
 
 				// If the blip is still alive, process it
 				if(d.nts < nowTs) {
@@ -609,7 +611,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 				d.c.remove();
 				maxIndex = i;
 			}
- else {
+			else {
 				break;
 			}
 		}
