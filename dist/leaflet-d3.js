@@ -254,7 +254,6 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 */
 	data: function(data) {
 		this._data = (null != data)? data : [];
-		this._latlngs = this._data.map(function(d) { return L.latLng(d[0], d[1]); });
 		this._redraw();
 		return this;
 	},
@@ -316,15 +315,16 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 * Returns an array of the points in the path, or nested arrays of points in case of multi-polyline.
 	 */
 	getLatLngs: function () {
-		return this._latlngs;
+		return this._data.map(function(d) { return L.latLng(d[0], d[1]); });
 	},
 
 	/*
 	 * Get path geometry as GeoJSON
 	 */
 	toGeoJSON: function () {
-		var multi = this._latlngs[0].isArray && this._latlngs[0] instanceof Array;
-		var coords = L.GeoJSON.latLngsToCoords(this._latlngs, multi ? 1 : 0);
+		var latLngs = this._data.map(function(d) { return L.latLng(d[0], d[1]); });
+		var multi = latLngs[0].isArray && latLngs[0] instanceof Array;
+		var coords = L.GeoJSON.latLngsToCoords(latLngs, multi ? 1 : 0);
 		return L.GeoJSON.getFeature(this, {
 			type: (multi ? 'Multi' : '') + 'LineString',
 			coordinates: coords
