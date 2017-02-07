@@ -197,8 +197,8 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 				}
 			})
 			.transition().duration(that.options.duration)
-			.attr('fill-opacity', that.options.opacity)
-			.attr('stroke-opacity', that.options.opacity);
+				.attr('fill-opacity', that.options.opacity)
+				.attr('stroke-opacity', that.options.opacity);
 
 		// Exit
 		join.exit()
