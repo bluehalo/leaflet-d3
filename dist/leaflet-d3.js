@@ -1,4 +1,4 @@
-/*! @asymmetrik/leaflet-d3-1.0.1 - Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation*/
+/*! @asymmetrik/leaflet-d3-1.0.2n - Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation*/
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -29,6 +29,10 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		valueFloor: undefined,
 		valueCeil: undefined,
 		colorRange: [ '#f7fbff', '#08306b' ],
+		fill: function(d) {
+			var val = this.options.value(d);
+			return (null != val) ? this._colorScale(val) : 'none';
+		},
 
 		onmouseover: undefined,
 		onmouseout: undefined,
@@ -174,20 +178,14 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 		// Update - set the fill and opacity on a transition (opacity is re-applied in case the enter transition was cancelled)
 		join.transition().duration(that.options.duration)
-			.attr('fill', function(d) {
-				var val = that.options.value(d);
-				return val ? that._colorScale(val) : 'none';
-			})
+			.attr('fill', that.options.fill.bind(that))
 			.attr('fill-opacity', that.options.opacity)
 			.attr('stroke-opacity', that.options.opacity);
 
 		// Enter - establish the path, the fill, and the initial opacity
 		join.enter().append('path').attr('class', 'hexbin-hexagon')
 			.attr('d', function(d) { return 'M' + d.x + ',' + d.y + that._hexLayout.hexagon(); })
-			.attr('fill', function(d) {
-				var val = that.options.value(d);
-				return val ? that._colorScale(val) : 'none';
-			})
+			.attr('fill', that.options.fill.bind(that))
 			.attr('fill-opacity', 0.01)
 			.attr('stroke-opacity', 0.01)
 			.on('mouseover', function(d, i) {
