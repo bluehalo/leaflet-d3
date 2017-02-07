@@ -23,11 +23,11 @@
 
 	"globals": {
 		"console": true,
+		"require": true,
 		"window": true,
 
 		"d3": true,
 		"d3_hexbin": true,
-		"sentio": true,
 		"L": true,
 
 		"after": true,
