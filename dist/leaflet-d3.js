@@ -1,4 +1,4 @@
-/*! @asymmetrik/leaflet-d3-1.1.0 - Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation*/
+/*! @asymmetrik/leaflet-d3-1.2.0 - Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation*/
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -256,7 +256,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	/*
 	 * Setter for the data
 	 */
-	data : function(data) {
+	data: function(data) {
 		this._data = (null != data)? data : [];
 		this._redraw();
 		return this;
@@ -313,6 +313,28 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		this.options.onclick = clickFn;
 		//this._redraw();
 		return this;
+	},
+
+	/*
+	 * Returns an array of the points in the path, or nested arrays of points in case of multi-polyline.
+	 */
+	getLatLngs: function () {
+		var that = this;
+
+		// Map the data into an array of latLngs using the configured lat/lng accessors
+		return this._data.map(function(d) {
+			return L.latLng(that.options.lat(d), that.options.lng(d));
+		});
+	},
+
+	/*
+	 * Get path geometry as GeoJSON
+	 */
+	toGeoJSON: function () {
+		return L.GeoJSON.getFeature(this, {
+			type: 'LineString',
+			coordinates: L.GeoJSON.latLngsToCoords(this.getLatLngs(), 0)
+		});
 	}
 
 });
@@ -546,7 +568,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 				d.c.remove();
 				maxIndex = i;
 			}
- else {
+			else {
 
 				// If the blip is still alive, process it
 				if(d.nts < nowTs) {
@@ -589,7 +611,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 				d.c.remove();
 				maxIndex = i;
 			}
- else {
+			else {
 				break;
 			}
 		}

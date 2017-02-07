@@ -223,7 +223,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 				d.c.remove();
 				maxIndex = i;
 			}
- else {
+			else {
 
 				// If the blip is still alive, process it
 				if(d.nts < nowTs) {
@@ -266,7 +266,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 				d.c.remove();
 				maxIndex = i;
 			}
- else {
+			else {
 				break;
 			}
 		}
