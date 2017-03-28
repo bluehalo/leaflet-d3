@@ -1,4 +1,4 @@
-/*! @asymmetrik/leaflet-d3-1.2.0 - Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation*/
+/*! @asymmetrik/leaflet-d3-1.2.1 - Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation*/
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -42,7 +42,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	initialize : function(options) {
 		L.setOptions(this, options);
 
-		this._hexLayout = d3_hexbin.hexbin()
+		this._hexLayout = d3.hexbin()
 			.radius(this.options.radius)
 			.x(function(d) { return d.point[0]; })
 			.y(function(d) { return d.point[1]; });
