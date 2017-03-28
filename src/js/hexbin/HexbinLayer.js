@@ -35,7 +35,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	initialize : function(options) {
 		L.setOptions(this, options);
 
-		this._hexLayout = d3_hexbin.hexbin()
+		this._hexLayout = d3.hexbin()
 			.radius(this.options.radius)
 			.x(function(d) { return d.point[0]; })
 			.y(function(d) { return d.point[1]; });
