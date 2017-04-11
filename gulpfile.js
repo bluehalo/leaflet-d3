@@ -12,7 +12,7 @@ let
 
 
 // Banner to append to generated files
-let bannerString = '/*! ' + pkg.name + '-' + pkg.version + ' - ' + pkg.copyright + '*/'
+let bannerString = `/*! ${pkg.name} - ${pkg.version} - ${pkg.copyright} */`;
 
 // Consolidating asset locations
 let assets = {
@@ -56,7 +56,7 @@ gulp.task('validate-js', () => {
 gulp.task('build-js', [ 'rollup-js' ], () => {
 
 	// Uglify
-	return gulp.src(path.join(assets.dist.dir, (pkg.artifactName + '.js')))
+	return gulp.src(path.join(assets.dist.dir, `${pkg.artifactName}.js`))
 		.pipe(plugins.uglify({ preserveComments: 'license' }))
 		.pipe(plugins.rename(pkg.artifactName + '.min.js'))
 		.pipe(gulp.dest(assets.dist.dir));

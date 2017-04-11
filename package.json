@@ -2,7 +2,7 @@
 	"name": "@asymmetrik/leaflet-d3",
 	"artifactName": "leaflet-d3",
 	"description": "Custom d3 layers for leaflet",
-	"version": "1.2.1",
+	"version": "1.3.0",
 	"author": "Asymmetrik, Ltd.",
 	"copyright": "Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation",
 	"license": "MIT",
@@ -11,9 +11,9 @@
 		"build": "gulp build"
 	},
 
-	"main": "dist/leaflet-d3.umd.js",
-	"module": "./index.js",
-	"typings": "./index.d.ts",
+	"main": "dist/leaflet-d3.js",
+	"module": "index.js",
+	"typings": "index.d.ts",
 
 	"repository": {
 		"type": "git",
@@ -27,9 +27,13 @@
 	},
 
 	"devDependencies": {
-		"d3": "4.5",
+		"d3": "4.6",
+		"@types/d3": "4.5",
+
 		"d3-hexbin": "0.2",
+
 		"leaflet": "1.0",
+		"@types/leaflet": "1.0",
 
 		"rollup": "0.41",
 
