@@ -2,58 +2,64 @@
 
 declare namespace L {
 
-	type SimpleFn<T> = () => T;
-	type ObjectFn<T> = (d: any) => T;
-	type ObjectIndexFn<T> = (d: any, i: number) => T;
-	type UnionFn<T> = SimpleFn<T> | ObjectFn<T> | ObjectIndexFn<T>;
+	namespace internal {
 
-	type SimpleCallback = () => void;
-	type ObjectCallback = (d: any) => void;
-	type ObjectContextCallback = (d: any, t: any) => void;
-	type DoubleObjectContextCallback = (d: any, t: any, th: any) => void;
-	type UnionCallback = SimpleCallback | ObjectCallback | ObjectContextCallback | DoubleObjectContextCallback;
+		type SimpleFn<T> = () => T;
+		type ObjectFn<T> = (d: any) => T;
+		type ObjectIndexFn<T> = (d: any, i: number) => T;
+		type UnionFn<T> = SimpleFn<T> | ObjectFn<T> | ObjectIndexFn<T>;
+
+		type SimpleCallback = SimpleFn<void>;
+		type ObjectCallback = ObjectFn<void>;
+		type ObjectContextCallback = (d: any, t: any) => void;
+		type DoubleObjectContextCallback = (d: any, t: any, th: any) => void;
+		type UnionCallback = SimpleCallback | ObjectCallback | ObjectContextCallback | DoubleObjectContextCallback;
+
+	}
 
 	/*
 	 * Hexbins
 	 */
-	export interface HexbinLayer {
+	interface HexbinLayer extends L.Layer {
 		data(v: any[]): this;
 
 		colorScale(): any;
-		colorScale(v: any): void;
+		colorScale(v: any): this;
 
-		value(): UnionFn<number>;
-		value(v: UnionFn<number>): void;
+		value(): internal.UnionFn<number>;
+		value(v: internal.UnionFn<number>): this;
 
 		getLatLngs(): any[];
 		toGeoJSON(): any[];
 	}
-	export interface HexbinLayerConfig {
-		radius: number,
-		opacity: number,
-		duration: number,
 
-		valueFloor: number,
-		valueCeil: number,
-		colorRange: string[],
+	interface HexbinLayerConfig {
+		radius?: number,
+		opacity?: number,
+		duration?: number,
 
-		lng: (d: any) => number,
-		lat: (d: any) => number,
-		value: (d: any) => number,
-		fill: (d: any) => string,
+		valueFloor?: number,
+		valueCeil?: number,
+		colorRange?: string[],
 
-		onmouseover: UnionCallback,
-		onmouseout: UnionCallback,
-		click: UnionCallback
+		lng?: internal.ObjectFn<number>,
+		lat?: internal.ObjectFn<number>,
+		value?: internal.ObjectFn<number>,
+		fill?: internal.ObjectFn<string>,
+
+		onmouseover?: internal.UnionCallback,
+		onmouseout?: internal.UnionCallback,
+		click?: internal.UnionCallback
 	}
-	export function hexbinLayer(config?: HexbinLayerConfig): HexbinLayer;
+
+	function hexbinLayer(config?: HexbinLayerConfig): HexbinLayer;
 
 
 
 	/*
 	 * Pings
 	 */
-	export interface PingLayer {
+	interface PingLayer extends L.Layer {
 		radiusScale(): any;
 		radiusScale(v: any): this;
 
@@ -65,15 +71,15 @@ declare namespace L {
 
 		ping(data: any, cssClass: string): this;
 	}
-	export interface PingLayerConfig {
-		fps: number,
-		duration: number,
 
-		lng: (d: any) => number,
-		lat: (d: any) => number
+	interface PingLayerConfig {
+		fps?: number,
+		duration?: number,
+
+		lng?: internal.ObjectFn<number>,
+		lat?: internal.ObjectFn<number>
 	}
-	export function pingLayer(config?: PingLayerConfig): PingLayer;
+
+	function pingLayer(config?: PingLayerConfig): PingLayer;
 
 }
-
-export = L;
