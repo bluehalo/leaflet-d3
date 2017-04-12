@@ -21,7 +21,6 @@ Install the package and its peer dependencies via npm:
 npm install d3
 npm install d3-hexbin
 npm install leaflet
-npm install @asymmetrik/sentio
 ```
 
 
