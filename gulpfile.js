@@ -71,7 +71,7 @@ gulp.task('rollup-js', () => {
 			return bundle.write({
 				dest: path.join(assets.dist.dir, `${pkg.artifactName}.js`),
 				format: 'umd',
-				moduleName: 'leafletD3',
+				moduleName: pkg.moduleName,
 				sourceMap: true,
 				banner: bannerString
 			});
