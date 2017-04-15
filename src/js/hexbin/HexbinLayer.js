@@ -1,6 +1,6 @@
-import 'leaflet';
 import * as d3 from 'd3';
 import { hexbin } from 'd3-hexbin';
+import 'leaflet';
 
 var d3_hexbin = (null != d3.hexbin) ? d3.hexbin : hexbin;
 

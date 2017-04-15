@@ -1,11 +1,11 @@
 /*! @asymmetrik/leaflet-d3 - 1.4.0 - Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation */
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('leaflet'), require('d3'), require('d3-hexbin')) :
-	typeof define === 'function' && define.amd ? define(['exports', 'leaflet', 'd3', 'd3-hexbin'], factory) :
-	(factory((global.leafletD3 = global.leafletD3 || {}),global.L,global.d3,global.d3.hexbin));
-}(this, (function (exports,leaflet,d3$1,d3Hexbin) { 'use strict';
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('d3'), require('d3-hexbin'), require('leaflet')) :
+	typeof define === 'function' && define.amd ? define(['exports', 'd3', 'd3-hexbin', 'leaflet'], factory) :
+	(factory((global.leafletD3 = global.leafletD3 || {}),global.d3,global.d3.hexbin));
+}(this, (function (exports,d3,d3Hexbin) { 'use strict';
 
-var d3_hexbin = (null != d3$1.hexbin) ? d3$1.hexbin : d3Hexbin.hexbin;
+var d3_hexbin = (null != d3.hexbin) ? d3.hexbin : d3Hexbin.hexbin;
 
 /**
  * L is defined by the Leaflet library, see git://github.com/Leaflet/Leaflet.git for documentation
@@ -50,7 +50,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 			.y(function(d) { return d.point[1]; });
 
 		this._data = [];
-		this._colorScale = d3$1.scaleLinear()
+		this._colorScale = d3.scaleLinear()
 			.range(this.options.colorRange)
 			.clamp(true);
 
@@ -86,7 +86,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		// If the container is null or the overlay pane is empty, create the svg element for drawing
 		if (null == this._container) {
 			var overlayPane = this._map.getPanes().overlayPane;
-			this._container = d3$1.select(overlayPane).append('svg')
+			this._container = d3.select(overlayPane).append('svg')
 				.attr('class', 'leaflet-layer leaflet-zoom-hide');
 		}
 
@@ -160,7 +160,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		var bins = that._hexLayout(data);
 
 		// Determine the extent of the values
-		var extent$$1 = d3$1.extent(bins, function(d) {
+		var extent$$1 = d3.extent(bins, function(d) {
 			return that.options.value(d);
 		});
 		if (null == extent$$1[0]) extent$$1[0] = 0;

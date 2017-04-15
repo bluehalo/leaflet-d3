@@ -1,5 +1,5 @@
+import * as d3 from 'd3';
 import 'leaflet';
-import 'd3';
 
 /**
  * L is defined by the Leaflet library, see git://github.com/Leaflet/Leaflet.git for documentation
