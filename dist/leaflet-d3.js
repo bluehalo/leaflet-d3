@@ -1,9 +1,11 @@
-/*! @asymmetrik/leaflet-d3 - 1.3.2 - Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation */
+/*! @asymmetrik/leaflet-d3 - 1.4.0 - Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation */
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-	typeof define === 'function' && define.amd ? define(['exports'], factory) :
-	(factory((global.leafletD3 = global.leafletD3 || {})));
-}(this, (function (exports) { 'use strict';
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('d3'), require('d3-hexbin'), require('leaflet')) :
+	typeof define === 'function' && define.amd ? define(['exports', 'd3', 'd3-hexbin', 'leaflet'], factory) :
+	(factory((global.leafletD3 = global.leafletD3 || {}),global.d3,global.d3.hexbin));
+}(this, (function (exports,d3,d3Hexbin) { 'use strict';
+
+var d3_hexbin = (null != d3.hexbin) ? d3.hexbin : d3Hexbin.hexbin;
 
 /**
  * L is defined by the Leaflet library, see git://github.com/Leaflet/Leaflet.git for documentation
@@ -42,7 +44,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	initialize : function(options) {
 		L.setOptions(this, options);
 
-		this._hexLayout = d3.hexbin()
+		this._hexLayout = d3_hexbin()
 			.radius(this.options.radius)
 			.x(function(d) { return d.point[0]; })
 			.y(function(d) { return d.point[1]; });
@@ -158,16 +160,16 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		var bins = that._hexLayout(data);
 
 		// Determine the extent of the values
-		var extent = d3.extent(bins, function(d) {
+		var extent$$1 = d3.extent(bins, function(d) {
 			return that.options.value(d);
 		});
-		if (null == extent[0]) extent[0] = 0;
-		if (null == extent[1]) extent[1] = 0;
-		if (null != that.options.valueFloor) extent[0] = that.options.valueFloor;
-		if (null != that.options.valueCeil) extent[1] = that.options.valueCeil;
+		if (null == extent$$1[0]) extent$$1[0] = 0;
+		if (null == extent$$1[1]) extent$$1[1] = 0;
+		if (null != that.options.valueFloor) extent$$1[0] = that.options.valueFloor;
+		if (null != that.options.valueCeil) extent$$1[1] = that.options.valueCeil;
 
 		// Match the domain cardinality to that of the color range, to allow for a polylinear scale
-		var domain = that._linearlySpace(extent[0], extent[1], that._colorScale.range().length);
+		var domain = that._linearlySpace(extent$$1[0], extent$$1[1], that._colorScale.range().length);
 
 		// Set the colorscale domain
 		that._colorScale.domain(domain);
