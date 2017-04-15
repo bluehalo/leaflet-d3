@@ -5,6 +5,8 @@
 	(factory((global.leafletD3 = global.leafletD3 || {}),global.L,global.d3,global.d3.hexbin));
 }(this, (function (exports,leaflet,d3$1,d3Hexbin) { 'use strict';
 
+var d3_hexbin = (null != d3$1.hexbin) ? d3$1.hexbin : d3Hexbin.hexbin;
+
 /**
  * L is defined by the Leaflet library, see git://github.com/Leaflet/Leaflet.git for documentation
  * We extent L.Layer if it exists, L.Class otherwise. This is for backwards-compatibility with
@@ -42,7 +44,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	initialize : function(options) {
 		L.setOptions(this, options);
 
-		this._hexLayout = d3Hexbin.hexbin()
+		this._hexLayout = d3_hexbin()
 			.radius(this.options.radius)
 			.x(function(d) { return d.point[0]; })
 			.y(function(d) { return d.point[1]; });
