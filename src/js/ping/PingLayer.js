@@ -1,3 +1,6 @@
+import 'leaflet';
+import 'd3';
+
 /**
  * L is defined by the Leaflet library, see git://github.com/Leaflet/Leaflet.git for documentation
  * We extent L.Layer if it exists, L.Class otherwise. This is for backwards-compatibility with

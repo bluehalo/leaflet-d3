@@ -1,9 +1,9 @@
-/*! @asymmetrik/leaflet-d3 - 1.3.2 - Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation */
+/*! @asymmetrik/leaflet-d3 - 1.4.0 - Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation */
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-	typeof define === 'function' && define.amd ? define(['exports'], factory) :
-	(factory((global.leafletD3 = global.leafletD3 || {})));
-}(this, (function (exports) { 'use strict';
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('leaflet'), require('d3'), require('d3-hexbin')) :
+	typeof define === 'function' && define.amd ? define(['exports', 'leaflet', 'd3', 'd3-hexbin'], factory) :
+	(factory((global.leafletD3 = global.leafletD3 || {}),global.L,global.d3,global.d3.hexbin));
+}(this, (function (exports,leaflet,d3$1,d3Hexbin) { 'use strict';
 
 /**
  * L is defined by the Leaflet library, see git://github.com/Leaflet/Leaflet.git for documentation
@@ -42,13 +42,13 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	initialize : function(options) {
 		L.setOptions(this, options);
 
-		this._hexLayout = d3.hexbin()
+		this._hexLayout = d3Hexbin.hexbin()
 			.radius(this.options.radius)
 			.x(function(d) { return d.point[0]; })
 			.y(function(d) { return d.point[1]; });
 
 		this._data = [];
-		this._colorScale = d3.scaleLinear()
+		this._colorScale = d3$1.scaleLinear()
 			.range(this.options.colorRange)
 			.clamp(true);
 
@@ -84,7 +84,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		// If the container is null or the overlay pane is empty, create the svg element for drawing
 		if (null == this._container) {
 			var overlayPane = this._map.getPanes().overlayPane;
-			this._container = d3.select(overlayPane).append('svg')
+			this._container = d3$1.select(overlayPane).append('svg')
 				.attr('class', 'leaflet-layer leaflet-zoom-hide');
 		}
 
@@ -158,16 +158,16 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		var bins = that._hexLayout(data);
 
 		// Determine the extent of the values
-		var extent = d3.extent(bins, function(d) {
+		var extent$$1 = d3$1.extent(bins, function(d) {
 			return that.options.value(d);
 		});
-		if (null == extent[0]) extent[0] = 0;
-		if (null == extent[1]) extent[1] = 0;
-		if (null != that.options.valueFloor) extent[0] = that.options.valueFloor;
-		if (null != that.options.valueCeil) extent[1] = that.options.valueCeil;
+		if (null == extent$$1[0]) extent$$1[0] = 0;
+		if (null == extent$$1[1]) extent$$1[1] = 0;
+		if (null != that.options.valueFloor) extent$$1[0] = that.options.valueFloor;
+		if (null != that.options.valueCeil) extent$$1[1] = that.options.valueCeil;
 
 		// Match the domain cardinality to that of the color range, to allow for a polylinear scale
-		var domain = that._linearlySpace(extent[0], extent[1], that._colorScale.range().length);
+		var domain = that._linearlySpace(extent$$1[0], extent$$1[1], that._colorScale.range().length);
 
 		// Set the colorscale domain
 		that._colorScale.domain(domain);

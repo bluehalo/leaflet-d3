@@ -64,16 +64,27 @@ gulp.task('build-js', [ 'rollup-js' ], () => {
 });
 
 gulp.task('rollup-js', () => {
+
 	return rollup.rollup({
-			entry: assets.src.entry
-		})
+		entry: assets.src.entry,
+		external: [
+			'd3',
+			'd3-hexbin',
+			'leaflet'
+		]
+	})
 		.then((bundle) => {
 			return bundle.write({
 				dest: path.join(assets.dist.dir, `${pkg.artifactName}.js`),
 				format: 'umd',
 				moduleName: pkg.moduleName,
 				sourceMap: true,
-				banner: bannerString
+				banner: bannerString,
+				globals: {
+					'd3': 'd3',
+					'd3-hexbin': 'd3.hexbin',
+					'leaflet': 'L'
+				}
 			});
 		});
 

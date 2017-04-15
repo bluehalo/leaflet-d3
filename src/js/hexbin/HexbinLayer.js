@@ -1,3 +1,7 @@
+import 'leaflet';
+import * as d3 from 'd3';
+import { hexbin as d3_hexbin } from 'd3-hexbin';
+
 /**
  * L is defined by the Leaflet library, see git://github.com/Leaflet/Leaflet.git for documentation
  * We extent L.Layer if it exists, L.Class otherwise. This is for backwards-compatibility with
@@ -35,7 +39,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	initialize : function(options) {
 		L.setOptions(this, options);
 
-		this._hexLayout = d3.hexbin()
+		this._hexLayout = d3_hexbin()
 			.radius(this.options.radius)
 			.x(function(d) { return d.point[0]; })
 			.y(function(d) { return d.point[1]; });
