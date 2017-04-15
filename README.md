@@ -64,9 +64,30 @@ hexLayer.data([[lng1, lat1], [lng2, lat2], ... [lngN, latN]]);
 
 ```
 
-Special note regarding transition durations: If your data is transforming faster than the transition duration, you may encounter unexpected behavior. You should reduce the transition duration or eliminate it entirely if you are going to be using this plugin in a realtime manner.
+#### Styling
 
-Special note regarding color scales: To use a polylinear color scale, simply provide more than two colors in the range. The domain cardinality will be adjusted automatically. A minimum of two values is required in the color range, but a single-color range is possible by using `['blue', 'blue']` for example.
+You will likely want to apply your own styles to the hexbin hexagons themselves. To do so, use the ```hexbin-hexagon``` class.
+See the following example:
+
+```css
+.hexbin-hexagon {
+	stroke: #000;
+	stroke-width: .5px;
+}
+```
+
+#### Special Notes
+
+*Applying Durations*:
+If your data is transforming faster than the transition duration, you may encounter unexpected behavior.
+This is an artifact of how transitions interact with and cancel each other.
+You should reduce the transition duration or eliminate it entirely if you are going to be using this plugin in a realtime manner.
+
+*Color Scales*:
+To use a polylinear color scale, simply provide more than two colors in the range. The domain cardinality will be adjusted automatically.
+A minimum of two values is required in the color range, but a single-color range is possible by using `['blue', 'blue']` for example.
+See the examples to see how diverging and discrete color scales can be used.
+
 
 
 ### Pings
@@ -102,6 +123,7 @@ pingLayer.opacityScale().range([1, 0]);
 pingLayer.ping([longFn(), latFn()], 'myCustomCssClass');
 
 ```
+
 
 ## API
 See examples for now.
