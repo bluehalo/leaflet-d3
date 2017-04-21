@@ -1,11 +1,11 @@
-/*! @asymmetrik/leaflet-d3 - 1.4.0 - Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation */
+/*! @asymmetrik/leaflet-d3 - 1.4.1 - Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('d3'), require('d3-hexbin'), require('leaflet')) :
 	typeof define === 'function' && define.amd ? define(['exports', 'd3', 'd3-hexbin', 'leaflet'], factory) :
 	(factory((global.leafletD3 = global.leafletD3 || {}),global.d3,global.d3.hexbin));
 }(this, (function (exports,d3,d3Hexbin) { 'use strict';
 
-var d3_hexbin = (null != d3.hexbin) ? d3.hexbin : d3Hexbin.hexbin;
+var d3_hexbin = (null != d3.hexbin)? d3.hexbin : (null != d3Hexbin)? d3Hexbin.hexbin : null;
 
 /**
  * L is defined by the Leaflet library, see git://github.com/Leaflet/Leaflet.git for documentation
