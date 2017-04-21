@@ -69,7 +69,7 @@ declare namespace L {
 		getFps(): number,
 		getCount(): number,
 
-		ping(data: any, cssClass: string): this;
+		ping(data: any, cssClass?: string): this;
 	}
 
 	interface PingLayerConfig {

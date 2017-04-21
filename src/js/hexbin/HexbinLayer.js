@@ -1,8 +1,8 @@
 import * as d3 from 'd3';
-import { hexbin } from 'd3-hexbin';
+import * as d3Hexbin from 'd3-hexbin';
 import 'leaflet';
 
-var d3_hexbin = (null != d3.hexbin) ? d3.hexbin : hexbin;
+var d3_hexbin = (null != d3.hexbin)? d3.hexbin : (null != d3Hexbin)? d3Hexbin.hexbin : null;
 
 /**
  * L is defined by the Leaflet library, see git://github.com/Leaflet/Leaflet.git for documentation
