@@ -47,33 +47,28 @@
 			radius : 12,
 
 			// Default opacity of the hexagons
-			opacity: 0.5,
+			opacity: 0.3,
 
 			// Transition duration for animations
 			duration: 500,
 
-			// Accessor functions for lat/long
-			lng: function(d) {
-				return d[0];
-			},
-			lat: function(d) {
-				return d[1];
-			},
+			// Provide one color for each integer that falls within the extent of the color scale's domain
+			colorRange: [ 'red', 'red', 'orange', 'orange', 'yellow', 'yellow', 'green', 'green', 'blue', 'blue' ],
 
-			// Value accessor function for deriving the color of the hexagons
-			value: function(d) { return d.length; },
+			// Set overrides for the colorScale's domain extent
+			overrideExtent: [ 1, 10 ]
 
-			// Override the extent of the value domain
-			// To ensure discrete colors, valueFloor and valueCeil should be specified
-			valueFloor: 1,
-			valueCeil: 10
 		};
 
 		// Create the hexlayer
-		var hexLayer = L.hexbinLayer(options).addTo(map);
+		var hexLayer = L.hexbinLayer(options)
+			.lng(function(d) { return d[0]; })
+			.lat(function(d) { return d[1]; })
+			.value(function(d) { return d.length; });
 
-		// Provide one color for each integer that falls within the extent of the color scale's domain
-		hexLayer.colorScale().range([ 'red', 'red', 'orange', 'orange', 'yellow', 'yellow', 'green', 'green', 'blue', 'blue' ]);
+		// Add it to the map now that it's all set up
+		hexLayer.addTo(map);
+
 
 		// Random data generators
 		var latFn = d3.randomNormal(center[0], 1);
@@ -86,7 +81,7 @@
 			for(var i = 0; i < count; i++) {
 				data.push([ longFn(), latFn() ]);
 			}
-			hexLayer.data(data);
+			hexLayer.data(data).redraw();
 		};
 
 		generateData();

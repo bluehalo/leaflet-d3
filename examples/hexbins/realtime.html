@@ -37,45 +37,26 @@
 
 		var map = L.map('map', {
 			layers: [ layer ],
-			center: L.latLng(center[0], center[1]), zoom: 7
+			center: L.latLng(center[0], center[1]), zoom: 6
 		});
 
 
 		// Options for the Hexbin
 		var options = {
-
-			// Size of the hexagons
-			radius : 12,
-
-			// Default opacity of the hexagons
-			opacity: 0.5,
-
 			// Transition duration for animations
 			duration: 50,
-
-			// Accessor functions for lat/long
-			lng: function(d) {
-				return d[0];
-			},
-			lat: function(d) {
-				return d[1];
-			},
-
-			// Value accessor function for deriving the color of the hexagons
-			value: function(d){
-				return d.length;
-			},
-
-			// Override the extent of the value domain
-			valueFloor: undefined,
-			valueCeil: undefined
+			overrideExtent: [ 1, 5 ],
+			colorRange: [ 'blue', 'orange', 'red' ]
 		};
 
 		// Create the hexlayer
-		var hexLayer = L.hexbinLayer(options).addTo(map);
+		var hexLayer = L.hexbinLayer(options)
+			.lng(function(d) { return d[0]; })
+			.lat(function(d) { return d[1]; })
+			.value(function(d) { return d.length; });
 
-		// Set the colorScale range - colorScale() returns a reference to the scale used to map the color of each hexbin
-		hexLayer.colorScale().range([ 'white', 'blue' ]);
+		// Add it to the map now that it's all set up
+		hexLayer.addTo(map);
 
 
 		// Random data generators
@@ -84,20 +65,23 @@
 
 		var data = [];
 		var paused = false;
-		setInterval(function() {
+
+		function doPings() {
 			if(!paused) {
 
 				// Modify the data array
 				data.push([ longFn(), latFn() ]);
-				if(data.length > 50){
+				if(data.length > 200){
 					data.shift();
 				}
 
 				// Pass the updated data array to the hexlayer
-				hexLayer.data(data);
+				hexLayer.data(data).redraw();
 			}
-		}, 100);
 
+		    setTimeout(doPings, 100);
+		}
+		doPings();
 
 		function togglePlay() {
 			paused = !paused;

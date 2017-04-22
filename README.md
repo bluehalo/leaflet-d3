@@ -42,11 +42,7 @@ var options = {
 	radius : 10,							// Size of the hexagons/bins
 	opacity: 0.5,							// Opacity of the hexagonal layer
 	duration: 200,							// millisecond duration of d3 transitions (see note below)
-	lng: function(d){ return d[0]; },		// longitude accessor
-	lat: function(d){ return d[1]; },		// latitude accessor
-	value: function(d){ return d.length; },	// value accessor - derives the bin value
-	valueFloor: 0,							// override the color scale domain low value
-	valueCeil: undefined,					// override the color scale domain high value
+	overrideExtent: [ 0, undefined ],		// override the color scale domain (uundefined is treated as un-set)
 	colorRange: ['#f7fbff', '#08306b']		// default color range for the heat map (see note below)
 };
 

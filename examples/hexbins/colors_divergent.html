@@ -60,38 +60,21 @@
 
 		// Options for the Hexbin
 		var options = {
-
-			// Size of the hexagons
-			radius : 12,
-
-			// Default opacity of the hexagons
-			opacity: 0.5,
-
-			// Transition duration for animations
-			duration: 500,
-
-			// Accessor functions for lat/long
-			lng: function(d) {
-				return d[0];
-			},
-			lat: function(d) {
-				return d[1];
-			},
-
-			// Value accessor function for deriving the color of the hexagons
-			value: function(d) { return d.length; },
-
-			// Override the extent of the value domain
-			valueFloor: undefined,
-			valueCeil: undefined
+			// Domain automatically becomes a linearly spaced array based on the number of colors in the range
+			// for example, if the extent of the domain is [1, 10], then the domain would be [1, 5.5, 10]
+			// if there are three colors in the range
+		    colorRange: colorRange,
+		    overrideExtent: [ undefined, undefined ]
 		};
 
 		// Create the hexlayer
-		var hexLayer = L.hexbinLayer(options).addTo(map);
+		var hexLayer = L.hexbinLayer(options)
+			.lng(function(d) { return d[0]; })
+			.lat(function(d) { return d[1]; })
+			.value(function(d) { return d.length; });
 
-		// Set the colorScale range
-		// Domain automatically becomes a linearly spaced array based on the number of colors in the range - for example, if the extent of the domain is [1, 10], then the domain would be [1, 5.5, 10] if there are three colors in the range
-		hexLayer.colorScale().range(colorRange);
+		// Add it to the map now that it's all set up
+		hexLayer.addTo(map);
 
 
 		// Random data generators
@@ -105,7 +88,7 @@
 			for(var i = 0; i < count; i++) {
 				data.push([ longFn(), latFn() ]);
 			}
-			hexLayer.data(data);
+			hexLayer.data(data).redraw();
 		};
 
 		generateData();

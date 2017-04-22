@@ -14,7 +14,7 @@
 <style>
 	svg path.hexbin-hexagon {
 		stroke: #000;
-		stroke-width: .5px;
+		stroke-width: 1px;
 	}
 </style>
 
@@ -52,40 +52,18 @@
 			center: L.latLng(center[0], center[1]), zoom: 7
 		});
 
-
 		// Options for the Hexbin
 		var options = {
-
-			// Size of the hexagons
-			radius : 16,
-
-			// Default opacity of the hexagons
-			opacity: 0.5,
-
-			// Transition duration for animations
-			duration: 500,
-
-			// Accessor functions for lat/long
-			lng: function(d) {
-				return d[0];
-			},
-			lat: function(d) {
-				return d[1];
-			},
-
-			// Value accessor function for deriving the color of the hexagons
-			value: function(d) { return d.length; },
-
-			// Override the extent of the value domain
-			valueFloor: undefined,
-			valueCeil: undefined
+			radius: 24,
+			opacity: 0.25,
+			colorRange: [ 'blue', 'orange', 'red' ]
 		};
 
 		// Create the hexlayer
-		var hexLayer = L.hexbinLayer(options).addTo(map);
-
-		// Set the colorScale range - colorScale() returns a reference to the scale used to map the color of each hexbin
-		hexLayer.colorScale().range([ 'green', 'red' ]);
+		var hexLayer = L.hexbinLayer(options)
+			.lng(function(d) { return d[0]; })
+			.lat(function(d) { return d[1]; })
+			.value(function(d) { return d.length; });
 
 		// Set up events
 		hexLayer.dispatch()
@@ -101,6 +79,9 @@
 				console.log({ type: 'click', event: d, index: i, context: this });
 			    setClicked(d);
 			});
+
+		// Add it to the map now that it's all set up
+		hexLayer.addTo(map);
 
 		function setHovered(d) {
 		    d3.select('#hovered .count').text((null != d) ? d.length : '');
@@ -121,7 +102,7 @@
 			for(var i = 0; i < count; i++) {
 				data.push([ longFn(), latFn() ]);
 			}
-			hexLayer.data(data);
+			hexLayer.data(data).redraw();
 		}
 
 		generateData();
