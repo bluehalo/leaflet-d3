@@ -10,6 +10,7 @@
 - [Install](#install)
 - [Usage](#usage)
 - [API](#api)
+- [Changelog](#changelog)
 - [Contribute](#contribute)
 - [License](#license)
 - [Credits](#credits)
@@ -46,14 +47,17 @@ var options = {
 	value: function(d){ return d.length; },	// value accessor - derives the bin value
 	valueFloor: 0,							// override the color scale domain low value
 	valueCeil: undefined,					// override the color scale domain high value
-	colorRange: ['#f7fbff', '#08306b'],		// default color range for the heat map (see note below)
-	onmouseover: function(d, node, layer) {},
-	onmouseout: function(d, node, layer) {},
-	onclick: function(d, node, layer) {}
+	colorRange: ['#f7fbff', '#08306b']		// default color range for the heat map (see note below)
 };
 
 // Create the hexbin layer and add it to the map
 var hexLayer = L.hexbinLayer(options).addTo(map);
+
+// Set up events
+hexLayer.dispatch()
+	.on('mouseover', function(d, i) { })
+	.on('mouseout', function(d, i) { })
+	.on('click', function(d, i) { });
 
 // Optionally, access the d3 color scale directly
 // Can also set scale via hexLayer.colorScale(d3.scale.linear()...)
@@ -87,7 +91,6 @@ You should reduce the transition duration or eliminate it entirely if you are go
 To use a polylinear color scale, simply provide more than two colors in the range. The domain cardinality will be adjusted automatically.
 A minimum of two values is required in the color range, but a single-color range is possible by using `['blue', 'blue']` for example.
 See the examples to see how diverging and discrete color scales can be used.
-
 
 
 ### Pings
@@ -127,6 +130,30 @@ pingLayer.ping([longFn(), latFn()], 'myCustomCssClass');
 
 ## API
 See examples for now.
+
+
+## Changelog
+
+### Version 2.x
+
+#### Hexbin event dispatch
+For Hexbins, we've changed the way that events are handled. Previously, you provided callback methods.
+Now, we expose a d3 dispatch object:
+
+```js
+...
+var hexLayer = L.hexbinLayer(options).addTo(map);
+
+// Set up events
+hexLayer.dispatch()
+	.on('mouseover', function(d, i) { })
+	.on('mouseout', function(d, i) { })
+	.on('click', function(d, i) { });
+```
+
+#### Pings now track the map
+We've changed pings so that they track the map when as it pans.
+The pan changes are applied immediately even when manually setting a low fps.
 
 
 ## Contribute

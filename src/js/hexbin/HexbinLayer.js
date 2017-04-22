@@ -2,6 +2,15 @@ import * as d3 from 'd3';
 import * as d3Hexbin from 'd3-hexbin';
 import 'leaflet';
 
+/**
+ * This is a convoluted way of getting ahold of the hexbin function.
+ * - When imported globally, d3 is exposed in the global namespace as 'd3'
+ * - When imported using a module system, it's a named import (and can't collide with d3)
+ * - When someone isn't importing d3-hexbin, the named import will be undefined
+ *
+ * As a result, we have to figure out how it's being imported and get the function reference
+ * (which is why we have this convoluted nested ternary statement
+ */
 var d3_hexbin = (null != d3.hexbin)? d3.hexbin : (null != d3Hexbin)? d3Hexbin.hexbin : null;
 
 /**
@@ -12,6 +21,9 @@ var d3_hexbin = (null != d3.hexbin)? d3.hexbin : (null != d3Hexbin)? d3Hexbin.he
 L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	includes: [ L.Mixin.Events ],
 
+	/**
+	 * Default options.
+	 */
 	options : {
 		radius : 10,
 		opacity: 0.5,
@@ -36,11 +48,20 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 			return (null != val) ? this._colorScale(val) : 'none';
 		},
 
-		onmouseover: undefined,
-		onmouseout: undefined,
-		click: undefined
+		pointerEvents: 'all'
+
 	},
 
+	/**
+	 * Dispatcher for managing events and callbacks
+	 */
+	_dispatch: d3.dispatch('mouseover', 'mouseout', 'click'),
+
+	/**
+	 * Standard Leaflet initialize function, accepting an options argument provided by the
+	 * user when they create the layer
+	 * @param options Options object where the options override the defaults
+	 */
 	initialize : function(options) {
 		L.setOptions(this, options);
 
@@ -56,6 +77,10 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 	},
 
+	/**
+	 * Callback made by Leaflet when the layer is added to the map
+	 * @param map Reference to the map to which this layer has been added
+	 */
 	onAdd : function(map) {
 		this._map = map;
 
@@ -69,6 +94,10 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		this._redraw();
 	},
 
+	/**
+	 * Callback made by Leaflet when the layer is removed from the map
+	 * @param map Reference to the map from which this layer is being removed
+	 */
 	onRemove : function(map) {
 		this._destroyContainer();
 
@@ -82,7 +111,12 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		//this._data = [];
 	},
 
+	/**
+	 * Create the SVG container for the hexbins
+	 * @private
+	 */
 	_initContainer : function() {
+
 		// If the container is null or the overlay pane is empty, create the svg element for drawing
 		if (null == this._container) {
 			var overlayPane = this._map.getPanes().overlayPane;
@@ -92,14 +126,23 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 	},
 
+	/**
+	 * Destroy the SVG container
+	 * @private
+	 */
 	_destroyContainer: function() {
+
 		// Remove the svg element
 		if (null != this._container) {
 			this._container.remove();
 		}
+
 	},
 
-	// (Re)draws the hexbin group
+	/**
+	 * (Re)draws the hexbins data on the container
+	 * @private
+	 */
 	_redraw : function() {
 		var that = this;
 
@@ -116,8 +159,6 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 			return { o: d, point: point };
 		});
 
-		var zoom = this._map.getZoom();
-
 		// Determine the bounds from the data and scale the overlay
 		var padding = this.options.radius * 2;
 		var bounds = this._getBounds(data);
@@ -126,7 +167,6 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 			marginTop = bounds.min[1] - padding,
 			marginLeft = bounds.min[0] - padding;
 
-		//this._hexLayout.size([ width, height ]);
 		this._container
 			.attr('width', width).attr('height', height)
 			.style('margin-left', marginLeft + 'px')
@@ -135,7 +175,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		// Select the hex group for the current zoom level. This has
 		// the effect of recreating the group if the zoom level has changed
 		var join = this._container.selectAll('g.hexbin')
-			.data([ zoom ], function(d) { return d; });
+			.data([ this._map.getZoom() ], function(d) { return d; });
 
 		// enter
 		var enter = join.enter().append('g')
@@ -181,9 +221,11 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		// Set the colorscale domain
 		that._colorScale.domain(domain);
 
+
 		// Join - Join the Hexagons to the data
 		var join = g.selectAll('path.hexbin-hexagon')
 			.data(bins, function(d) { return d.x + ':' + d.y; });
+
 
 		// Update - set the fill and opacity on a transition (opacity is re-applied in case the enter transition was cancelled)
 		join.transition().duration(that.options.duration)
@@ -191,30 +233,29 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 			.attr('fill-opacity', that.options.opacity)
 			.attr('stroke-opacity', that.options.opacity);
 
+
 		// Enter - establish the path, the fill, and the initial opacity
-		join.enter().append('path').attr('class', 'hexbin-hexagon')
-			.attr('d', function(d) { return 'M' + d.x + ',' + d.y + that._hexLayout.hexagon(); })
+		join.enter().append('path')
+			.attr('class', 'hexbin-hexagon')
+			.style('pointer-events', that.options.pointerEvents)
+			.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; })
+			.attr('d', function(d) { return that._hexLayout.hexagon(); })
 			.attr('fill', that.options.fill.bind(that))
 			.attr('fill-opacity', 0.01)
 			.attr('stroke-opacity', 0.01)
 			.on('mouseover', function(d, i) {
-				if(null != that.options.onmouseover) {
-					that.options.onmouseover(d, this, that);
-				}
+				that._dispatch.call('mouseover', this, d, i);
 			})
 			.on('mouseout', function(d, i) {
-				if(null != that.options.onmouseout) {
-					that.options.onmouseout(d, this, that);
-				}
+				that._dispatch.call('mouseout', this, d, i);
 			})
 			.on('click', function(d, i) {
-				if(null != that.options.onclick) {
-					that.options.onclick(d, this, that);
-				}
+				that._dispatch.call('click', this, d, i);
 			})
 			.transition().duration(that.options.duration)
 				.attr('fill-opacity', that.options.opacity)
 				.attr('stroke-opacity', that.options.opacity);
+
 
 		// Exit
 		join.exit()
@@ -298,30 +339,10 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	},
 
 	/*
-	 * Getter/setter for the mouseover function
+	 * Getter for the event dispatcher
 	 */
-	onmouseover: function(mouseoverFn) {
-		this.options.onmouseover = mouseoverFn;
-		//this._redraw();
-		return this;
-	},
-
-	/*
-	 * Getter/setter for the mouseout function
-	 */
-	onmouseout: function(mouseoutFn) {
-		this.options.onmouseout = mouseoutFn;
-		//this._redraw();
-		return this;
-	},
-
-	/*
-	 * Getter/setter for the click function
-	 */
-	onclick: function(clickFn) {
-		this.options.onclick = clickFn;
-		//this._redraw();
-		return this;
+	dispatch: function() {
+		return this._dispatch;
 	},
 
 	/*
