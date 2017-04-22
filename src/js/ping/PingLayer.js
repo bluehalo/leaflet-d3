@@ -36,7 +36,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 * Getter/setter for the radius
 	 */
 	radiusScale: function(radiusScale) {
-		if(undefined === radiusScale) {
+		if (undefined === radiusScale) {
 			return this._radiusScale;
 		}
 
@@ -48,7 +48,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 * Getter/setter for the opacity
 	 */
 	opacityScale: function(opacityScale) {
-		if(undefined === opacityScale) {
+		if (undefined === opacityScale) {
 			return this._opacityScale;
 		}
 
@@ -105,7 +105,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 		this._expire();
 
 		// Start timer if not active
-		if(!this._running && this._data.length > 0) {
+		if (!this._running && this._data.length > 0) {
 			this._running = true;
 			this._lastUpdate = Date.now();
 
@@ -151,6 +151,8 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 			.attr('width', bounds.width).attr('height', bounds.height)
 			.style('margin-left', bounds.left + 'px')
 			.style('margin-top', bounds.top + 'px');
+
+		this._update(true);
 	},
 
 	// Cleanup the svg pane
@@ -177,32 +179,38 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 		return bounds;
 	},
 
+	// Calculate the circle coordinates for the provided data
+	_getCircleCoords: function(geo) {
+		var point = this._map.latLngToLayerPoint(geo);
+		return { x: point.x - this._mapBounds.left, y: point.y - this._mapBounds.top };
+	},
+
 	// Update the map based on zoom/pan/move
 	_move: function() {
+		/* eslint-disable no-console */
+		console.log('move');
 		this._updateContainer();
 	},
 
 	// Add a ping to the map
 	_add : function(data, cssClass) {
 		// Lazy init the data array
-		if(null == this._data) this._data = [];
+		if (null == this._data) this._data = [];
 
 		// Derive the spatial data
 		var geo = [ this.options.lat(data), this.options.lng(data) ];
-		var point = this._map.latLngToLayerPoint(geo);
-		var mapBounds = this._mapBounds;
+		var coords = this._getCircleCoords(geo);
 
 		// Add the data to the list of pings
 		var circle = {
 			geo: geo,
-			x: point.x - mapBounds.left, y: point.y - mapBounds.top,
 			ts: Date.now(),
 			nts: 0
 		};
 		circle.c = this._container.append('circle')
 			.attr('class', (null != cssClass)? 'ping ' + cssClass : 'ping')
-			.attr('cx', circle.x)
-			.attr('cy', circle.y)
+			.attr('cx', coords.x)
+			.attr('cy', coords.y)
 			.attr('r', this.radiusScale().range()[0]);
 
 		// Push new circles
@@ -210,43 +218,52 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 	},
 
 	// Main update loop
-	_update : function() {
+	_update : function(immediate) {
 		var nowTs = Date.now();
-		if(null == this._data) this._data = [];
+		if (null == this._data) this._data = [];
 
 		var maxIndex = -1;
 
 		// Update everything
-		for(var i=0; i < this._data.length; i++) {
+		for (var i=0; i < this._data.length; i++) {
+
 			var d = this._data[i];
 			var age = nowTs - d.ts;
 
-			if(this.options.duration < age) {
+			if (this.options.duration < age) {
+
 				// If the blip is beyond it's life, remove it from the dom and track the lowest index to remove
 				d.c.remove();
 				maxIndex = i;
+
 			}
 			else {
 
 				// If the blip is still alive, process it
-				if(d.nts < nowTs) {
-					d.c.attr('r', this.radiusScale()(age))
+				if (immediate || d.nts < nowTs) {
+
+					var coords = this._getCircleCoords(d.geo);
+
+					d.c.attr('cx', coords.x)
+					   .attr('cy', coords.y)
+					   .attr('r', this.radiusScale()(age))
 					   .attr('fill-opacity', this.opacityScale()(age))
 					   .attr('stroke-opacity', this.opacityScale()(age));
 					d.nts = Math.round(nowTs + 1000/this.options.fps);
+
 				}
 			}
 		}
 
 		// Delete all the aged off data at once
-		if(maxIndex > -1) {
+		if (maxIndex > -1) {
 			this._data.splice(0, maxIndex + 1);
 		}
 
 		// The return function dictates whether the timer loop will continue
 		this._running = (this._data.length > 0);
 
-		if(this._running) {
+		if (this._running) {
 			this._fps = 1000/(nowTs - this._lastUpdate);
 			this._lastUpdate = nowTs;
 		}
@@ -260,7 +277,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 		var nowTs = Date.now();
 
 		// Search from the front of the array
-		for(var i=0; i < this._data.length; i++) {
+		for (var i=0; i < this._data.length; i++) {
 			var d = this._data[i];
 			var age = nowTs - d.ts;
 
@@ -275,7 +292,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 		}
 
 		// Delete all the aged off data at once
-		if(maxIndex > -1) {
+		if (maxIndex > -1) {
 			this._data.splice(0, maxIndex + 1);
 		}
 	}

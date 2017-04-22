@@ -25,9 +25,12 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		value: function(d) {
 			return d.length;
 		},
+
 		valueFloor: undefined,
 		valueCeil: undefined,
+
 		colorRange: [ '#f7fbff', '#08306b' ],
+
 		fill: function(d) {
 			var val = this.options.value(d);
 			return (null != val) ? this._colorScale(val) : 'none';
@@ -160,8 +163,15 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		var extent = d3.extent(bins, function(d) {
 			return that.options.value(d);
 		});
+
+		// If either's null, initialize them to 0
 		if (null == extent[0]) extent[0] = 0;
 		if (null == extent[1]) extent[1] = 0;
+
+		// If they're the same, create separation where the only values will be at the top of the range
+		if (extent[0] === extent[1]) extent[0] = extent[1] - 1;
+
+		// Now apply the optional clipping of the floor and ceiling
 		if (null != that.options.valueFloor) extent[0] = that.options.valueFloor;
 		if (null != that.options.valueCeil) extent[1] = that.options.valueCeil;
 

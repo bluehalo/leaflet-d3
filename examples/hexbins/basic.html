@@ -19,13 +19,15 @@
 </style>
 
 </head>
-<body>
+
 	<h2>Leaflet d3 Hexbin Example</h2>
 	<p>Demonstrates basic functionality</p>
 
 	<!-- The map element -->
 	<div id="map" style="width: 600px; height: 400px; border: 1px solid #ccc"></div>
-	<button onclick="generateData()">Generate Data</button>
+	<br/>
+
+	<input id="countInput" type="text" value="1000"><button onclick="generateData()">Generate Data</button>
 
 	<script>
 
@@ -91,8 +93,10 @@
 		var longFn = d3.randomNormal(center[1], 1);
 
 		function generateData() {
+			var count = document.getElementById('countInput').value;
+
 			var data = [];
-			for(var i = 0; i < 1000; i++) {
+			for(var i = 0; i < count; i++) {
 				data.push([ longFn(), latFn() ]);
 			}
 			hexLayer.data(data);
