@@ -45,18 +45,12 @@
 		var options = {
 			// Transition duration for animations
 			duration: 50,
-			overrideExtent: [ 1, 5 ],
+			colorScaleExtent: [ 1, 5 ],
 			colorRange: [ 'blue', 'orange', 'red' ]
 		};
 
-		// Create the hexlayer
-		var hexLayer = L.hexbinLayer(options)
-			.lng(function(d) { return d[0]; })
-			.lat(function(d) { return d[1]; })
-			.value(function(d) { return d.length; });
-
-		// Add it to the map now that it's all set up
-		hexLayer.addTo(map);
+		// Create the hexlayer and add it to the map
+		var hexLayer = L.hexbinLayer(options).addTo(map);
 
 
 		// Random data generators
@@ -76,7 +70,7 @@
 				}
 
 				// Pass the updated data array to the hexlayer
-				hexLayer.data(data).redraw();
+				hexLayer.data(data);
 			}
 
 		    setTimeout(doPings, 100);

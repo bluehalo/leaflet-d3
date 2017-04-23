@@ -10,15 +10,9 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 	includes: [ L.Mixin.Events ],
 
 	/*
-	 * Configuration
+	 * Default options
 	 */
 	options : {
-		lng: function(d) {
-			return d[0];
-		},
-		lat: function(d) {
-			return d[1];
-		},
 		fps: 32,
 		duration: 800
 	},

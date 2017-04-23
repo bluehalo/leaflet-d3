@@ -43,31 +43,16 @@
 		// Options for the Hexbin
 		var options = {
 
-			// Size of the hexagons
-			radius : 12,
-
-			// Default opacity of the hexagons
-			opacity: 0.3,
-
-			// Transition duration for animations
-			duration: 500,
-
 			// Provide one color for each integer that falls within the extent of the color scale's domain
 			colorRange: [ 'red', 'red', 'orange', 'orange', 'yellow', 'yellow', 'green', 'green', 'blue', 'blue' ],
 
 			// Set overrides for the colorScale's domain extent
-			overrideExtent: [ 1, 10 ]
+			colorScaleExtent: [ 1, 10 ]
 
 		};
 
-		// Create the hexlayer
-		var hexLayer = L.hexbinLayer(options)
-			.lng(function(d) { return d[0]; })
-			.lat(function(d) { return d[1]; })
-			.value(function(d) { return d.length; });
-
-		// Add it to the map now that it's all set up
-		hexLayer.addTo(map);
+		// Create the hexlayer and add it to the map
+		var hexLayer = L.hexbinLayer(options).addTo(map);
 
 
 		// Random data generators
@@ -81,7 +66,7 @@
 			for(var i = 0; i < count; i++) {
 				data.push([ longFn(), latFn() ]);
 			}
-			hexLayer.data(data).redraw();
+			hexLayer.data(data);
 		};
 
 		generateData();

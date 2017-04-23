@@ -12,32 +12,22 @@
 	<script src="../../dist/leaflet-d3.js" charset="utf-8"></script>
 
 <style>
-	svg path.hexbin-hexagon {
+	.hexbin-hexagon {
 		stroke: #000;
-		stroke-width: 1px;
+		stroke-width: .5px;
 	}
 </style>
 
 </head>
 
-	<h2>Leaflet d3 Hexbin Example with Event Handling</h2>
-	<p>Demonstrates use of events</p>
+	<h2>Leaflet d3 Hexbin Example</h2>
+	<p>Demonstrates advanced functionality</p>
 
 	<!-- The map element -->
 	<div id="map" style="width: 600px; height: 400px; border: 1px solid #ccc"></div>
 	<br/>
 
 	<input id="countInput" type="text" value="1000"><button onclick="generateData()">Generate Data</button>
-	<br/>
-
-	<div id="hovered">
-		<label>Hovered: </label>
-		<span class="count"></span>
-	</div>
-	<div id="clicked">
-		<label>Last Clicked: </label>
-		<span class="count"></span>
-	</div>
 
 	<script>
 
@@ -52,41 +42,13 @@
 			center: L.latLng(center[0], center[1]), zoom: 7
 		});
 
-		// Options for the Hexbin
-		var options = {
-			radius: 24,
-			opacity: 0.25,
-			colorRange: [ 'blue', 'orange', 'red' ]
-		};
 
 		// Create the hexlayer
-		var hexLayer = L.hexbinLayer(options);
+		var hexLayer = L.hexbinLayer()
+			.radiusValue(function(d) { return d.length; });
 
-		// Set up events
-		hexLayer.dispatch()
-			.on('mouseover', function(d, i) {
-				console.log({ type: 'mouseover', event: d, index: i, context: this });
-			    setHovered(d);
-			})
-			.on('mouseout', function(d, i) {
-				console.log({ type: 'mouseout', event: d, index: i, context: this });
-			    setHovered();
-			})
-			.on('click', function(d, i) {
-				console.log({ type: 'click', event: d, index: i, context: this });
-			    setClicked(d);
-			});
-
-		// Add it to the map now that it's all set up
 		hexLayer.addTo(map);
 
-		function setHovered(d) {
-		    d3.select('#hovered .count').text((null != d) ? d.length : '');
-		}
-
-		function setClicked(d) {
-			d3.select('#clicked .count').text((null != d) ? d.length : '');
-		}
 
 		// Random data generators
 		var latFn = d3.randomNormal(center[0], 1);

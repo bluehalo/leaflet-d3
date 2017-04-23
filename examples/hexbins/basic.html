@@ -44,13 +44,7 @@
 
 
 		// Create the hexlayer
-		var hexLayer = L.hexbinLayer()
-			.lng(function(d) { return d[0]; })
-			.lat(function(d) { return d[1]; })
-			.value(function(d) { return d.length; });
-
-		// Add it to the map now that it's all set up
-		hexLayer.addTo(map);
+		var hexLayer = L.hexbinLayer().addTo(map);
 
 
 		// Random data generators
@@ -64,7 +58,7 @@
 			for(var i = 0; i < count; i++) {
 				data.push([ longFn(), latFn() ]);
 			}
-			hexLayer.data(data).redraw();
+			hexLayer.data(data);
 		}
 
 		generateData();

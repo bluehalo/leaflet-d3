@@ -22,15 +22,17 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	includes: [ L.Mixin.Events ],
 
 	/**
-	 * Default options.
+	 * Default options
 	 */
 	options : {
-		radius : 10,
-		opacity: 0.5,
+		radius : 12,
+		opacity: 0.6,
 		duration: 200,
 
-		overrideExtent: [ 1, undefined ],
+		colorScaleExtent: [ 1, undefined ],
+		radiusScaleExtent: [ 1, undefined ],
 		colorRange: [ '#f7fbff', '#08306b' ],
+		radiusRange: [ 4, 12 ],
 
 		pointerEvents: 'all'
 	},
@@ -38,14 +40,19 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	_fn: {
 		lng: function(d) { return d[0]; },
 		lat: function(d) { return d[1]; },
-		value: function(d) { return d.length; },
+		colorValue: function(d) { return d.length; },
+		radiusValue: function(d) { return Number.MAX_VALUE; },
+
 		fill: function(d) {
-			var val = this._fn.value(d);
-			return (null != val) ? this._colorScale(val) : 'none';
+			var val = this._fn.colorValue(d);
+			return (null != val) ? this._scale.color(val) : 'none';
 		}
 	},
 
-	_colorScale: undefined,
+	_scale: {
+		color: d3.scaleLinear(),
+		radius: d3.scaleLinear()
+	},
 
 	/**
 	 * Dispatcher for managing events and callbacks
@@ -67,12 +74,15 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 			.x(function(d) { return d.point[0]; })
 			.y(function(d) { return d.point[1]; });
 
-		// Initialize the data array
+		// Initialize the data array to be empty
 		this._data = [];
 
-		// Initialize the color scale
-		this._colorScale = d3.scaleLinear()
+		this._scale.color
 			.range(this.options.colorRange)
+			.clamp(true);
+
+		this._scale.radius
+			.range(this.options.radiusRange)
 			.clamp(true);
 
 	},
@@ -82,16 +92,19 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 * @param map Reference to the map to which this layer has been added
 	 */
 	onAdd : function(map) {
+
+		// Store a reference to the map for later use
 		this._map = map;
 
-		// Create a container for svg.
+		// Create a container for svg
 		this._initContainer();
 
-		// Set up events
+		// Redraw on moveend
 		map.on({ 'moveend': this.redraw }, this);
 
 		// Initial draw
 		this.redraw();
+
 	},
 
 	/**
@@ -99,6 +112,8 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 * @param map Reference to the map from which this layer is being removed
 	 */
 	onRemove : function(map) {
+
+		// Destroy the svg container
 		this._destroyContainer();
 
 		// Remove events
@@ -109,6 +124,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 		// Explicitly will leave the data array alone in case the layer will be shown again
 		//this._data = [];
+
 	},
 
 	/**
@@ -119,7 +135,11 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 		// If the container is null or the overlay pane is empty, create the svg element for drawing
 		if (null == this._container) {
+
+			// The svg is in the overlay pane so it's drawn on top of other base layers
 			var overlayPane = this._map.getPanes().overlayPane;
+
+			// The leaflet-zoom-hide class hides the svg layer when zooming
 			this._container = d3.select(overlayPane).append('svg')
 				.attr('class', 'leaflet-layer leaflet-zoom-hide');
 		}
@@ -127,7 +147,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	},
 
 	/**
-	 * Destroy the SVG container
+	 * Clean up the svg container
 	 * @private
 	 */
 	_destroyContainer: function() {
@@ -200,25 +220,16 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		// Create the bins using the hexbin layout
 		var bins = that._hexLayout(data);
 
-		// Determine the extent of the values
-		var extent = d3.extent(bins, function(d) { return that._fn.value(d); });
-
-		// If either's null, initialize them to 0
-		if (null == extent[0]) extent[0] = 0;
-		if (null == extent[1]) extent[1] = 0;
-
-		// We don't want the scales to ever collapse cause that leads to slightly weird behavior
-		if (extent[0] === extent[1]) extent[1] = extent[0] + 1;
-
-		// Now apply the optional clipping of the extent
-		if (null != that.options.overrideExtent[0]) extent[0] = that.options.overrideExtent[0];
-		if (null != that.options.overrideExtent[1]) extent[1] = that.options.overrideExtent[1];
+		// Derive the extents of the data values for each dimension
+		var colorExtent = that._getExtent(bins, that._fn.colorValue, that.options.colorScaleExtent);
+		var radiusExtent = that._getExtent(bins, that._fn.radiusValue, that.options.radiusScaleExtent);
 
 		// Match the domain cardinality to that of the color range, to allow for a polylinear scale
-		var domain = that._linearlySpace(extent[0], extent[1], that._colorScale.range().length);
+		var colorDomain = that._linearlySpace(colorExtent[0], colorExtent[1], that._scale.color.range().length);
 
-		// Set the colorscale domain
-		that._colorScale.domain(domain);
+		// Set the scale domains
+		that._scale.color.domain(colorDomain);
+		that._scale.radius.domain(radiusExtent);
 
 
 		// Join - Join the Hexagons to the data
@@ -236,8 +247,12 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		// Enter - establish the path, the fill, and the initial opacity
 		join.enter().append('path').attr('class', 'hexbin-hexagon')
 			.style('pointer-events', that.options.pointerEvents)
-			.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; })
-			.attr('d', function(d) { return that._hexLayout.hexagon(); })
+			.attr('transform', function(d) {
+				return 'translate(' + d.x + ',' + d.y + ')';
+			})
+			.attr('d', function(d) {
+				return that._hexLayout.hexagon(that._scale.radius(that._fn.radiusValue.call(that, d)));
+			})
 			.attr('fill', that._fn.fill.bind(that))
 			.attr('fill-opacity', 0.01)
 			.attr('stroke-opacity', 0.01)
@@ -255,6 +270,23 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 				.attr('fill-opacity', 0.01)
 				.attr('stroke-opacity', 0.01)
 				.remove();
+
+	},
+
+	_getExtent: function(bins, valueFn, scaleExtent) {
+
+		// Determine the extent of the values
+		var extent = d3.extent(bins, valueFn.bind(this));
+
+		// If either's null, initialize them to 0
+		if (null == extent[0]) extent[0] = 0;
+		if (null == extent[1]) extent[1] = 0;
+
+		// Now apply the optional clipping of the extent
+		if (null != scaleExtent[0]) extent[0] = scaleExtent[0];
+		if (null != scaleExtent[1]) extent[1] = scaleExtent[1];
+
+		return extent;
 
 	},
 
@@ -323,9 +355,16 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		return this;
 	},
 
-	overrideExtent: function(v) {
-		if (!arguments.length) { return this.options.overrideExtent; }
-		this.options.overrideExtent = v;
+	colorScaleExtent: function(v) {
+		if (!arguments.length) { return this.options.colorScaleExtent; }
+		this.options.colorScaleExtent = v;
+
+		return this;
+	},
+
+	radiusScaleExtent: function(v) {
+		if (!arguments.length) { return this.options.radiusScaleExtent; }
+		this.options.radiusScaleExtent = v;
 
 		return this;
 	},
@@ -333,14 +372,29 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	colorRange: function(v) {
 		if (!arguments.length) { return this.options.colorRange; }
 		this.options.colorRange = v;
-		this._colorScale().range(v);
+		this._scale.color().range(v);
+
+		return this;
+	},
+
+	radiusRange: function(v) {
+		if (!arguments.length) { return this.options.radiusRange; }
+		this.options.radiusRange = v;
+		this._scale.radius().range(v);
 
 		return this;
 	},
 
 	colorScale: function(v) {
-		if (!arguments.length) { return this._colorScale; }
-		this._colorScale = v;
+		if (!arguments.length) { return this._scale.color; }
+		this._scale.color = v;
+
+		return this;
+	},
+
+	radiusScale: function(v) {
+		if (!arguments.length) { return this._scale.radius; }
+		this._scale.radius = v;
 
 		return this;
 	},
@@ -359,9 +413,16 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		return this;
 	},
 
-	value: function(v) {
-		if (!arguments.length) { return this._fn.value; }
-		this._fn.value = v;
+	colorValue: function(v) {
+		if (!arguments.length) { return this._fn.colorValue; }
+		this._fn.colorValue = v;
+
+		return this;
+	},
+
+	radiusValue: function(v) {
+		if (!arguments.length) { return this._fn.radiusValue; }
+		this._fn.radiusValue = v;
 
 		return this;
 	},
@@ -376,6 +437,8 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	data: function(v) {
 		if (!arguments.length) { return this._data; }
 		this._data = (null != v) ? v : [];
+
+		this.redraw();
 
 		return this;
 	},

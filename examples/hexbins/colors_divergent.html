@@ -64,17 +64,11 @@
 			// for example, if the extent of the domain is [1, 10], then the domain would be [1, 5.5, 10]
 			// if there are three colors in the range
 		    colorRange: colorRange,
-		    overrideExtent: [ undefined, undefined ]
+		    colorScaleExtent: [ undefined, undefined ]
 		};
 
-		// Create the hexlayer
-		var hexLayer = L.hexbinLayer(options)
-			.lng(function(d) { return d[0]; })
-			.lat(function(d) { return d[1]; })
-			.value(function(d) { return d.length; });
-
-		// Add it to the map now that it's all set up
-		hexLayer.addTo(map);
+		// Create the hexlayer and add it to the map
+		var hexLayer = L.hexbinLayer(options).addTo(map);
 
 
 		// Random data generators
@@ -88,7 +82,7 @@
 			for(var i = 0; i < count; i++) {
 				data.push([ longFn(), latFn() ]);
 			}
-			hexLayer.data(data).redraw();
+			hexLayer.data(data);
 		};
 
 		generateData();

@@ -37,17 +37,29 @@ Live Demo: [JSFiddle](http://jsfiddle.net/acjnbu8t/embedded/result/)
 To use, simply declare a hexbin layer and add it to your map. You can then add data to the layer.
 
 ```js
-// Options for the hexbin layer
+// Default options for the hexbin layer
 var options = {
-	radius : 10,							// Size of the hexagons/bins
-	opacity: 0.5,							// Opacity of the hexagonal layer
-	duration: 200,							// millisecond duration of d3 transitions (see note below)
-	overrideExtent: [ 0, undefined ],		// override the color scale domain (uundefined is treated as un-set)
-	colorRange: ['#f7fbff', '#08306b']		// default color range for the heat map (see note below)
+	radius : 12,							// Radius the hexagon grid cells in pixels
+
+	opacity: 0.5,							// Opacity of the hexagons in their most visible state
+	duration: 200,							// Millisecond duration of d3 transitions (see note below)
+
+	colorScaleExtent: [ 1, undefined ],		// Override the color scale domain extent
+	radiusScaleExtent: [ 1, undefined ],	// Override the radius scale domain extent
+	colorRange: [ '#f7fbff', '#08306b' ],	// Color range for hexagon fill (see note below)
+	radiusRange: [ 5, 12 ],					// Radius range for drawn hexagon geometries
+	
+	pointerEvents: 'all'					// 'pointer-events' css style to apply to hexagon paths
 };
 
-// Create the hexbin layer and add it to the map
-var hexLayer = L.hexbinLayer(options).addTo(map);
+// Create the hexbin layer and set all of the accessor functions
+var hexLayer = L.hexbinLayer(options)
+	.lng(function(d) { return d[0]; })
+	.lat(function(d) { return d[1]; })
+	.colorValue(function(d) { return d.length; })
+	.radiusValue(function() { return 1; });
+
+hexLayer.addTo(map);
 
 // Set up events
 hexLayer.dispatch()
