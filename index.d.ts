@@ -21,35 +21,71 @@ declare namespace L {
 	 * Hexbins
 	 */
 	interface HexbinLayer extends L.Layer {
-		data(v: any[]): this;
+		radius(): number;
+		radius(v: number): this;
+
+		opacity(): number;
+		opacity(v: number): this;
+
+		duration(): number;
+		duration(v: number): this;
+
+		colorScaleExtent(): [ number, number ];
+		colorScaleExtent(v: [ number, number ]): this;
+
+		radiusScaleExtent(): [ number, number ];
+		radiusScaleExtent(v: [ number, number ]): this;
+
+		colorRange(): string[];
+		colorRange(v: string[]): this;
+
+		radiusRange(): number[];
+		radiusRange(v: number[]): this;
 
 		colorScale(): any;
 		colorScale(v: any): this;
 
-		value(): internal.UnionFn<number>;
-		value(v: internal.UnionFn<number>): this;
+		radiusScale(): any;
+		radiusScale(v: any): this;
+
+		lng(): internal.ObjectFn<number>;
+		lng(v: internal.ObjectFn<number>): this;
+
+		lat(): internal.ObjectFn<number>;
+		lat(v: internal.ObjectFn<number>): this;
+
+		colorValue(): internal.ObjectFn<number>;
+		colorValue(v: internal.ObjectFn<number>): this;
+
+		radiusValue(): internal.ObjectFn<number>;
+		radiusValue(v: internal.ObjectFn<number>): this;
+
+		fill(): internal.ObjectFn<string>;
+		fill(v: internal.ObjectFn<string>): this;
+
+		data(): any[];
+		data(v: any[]): this;
+
+		dispatch(): any;
 
 		getLatLngs(): any[];
 		toGeoJSON(): any[];
+
+		redraw(): void;
 	}
+
 
 	interface HexbinLayerConfig {
 		radius?: number,
 		opacity?: number,
 		duration?: number,
 
-		valueFloor?: number,
-		valueCeil?: number,
+		colorScaleExtent?: [ number, number ],
+		radiusScaleExtent?: [ number, number ],
 		colorRange?: string[],
+		radiusRange?: [ number, number ],
 
-		lng?: internal.ObjectFn<number>,
-		lat?: internal.ObjectFn<number>,
-		value?: internal.ObjectFn<number>,
-		fill?: internal.ObjectFn<string>,
-
-		onmouseover?: internal.UnionCallback,
-		onmouseout?: internal.UnionCallback,
-		click?: internal.UnionCallback
+		pointerEvents?: string
 	}
 
 	function hexbinLayer(config?: HexbinLayerConfig): HexbinLayer;
@@ -60,24 +96,45 @@ declare namespace L {
 	 * Pings
 	 */
 	interface PingLayer extends L.Layer {
+		duration(): number;
+		duration(v: number): this;
+
+		fps(): number;
+		fps(v: number): this;
+
+		lng(): internal.ObjectFn<number>;
+		lng(v: internal.ObjectFn<number>): this;
+
+		lat(): internal.ObjectFn<number>;
+		lat(v: internal.ObjectFn<number>): this;
+
+		radiusRange(): number[];
+		radiusRange(v: number[]): this;
+
+		opacityRange(): number[];
+		opacityRange(v: number[]): this;
+
 		radiusScale(): any;
 		radiusScale(v: any): this;
 
 		opacityScale(): any;
 		opacityScale(v: any): this;
 
-		getFps(): number,
-		getCount(): number,
+		radiusScaleFactor(): number;
+		radiusScaleFactor(v: number): this;
 
 		ping(data: any, cssClass?: string): this;
+
+		getActualFps(): number;
+		data(): any[];
+
 	}
 
 	interface PingLayerConfig {
-		fps?: number,
 		duration?: number,
-
-		lng?: internal.ObjectFn<number>,
-		lat?: internal.ObjectFn<number>
+		fps?: number,
+		opacityRange?: number[],
+		radiusRange?: number[]
 	}
 
 	function pingLayer(config?: PingLayerConfig): PingLayer;
