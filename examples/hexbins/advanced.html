@@ -44,7 +44,7 @@
 
 
 		// Create the hexlayer
-		var hexLayer = L.hexbinLayer()
+		var hexLayer = L.hexbinLayer({ duration: 400, radiusRange: [ 3, 11 ] })
 			.radiusValue(function(d) { return d.length; });
 
 		hexLayer.addTo(map);

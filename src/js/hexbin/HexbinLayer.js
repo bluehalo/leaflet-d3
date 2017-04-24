@@ -232,26 +232,42 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		that._scale.radius.domain(radiusExtent);
 
 
-		// Join - Join the Hexagons to the data
+		/*
+		 * Join
+		 *    Join the Hexagons to the data
+		 *    Use a deterministic id for tracking bins based on position
+		 */
 		var join = g.selectAll('path.hexbin-hexagon')
 			.data(bins, function(d) { return d.x + ':' + d.y; });
 
 
-		// Update - set the fill and opacity on a transition (opacity is re-applied in case the enter transition was cancelled)
+		/*
+		 * Update
+		 *    Set the fill and opacity on a transition
+		 *    opacity is re-applied in case the enter transition was cancelled
+		 *    the path is applied as well to resize the bins
+		 */
 		join.transition().duration(that.options.duration)
 			.attr('fill', that._fn.fill.bind(that))
 			.attr('fill-opacity', that.options.opacity)
-			.attr('stroke-opacity', that.options.opacity);
+			.attr('stroke-opacity', that.options.opacity)
+			.attr('d', function(d) {
+				return that._hexLayout.hexagon(that._scale.radius(that._fn.radiusValue.call(that, d)));
+			});
 
 
-		// Enter - establish the path, the fill, and the initial opacity
+		/*
+		 * Enter
+		 *    Establish the path, size, fill, and the initial opacity
+		 *    Transition to the final opacity and size
+		 */
 		join.enter().append('path').attr('class', 'hexbin-hexagon')
 			.style('pointer-events', that.options.pointerEvents)
 			.attr('transform', function(d) {
 				return 'translate(' + d.x + ',' + d.y + ')';
 			})
 			.attr('d', function(d) {
-				return that._hexLayout.hexagon(that._scale.radius(that._fn.radiusValue.call(that, d)));
+				return that._hexLayout.hexagon(0);
 			})
 			.attr('fill', that._fn.fill.bind(that))
 			.attr('fill-opacity', 0.01)
@@ -261,7 +277,10 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 			.on('click', function(d, i) { that._dispatch.call('click', this, d, i); })
 			.transition().duration(that.options.duration)
 				.attr('fill-opacity', that.options.opacity)
-				.attr('stroke-opacity', that.options.opacity);
+				.attr('stroke-opacity', that.options.opacity)
+				.attr('d', function(d) {
+					return that._hexLayout.hexagon(that._scale.radius(that._fn.radiusValue.call(that, d)));
+				});
 
 
 		// Exit
@@ -269,6 +288,9 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 			.transition().duration(that.options.duration)
 				.attr('fill-opacity', 0.01)
 				.attr('stroke-opacity', 0.01)
+				.attr('d', function(d) {
+					return that._hexLayout.hexagon(0);
+				})
 				.remove();
 
 	},

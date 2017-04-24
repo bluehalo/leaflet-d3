@@ -285,8 +285,89 @@ hexLayer.dispatch()
 	});
 ```
 
+
 ### Pings
 
+### L.pingLayer(options): L.PingLayer
+Create a Leaflet map layer for visualizing transient event data using animated expanding circles. 
+
+### options
+Set of options for customizing the appearance/behavior of the ping layer.
+
+Example:
+
+```js
+var options = {
+	duration: 800,
+    fps : 32,
+    opacityRange: [ 1, 0 ],
+	radiusRange: [ 5, 12 ]
+};
+```
+
+#### duration
+Sets the transition duration for the ping layer (see below for details).
+
+#### fps
+Sets the target framerate for the ping animation. **Default:** 800
+The animation loop will limit DOM changes to this frequency in order to reduce the impact to the CPU.
+
+#### opacityRange
+Sets the range of the opacity scale used to fade out the pings as they age (see below for details). 
+
+#### radiusRange
+Sets the range of the radius scale used to size the pings as they age (see below for details).
+
+
+### L.PingLayer
+
+#### pingLayer.duration(value?: number)
+Setter/getter for the durations configuration option.
+
+The millisecond duration of each ping's lifecycle. **Default:** 800
+
+This value should be a non-negative number.
+The pings will grow from their initial size/opacity to their final size/opacity over this period of time.
+After this duration, the pings are removed from the map.
+
+#### pingLayer.fps(value?: number)
+Setter/getter for the durations configuration option.
+
+The millisecond duration of each ping's lifecycle. **Default:** 800
+
+This value should be a non-negative number.
+The pings will grow from their initial size/opacity to their final size/opacity over this period of time.
+After this duration, the pings are removed from the map.
+
+#### pingLayer.opacityRange(value?: [ number, number ])
+Setter/getter for the opacityRange configuration option.
+
+The start/end opacity state applied during each ping's lifecycle. **Default:** [ 1, 0 ]
+
+This value should be a tuple of size two.
+The pings will start at an opacity equal to the first number in the tuple and animate to the second number in the tuple.
+
+#### pingLayer.radiusRange(value?: [ number, number ])
+Setter/getter for the radiusRange configuration option.
+
+The start/end radius applied during each ping's lifecycle. **Default:** [ 3, 15 ]
+
+This value should be a tuple of size two.
+The pings will start at a pixel radius equal to the first number in the tuple and animate to the second number in the tuple.
+
+#### pingLayer.radiusRange(value?: [ number, number ])
+Setter/getter for the radiusRange configuration option.
+
+The start/end radius applied during each ping's lifecycle. **Default:** [ 3, 15 ]
+
+This value should be a tuple of size two.
+The pings will start at a pixel radius equal to the first number in the tuple and animate to the second number in the tuple.
+
+#### .lng(value?: function(d, i) {})
+Setter/getter for the function used to derive the value of the longitude for each object in the data array. **Default:** function(d) { return d[0]; }
+
+#### .lat(value?: function(d, i) {})
+Setter/getter for the function used to derive the value of the latitude for each object in the data array. **Default:** function(d) { return d[1]; }
 
 
 

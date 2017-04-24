@@ -235,26 +235,42 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		that._scale.radius.domain(radiusExtent);
 
 
-		// Join - Join the Hexagons to the data
+		/*
+		 * Join
+		 *    Join the Hexagons to the data
+		 *    Use a deterministic id for tracking bins based on position
+		 */
 		var join = g.selectAll('path.hexbin-hexagon')
 			.data(bins, function(d) { return d.x + ':' + d.y; });
 
 
-		// Update - set the fill and opacity on a transition (opacity is re-applied in case the enter transition was cancelled)
+		/*
+		 * Update
+		 *    Set the fill and opacity on a transition
+		 *    opacity is re-applied in case the enter transition was cancelled
+		 *    the path is applied as well to resize the bins
+		 */
 		join.transition().duration(that.options.duration)
 			.attr('fill', that._fn.fill.bind(that))
 			.attr('fill-opacity', that.options.opacity)
-			.attr('stroke-opacity', that.options.opacity);
+			.attr('stroke-opacity', that.options.opacity)
+			.attr('d', function(d) {
+				return that._hexLayout.hexagon(that._scale.radius(that._fn.radiusValue.call(that, d)));
+			});
 
 
-		// Enter - establish the path, the fill, and the initial opacity
+		/*
+		 * Enter
+		 *    Establish the path, size, fill, and the initial opacity
+		 *    Transition to the final opacity and size
+		 */
 		join.enter().append('path').attr('class', 'hexbin-hexagon')
 			.style('pointer-events', that.options.pointerEvents)
 			.attr('transform', function(d) {
 				return 'translate(' + d.x + ',' + d.y + ')';
 			})
 			.attr('d', function(d) {
-				return that._hexLayout.hexagon(that._scale.radius(that._fn.radiusValue.call(that, d)));
+				return that._hexLayout.hexagon(0);
 			})
 			.attr('fill', that._fn.fill.bind(that))
 			.attr('fill-opacity', 0.01)
@@ -264,7 +280,10 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 			.on('click', function(d, i) { that._dispatch.call('click', this, d, i); })
 			.transition().duration(that.options.duration)
 				.attr('fill-opacity', that.options.opacity)
-				.attr('stroke-opacity', that.options.opacity);
+				.attr('stroke-opacity', that.options.opacity)
+				.attr('d', function(d) {
+					return that._hexLayout.hexagon(that._scale.radius(that._fn.radiusValue.call(that, d)));
+				});
 
 
 		// Exit
@@ -272,6 +291,9 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 			.transition().duration(that.options.duration)
 				.attr('fill-opacity', 0.01)
 				.attr('stroke-opacity', 0.01)
+				.attr('d', function(d) {
+					return that._hexLayout.hexagon(0);
+				})
 				.remove();
 
 	},
@@ -494,13 +516,20 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 * Default options
 	 */
 	options : {
+		duration: 800,
 		fps: 32,
-		duration: 800
+		opacityRange: [ 1, 0 ],
+		radiusRange: [ 3, 15 ]
 	},
 
 	_fn: {
 		lng: function(d) { return d[0]; },
 		lat: function(d) { return d[1]; }
+	},
+
+	_scale: {
+		radius: d3.scalePow().exponent(0.35),
+		opacity: d3.scaleLinear()
 	},
 
 	_lastUpdate: Date.now(),
@@ -512,13 +541,13 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 	initialize : function(options) {
 		L.setOptions(this, options);
 
-		this._radiusScale = d3.scalePow().exponent(0.35)
+		this._scale.radius
 			.domain([ 0, this.options.duration ])
-			.range([ 3, 15 ])
+			.range(this.options.radiusRange)
 			.clamp(true);
-		this._opacityScale = d3.scaleLinear()
+		this._scale.opacity
 			.domain([ 0, this.options.duration ])
-			.range([ 1, 0 ])
+			.range(this.options.opacityRange)
 			.clamp(true);
 	},
 
@@ -647,7 +676,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 			.attr('class', (null != cssClass)? 'ping ' + cssClass : 'ping')
 			.attr('cx', coords.x)
 			.attr('cy', coords.y)
-			.attr('r', this.radiusScale().range()[0]);
+			.attr('r', this._scale.radius.range()[0]);
 
 		// Push new circles
 		this._data.push(circle);
@@ -682,9 +711,9 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 					d.c.attr('cx', coords.x)
 					   .attr('cy', coords.y)
-					   .attr('r', this.radiusScale()(age))
-					   .attr('fill-opacity', this.opacityScale()(age))
-					   .attr('stroke-opacity', this.opacityScale()(age));
+					   .attr('r', this._scale.radius(age))
+					   .attr('fill-opacity', this._scale.opacity(age))
+					   .attr('stroke-opacity', this._scale.opacity(age));
 					d.nts = Math.round(nowTs + 1000/this.options.fps);
 
 				}
@@ -737,27 +766,30 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 * Public Methods
 	 */
 
-	radiusScale: function(radiusScale) {
-		if (undefined === radiusScale) {
-			return this._radiusScale;
-		}
+	radiusScale: function(v) {
+		if (!arguments.length) { return this._scale.radius; }
+		this._scale.radius = v;
 
-		this._radiusScale = radiusScale;
 		return this;
 	},
 
-	opacityScale: function(opacityScale) {
-		if (undefined === opacityScale) {
-			return this._opacityScale;
-		}
+	opacityScale: function(v) {
+		if (!arguments.length) { return this._scale.opacity; }
+		this._scale.opacity = v;
 
-		this._opacityScale = opacityScale;
 		return this;
 	},
 
 	duration: function(v) {
 		if (!arguments.length) { return this.options.duration; }
 		this.options.duration = v;
+
+		return this;
+	},
+
+	fps: function(v) {
+		if (!arguments.length) { return this.options.fps; }
+		this.options.fps = v;
 
 		return this;
 	},
@@ -772,6 +804,22 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 	lat: function(v) {
 		if (!arguments.length) { return this._fn.lat; }
 		this._fn.lat = v;
+
+		return this;
+	},
+
+	radiusRange: function(v) {
+		if (!arguments.length) { return this.options.radiusRange; }
+		this.options.radiusRange = v;
+		this._scale.radius().range(v);
+
+		return this;
+	},
+
+	opacityRange: function(v) {
+		if (!arguments.length) { return this.options.opacityRange; }
+		this.options.opacityRange = v;
+		this._scale.opacity().range(v);
 
 		return this;
 	},
