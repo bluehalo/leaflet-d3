@@ -524,7 +524,8 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 	_fn: {
 		lng: function(d) { return d[0]; },
-		lat: function(d) { return d[1]; }
+		lat: function(d) { return d[1]; },
+		radiusScaleFactor: function(d) { return 1; }
 	},
 
 	_scale: {
@@ -668,6 +669,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 		// Add the data to the list of pings
 		var circle = {
+			data: data,
 			geo: geo,
 			ts: Date.now(),
 			nts: 0
@@ -676,7 +678,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 			.attr('class', (null != cssClass)? 'ping ' + cssClass : 'ping')
 			.attr('cx', coords.x)
 			.attr('cy', coords.y)
-			.attr('r', this._scale.radius.range()[0]);
+			.attr('r', this._fn.radiusScaleFactor.call(this, data) * this._scale.radius.range()[0]);
 
 		// Push new circles
 		this._data.push(circle);
@@ -711,7 +713,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 					d.c.attr('cx', coords.x)
 					   .attr('cy', coords.y)
-					   .attr('r', this._scale.radius(age))
+					   .attr('r', this._fn.radiusScaleFactor.call(this, d.data) * this._scale.radius(age))
 					   .attr('fill-opacity', this._scale.opacity(age))
 					   .attr('stroke-opacity', this._scale.opacity(age));
 					d.nts = Math.round(nowTs + 1000/this.options.fps);
@@ -766,20 +768,6 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 * Public Methods
 	 */
 
-	radiusScale: function(v) {
-		if (!arguments.length) { return this._scale.radius; }
-		this._scale.radius = v;
-
-		return this;
-	},
-
-	opacityScale: function(v) {
-		if (!arguments.length) { return this._scale.opacity; }
-		this._scale.opacity = v;
-
-		return this;
-	},
-
 	duration: function(v) {
 		if (!arguments.length) { return this.options.duration; }
 		this.options.duration = v;
@@ -820,6 +808,27 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 		if (!arguments.length) { return this.options.opacityRange; }
 		this.options.opacityRange = v;
 		this._scale.opacity().range(v);
+
+		return this;
+	},
+
+	radiusScale: function(v) {
+		if (!arguments.length) { return this._scale.radius; }
+		this._scale.radius = v;
+
+		return this;
+	},
+
+	opacityScale: function(v) {
+		if (!arguments.length) { return this._scale.opacity; }
+		this._scale.opacity = v;
+
+		return this;
+	},
+
+	radiusScaleFactor: function(v) {
+		if (!arguments.length) { return this._fn.radiusScaleFactor; }
+		this._fn.radiusScaleFactor = v;
 
 		return this;
 	},

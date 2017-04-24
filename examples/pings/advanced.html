@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Leaflet d3 Ping Layer</title>
+
+	<link rel="stylesheet" href="../../node_modules/leaflet/dist/leaflet.css" />
+
+	<script src="../../node_modules/d3/build/d3.js" charset="utf-8"></script>
+	<script src="../../node_modules/leaflet/dist/leaflet-src.js"></script>
+
+	<script src="../../dist/leaflet-d3.js" charset="utf-8"></script>
+
+<style>
+	circle.ping {
+		stroke: #222;
+	}
+	circle.ping.red {
+		fill: red;
+	}
+	circle.ping.blue {
+		fill: steelblue;
+	}
+</style>
+
+</head>
+<body>
+	<div id="map" style="width: 600px; height: 400px; border: 1px solid #ccc"></div>
+
+	<script>
+
+		// Set up the map
+		var center = [ 38.991709, -76.886109 ];
+		var layer = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			maxZoom: 18,
+			attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+		});
+		var map = L.map('map', {
+			layers: [ layer ],
+			center: L.latLng(center[0], center[1]), zoom: 7
+		});
+
+
+		// Create the ping layer and add it to the map
+		var pingLayer = L.pingLayer({
+		    duration: 1000,
+			fps: 32
+		});
+
+		pingLayer
+			.lng(function(d) { return d.lng; })
+			.lat(function(d) { return d.lat; })
+			.radiusScaleFactor(function(d) { return d.scaleFactor });
+
+		pingLayer.addTo(map);
+
+
+		// Demo code that will randomly generate pings
+		var latFn = d3.randomNormal(center[0], 1);
+		var longFn = d3.randomNormal(center[1], 1);
+		var update = function(){
+			// Randomly change the pingLayer class:
+			pingLayer.ping({ lng: longFn(), lat: latFn(), scaleFactor: (Math.random()*2 + 1) }, (Math.random() > 0.3) ? 'red' : 'blue');
+			window.setTimeout(update, 100 + Math.random()*300);
+		};
+		window.setTimeout(update);
+
+	</script>
+</body>
+</html>
+
