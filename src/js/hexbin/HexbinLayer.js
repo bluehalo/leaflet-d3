@@ -2,6 +2,15 @@ import * as d3 from 'd3';
 import * as d3Hexbin from 'd3-hexbin';
 import 'leaflet';
 
+/**
+ * This is a convoluted way of getting ahold of the hexbin function.
+ * - When imported globally, d3 is exposed in the global namespace as 'd3'
+ * - When imported using a module system, it's a named import (and can't collide with d3)
+ * - When someone isn't importing d3-hexbin, the named import will be undefined
+ *
+ * As a result, we have to figure out how it's being imported and get the function reference
+ * (which is why we have this convoluted nested ternary statement
+ */
 var d3_hexbin = (null != d3.hexbin)? d3.hexbin : (null != d3Hexbin)? d3Hexbin.hexbin : null;
 
 /**
@@ -12,95 +21,149 @@ var d3_hexbin = (null != d3.hexbin)? d3.hexbin : (null != d3Hexbin)? d3Hexbin.he
 L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	includes: [ L.Mixin.Events ],
 
+	/**
+	 * Default options
+	 */
 	options : {
-		radius : 10,
-		opacity: 0.5,
+		radius : 12,
+		opacity: 0.6,
 		duration: 200,
-		lng: function(d) {
-			return d[0];
-		},
-		lat: function(d) {
-			return d[1];
-		},
-		value: function(d) {
-			return d.length;
-		},
 
-		valueFloor: undefined,
-		valueCeil: undefined,
-
+		colorScaleExtent: [ 1, undefined ],
+		radiusScaleExtent: [ 1, undefined ],
 		colorRange: [ '#f7fbff', '#08306b' ],
+		radiusRange: [ 4, 12 ],
 
-		fill: function(d) {
-			var val = this.options.value(d);
-			return (null != val) ? this._colorScale(val) : 'none';
-		},
-
-		onmouseover: undefined,
-		onmouseout: undefined,
-		click: undefined
+		pointerEvents: 'all'
 	},
 
+	_fn: {
+		lng: function(d) { return d[0]; },
+		lat: function(d) { return d[1]; },
+		colorValue: function(d) { return d.length; },
+		radiusValue: function(d) { return Number.MAX_VALUE; },
+
+		fill: function(d) {
+			var val = this._fn.colorValue(d);
+			return (null != val) ? this._scale.color(val) : 'none';
+		}
+	},
+
+	_scale: {
+		color: d3.scaleLinear(),
+		radius: d3.scaleLinear()
+	},
+
+	/**
+	 * Dispatcher for managing events and callbacks
+	 */
+	_dispatch: d3.dispatch('mouseover', 'mouseout', 'click'),
+
+
+	/**
+	 * Standard Leaflet initialize function, accepting an options argument provided by the
+	 * user when they create the layer
+	 * @param options Options object where the options override the defaults
+	 */
 	initialize : function(options) {
 		L.setOptions(this, options);
 
+		// Create the hex layout
 		this._hexLayout = d3_hexbin()
 			.radius(this.options.radius)
 			.x(function(d) { return d.point[0]; })
 			.y(function(d) { return d.point[1]; });
 
+		// Initialize the data array to be empty
 		this._data = [];
-		this._colorScale = d3.scaleLinear()
+
+		this._scale.color
 			.range(this.options.colorRange)
+			.clamp(true);
+
+		this._scale.radius
+			.range(this.options.radiusRange)
 			.clamp(true);
 
 	},
 
+	/**
+	 * Callback made by Leaflet when the layer is added to the map
+	 * @param map Reference to the map to which this layer has been added
+	 */
 	onAdd : function(map) {
+
+		// Store a reference to the map for later use
 		this._map = map;
 
-		// Create a container for svg.
+		// Create a container for svg
 		this._initContainer();
 
-		// Set up events
-		map.on({ 'moveend': this._redraw }, this);
+		// Redraw on moveend
+		map.on({ 'moveend': this.redraw }, this);
 
 		// Initial draw
-		this._redraw();
+		this.redraw();
+
 	},
 
+	/**
+	 * Callback made by Leaflet when the layer is removed from the map
+	 * @param map Reference to the map from which this layer is being removed
+	 */
 	onRemove : function(map) {
+
+		// Destroy the svg container
 		this._destroyContainer();
 
 		// Remove events
-		map.off({ 'moveend': this._redraw }, this);
+		map.off({ 'moveend': this.redraw }, this);
 
 		this._container = null;
 		this._map = null;
 
 		// Explicitly will leave the data array alone in case the layer will be shown again
 		//this._data = [];
+
 	},
 
+	/**
+	 * Create the SVG container for the hexbins
+	 * @private
+	 */
 	_initContainer : function() {
+
 		// If the container is null or the overlay pane is empty, create the svg element for drawing
 		if (null == this._container) {
+
+			// The svg is in the overlay pane so it's drawn on top of other base layers
 			var overlayPane = this._map.getPanes().overlayPane;
+
+			// The leaflet-zoom-hide class hides the svg layer when zooming
 			this._container = d3.select(overlayPane).append('svg')
 				.attr('class', 'leaflet-layer leaflet-zoom-hide');
 		}
 
 	},
 
+	/**
+	 * Clean up the svg container
+	 * @private
+	 */
 	_destroyContainer: function() {
+
 		// Remove the svg element
 		if (null != this._container) {
 			this._container.remove();
 		}
+
 	},
 
-	// (Re)draws the hexbin group
-	_redraw : function() {
+	/**
+	 * (Re)draws the hexbins data on the container
+	 * @private
+	 */
+	redraw : function() {
 		var that = this;
 
 		if (!that._map) {
@@ -109,24 +172,22 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 		// Generate the mapped version of the data
 		var data = that._data.map(function(d) {
-			var lng = that.options.lng(d);
-			var lat = that.options.lat(d);
+			var lng = that._fn.lng(d);
+			var lat = that._fn.lat(d);
 
 			var point = that._project([ lng, lat ]);
 			return { o: d, point: point };
 		});
 
-		var zoom = this._map.getZoom();
-
 		// Determine the bounds from the data and scale the overlay
-		var padding = this.options.radius * 2;
+		var margin = 512; // We're adding a large margin to avoid clipping during transitions
 		var bounds = this._getBounds(data);
-		var width = (bounds.max[0] - bounds.min[0]) + (2 * padding),
-			height = (bounds.max[1] - bounds.min[1]) + (2 * padding),
-			marginTop = bounds.min[1] - padding,
-			marginLeft = bounds.min[0] - padding;
+		var width = (bounds.max[0] - bounds.min[0]) + (2 * margin),
+			height = (bounds.max[1] - bounds.min[1]) + (2 * margin),
+			marginTop = bounds.min[1] - margin,
+			marginLeft = bounds.min[0] - margin;
 
-		//this._hexLayout.size([ width, height ]);
+
 		this._container
 			.attr('width', width).attr('height', height)
 			.style('margin-left', marginLeft + 'px')
@@ -135,7 +196,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		// Select the hex group for the current zoom level. This has
 		// the effect of recreating the group if the zoom level has changed
 		var join = this._container.selectAll('g.hexbin')
-			.data([ zoom ], function(d) { return d; });
+			.data([ this._map.getZoom() ], function(d) { return d; });
 
 		// enter
 		var enter = join.enter().append('g')
@@ -159,69 +220,95 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		// Create the bins using the hexbin layout
 		var bins = that._hexLayout(data);
 
-		// Determine the extent of the values
-		var extent = d3.extent(bins, function(d) {
-			return that.options.value(d);
-		});
-
-		// If either's null, initialize them to 0
-		if (null == extent[0]) extent[0] = 0;
-		if (null == extent[1]) extent[1] = 0;
-
-		// If they're the same, create separation where the only values will be at the top of the range
-		if (extent[0] === extent[1]) extent[0] = extent[1] - 1;
-
-		// Now apply the optional clipping of the floor and ceiling
-		if (null != that.options.valueFloor) extent[0] = that.options.valueFloor;
-		if (null != that.options.valueCeil) extent[1] = that.options.valueCeil;
+		// Derive the extents of the data values for each dimension
+		var colorExtent = that._getExtent(bins, that._fn.colorValue, that.options.colorScaleExtent);
+		var radiusExtent = that._getExtent(bins, that._fn.radiusValue, that.options.radiusScaleExtent);
 
 		// Match the domain cardinality to that of the color range, to allow for a polylinear scale
-		var domain = that._linearlySpace(extent[0], extent[1], that._colorScale.range().length);
+		var colorDomain = that._linearlySpace(colorExtent[0], colorExtent[1], that._scale.color.range().length);
 
-		// Set the colorscale domain
-		that._colorScale.domain(domain);
+		// Set the scale domains
+		that._scale.color.domain(colorDomain);
+		that._scale.radius.domain(radiusExtent);
 
-		// Join - Join the Hexagons to the data
+
+		/*
+		 * Join
+		 *    Join the Hexagons to the data
+		 *    Use a deterministic id for tracking bins based on position
+		 */
 		var join = g.selectAll('path.hexbin-hexagon')
 			.data(bins, function(d) { return d.x + ':' + d.y; });
 
-		// Update - set the fill and opacity on a transition (opacity is re-applied in case the enter transition was cancelled)
-		join.transition().duration(that.options.duration)
-			.attr('fill', that.options.fill.bind(that))
-			.attr('fill-opacity', that.options.opacity)
-			.attr('stroke-opacity', that.options.opacity);
 
-		// Enter - establish the path, the fill, and the initial opacity
+		/*
+		 * Update
+		 *    Set the fill and opacity on a transition
+		 *    opacity is re-applied in case the enter transition was cancelled
+		 *    the path is applied as well to resize the bins
+		 */
+		join.transition().duration(that.options.duration)
+			.attr('fill', that._fn.fill.bind(that))
+			.attr('fill-opacity', that.options.opacity)
+			.attr('stroke-opacity', that.options.opacity)
+			.attr('d', function(d) {
+				return that._hexLayout.hexagon(that._scale.radius(that._fn.radiusValue.call(that, d)));
+			});
+
+
+		/*
+		 * Enter
+		 *    Establish the path, size, fill, and the initial opacity
+		 *    Transition to the final opacity and size
+		 */
 		join.enter().append('path').attr('class', 'hexbin-hexagon')
-			.attr('d', function(d) { return 'M' + d.x + ',' + d.y + that._hexLayout.hexagon(); })
-			.attr('fill', that.options.fill.bind(that))
+			.style('pointer-events', that.options.pointerEvents)
+			.attr('transform', function(d) {
+				return 'translate(' + d.x + ',' + d.y + ')';
+			})
+			.attr('d', function(d) {
+				return that._hexLayout.hexagon(0);
+			})
+			.attr('fill', that._fn.fill.bind(that))
 			.attr('fill-opacity', 0.01)
 			.attr('stroke-opacity', 0.01)
-			.on('mouseover', function(d, i) {
-				if(null != that.options.onmouseover) {
-					that.options.onmouseover(d, this, that);
-				}
-			})
-			.on('mouseout', function(d, i) {
-				if(null != that.options.onmouseout) {
-					that.options.onmouseout(d, this, that);
-				}
-			})
-			.on('click', function(d, i) {
-				if(null != that.options.onclick) {
-					that.options.onclick(d, this, that);
-				}
-			})
+			.on('mouseover', function(d, i) { that._dispatch.call('mouseover', this, d, i); })
+			.on('mouseout', function(d, i) { that._dispatch.call('mouseout', this, d, i); })
+			.on('click', function(d, i) { that._dispatch.call('click', this, d, i); })
 			.transition().duration(that.options.duration)
 				.attr('fill-opacity', that.options.opacity)
-				.attr('stroke-opacity', that.options.opacity);
+				.attr('stroke-opacity', that.options.opacity)
+				.attr('d', function(d) {
+					return that._hexLayout.hexagon(that._scale.radius(that._fn.radiusValue.call(that, d)));
+				});
+
 
 		// Exit
 		join.exit()
 			.transition().duration(that.options.duration)
 				.attr('fill-opacity', 0.01)
 				.attr('stroke-opacity', 0.01)
+				.attr('d', function(d) {
+					return that._hexLayout.hexagon(0);
+				})
 				.remove();
+
+	},
+
+	_getExtent: function(bins, valueFn, scaleExtent) {
+
+		// Determine the extent of the values
+		var extent = d3.extent(bins, valueFn.bind(this));
+
+		// If either's null, initialize them to 0
+		if (null == extent[0]) extent[0] = 0;
+		if (null == extent[1]) extent[1] = 0;
+
+		// Now apply the optional clipping of the extent
+		if (null != scaleExtent[0]) extent[0] = scaleExtent[0];
+		if (null != scaleExtent[1]) extent[1] = scaleExtent[1];
+
+		return extent;
 
 	},
 
@@ -262,67 +349,129 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		return arr;
 	},
 
-	/*
-	 * Setter for the data
-	 */
-	data: function(data) {
-		this._data = (null != data)? data : [];
-		this._redraw();
+
+	// ------------------------------------
+	// Public API
+	// ------------------------------------
+
+	radius: function(v) {
+		if (!arguments.length) { return this.options.radius; }
+
+		this.options.radius = v;
+		this._hexLayout.radius(v);
+
+		return this;
+	},
+
+	opacity: function(v) {
+		if (!arguments.length) { return this.options.opacity; }
+		this.options.opacity = v;
+
+		return this;
+	},
+
+	duration: function(v) {
+		if (!arguments.length) { return this.options.duration; }
+		this.options.duration = v;
+
+		return this;
+	},
+
+	colorScaleExtent: function(v) {
+		if (!arguments.length) { return this.options.colorScaleExtent; }
+		this.options.colorScaleExtent = v;
+
+		return this;
+	},
+
+	radiusScaleExtent: function(v) {
+		if (!arguments.length) { return this.options.radiusScaleExtent; }
+		this.options.radiusScaleExtent = v;
+
+		return this;
+	},
+
+	colorRange: function(v) {
+		if (!arguments.length) { return this.options.colorRange; }
+		this.options.colorRange = v;
+		this._scale.color().range(v);
+
+		return this;
+	},
+
+	radiusRange: function(v) {
+		if (!arguments.length) { return this.options.radiusRange; }
+		this.options.radiusRange = v;
+		this._scale.radius().range(v);
+
+		return this;
+	},
+
+	colorScale: function(v) {
+		if (!arguments.length) { return this._scale.color; }
+		this._scale.color = v;
+
+		return this;
+	},
+
+	radiusScale: function(v) {
+		if (!arguments.length) { return this._scale.radius; }
+		this._scale.radius = v;
+
+		return this;
+	},
+
+	lng: function(v) {
+		if (!arguments.length) { return this._fn.lng; }
+		this._fn.lng = v;
+
+		return this;
+	},
+
+	lat: function(v) {
+		if (!arguments.length) { return this._fn.lat; }
+		this._fn.lat = v;
+
+		return this;
+	},
+
+	colorValue: function(v) {
+		if (!arguments.length) { return this._fn.colorValue; }
+		this._fn.colorValue = v;
+
+		return this;
+	},
+
+	radiusValue: function(v) {
+		if (!arguments.length) { return this._fn.radiusValue; }
+		this._fn.radiusValue = v;
+
+		return this;
+	},
+
+	fill: function(v) {
+		if (!arguments.length) { return this._fn.fill; }
+		this._fn.fill = v;
+
+		return this;
+	},
+
+	data: function(v) {
+		if (!arguments.length) { return this._data; }
+		this._data = (null != v) ? v : [];
+
+		this.redraw();
+
 		return this;
 	},
 
 	/*
-	 * Getter/setter for the colorScale
+	 * Getter for the event dispatcher
 	 */
-	colorScale: function(colorScale) {
-		if(undefined === colorScale) {
-			return this._colorScale;
-		}
-
-		this._colorScale = colorScale;
-		this._redraw();
-		return this;
+	dispatch: function() {
+		return this._dispatch;
 	},
 
-	/*
-	 * Getter/Setter for the value function
-	 */
-	value: function(valueFn) {
-		if(undefined === valueFn) {
-			return this.options.value;
-		}
-
-		this.options.value = valueFn;
-		this._redraw();
-		return this;
-	},
-
-	/*
-	 * Getter/setter for the mouseover function
-	 */
-	onmouseover: function(mouseoverFn) {
-		this.options.onmouseover = mouseoverFn;
-		//this._redraw();
-		return this;
-	},
-
-	/*
-	 * Getter/setter for the mouseout function
-	 */
-	onmouseout: function(mouseoutFn) {
-		this.options.onmouseout = mouseoutFn;
-		//this._redraw();
-		return this;
-	},
-
-	/*
-	 * Getter/setter for the click function
-	 */
-	onclick: function(clickFn) {
-		this.options.onclick = clickFn;
-		//this._redraw();
-		return this;
-	},
 
 	/*
 	 * Returns an array of the points in the path, or nested arrays of points in case of multi-polyline.

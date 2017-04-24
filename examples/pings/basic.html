@@ -11,11 +11,7 @@
 	<script src="../../dist/leaflet-d3.js" charset="utf-8"></script>
 
 <style>
-	circle.red {
-		stroke: #222;
-		fill: red;
-	}
-	circle.blue {
+	circle.ping {
 		stroke: #222;
 		fill: steelblue;
 	}
@@ -39,20 +35,8 @@
 		});
 
 
-		// Create the ping layer and configure it
-		var options = {
-			lng: function(d) {
-				return d[0];
-			},
-			lat: function(d) {
-				return d[1];
-			},
-			duration: 1000
-		};
-
-		var pingLayer = L.pingLayer(options).addTo(map);
-		pingLayer.radiusScale().range([ 2, 18 ]);
-		pingLayer.opacityScale().range([ 1, 0 ]);
+		// Create the ping layer and add it to the map
+		var pingLayer = L.pingLayer().addTo(map);
 
 
 		// Demo code that will randomly generate pings
@@ -60,7 +44,7 @@
 		var longFn = d3.randomNormal(center[1], 1);
 		var update = function(){
 			// Randomly change the pingLayer class:
-			pingLayer.ping([ longFn(), latFn() ], (Math.random() > 0.5)? 'red' : 'blue');
+			pingLayer.ping([ longFn(), latFn() ]);
 			window.setTimeout(update, 100 + Math.random()*300);
 		};
 		window.setTimeout(update);

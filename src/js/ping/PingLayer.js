@@ -10,17 +10,24 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 	includes: [ L.Mixin.Events ],
 
 	/*
-	 * Configuration
+	 * Default options
 	 */
 	options : {
-		lng: function(d) {
-			return d[0];
-		},
-		lat: function(d) {
-			return d[1];
-		},
+		duration: 800,
 		fps: 32,
-		duration: 800
+		opacityRange: [ 1, 0 ],
+		radiusRange: [ 3, 15 ]
+	},
+
+	_fn: {
+		lng: function(d) { return d[0]; },
+		lat: function(d) { return d[1]; },
+		radiusScaleFactor: function(d) { return 1; }
+	},
+
+	_scale: {
+		radius: d3.scalePow().exponent(0.35),
+		opacity: d3.scaleLinear()
 	},
 
 	_lastUpdate: Date.now(),
@@ -28,65 +35,42 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 	_mapBounds: undefined,
 
-	/*
-	 * Public Methods
-	 */
-
-	/*
-	 * Getter/setter for the radius
-	 */
-	radiusScale: function(radiusScale) {
-		if (undefined === radiusScale) {
-			return this._radiusScale;
-		}
-
-		this._radiusScale = radiusScale;
-		return this;
-	},
-
-	/*
-	 * Getter/setter for the opacity
-	 */
-	opacityScale: function(opacityScale) {
-		if (undefined === opacityScale) {
-			return this._opacityScale;
-		}
-
-		this._opacityScale = opacityScale;
-		return this;
-	},
-
 	// Initialization of the plugin
 	initialize : function(options) {
 		L.setOptions(this, options);
 
-		this._radiusScale = d3.scalePow().exponent(0.35)
+		this._scale.radius
 			.domain([ 0, this.options.duration ])
-			.range([ 3, 15 ])
+			.range(this.options.radiusRange)
 			.clamp(true);
-		this._opacityScale = d3.scaleLinear()
+		this._scale.opacity
 			.domain([ 0, this.options.duration ])
-			.range([ 1, 0 ])
+			.range(this.options.opacityRange)
 			.clamp(true);
 	},
 
 	// Called when the plugin layer is added to the map
 	onAdd : function(map) {
+
+		// Store a reference to the map for later use
 		this._map = map;
 
 		// Init the state of the simulation
 		this._running = false;
 
-		// Create a container for svg.
-		this._container = this._initContainer();
+		// Create a container for svg
+		this._initContainer();
 		this._updateContainer();
 
 		// Set up events
 		map.on({'move': this._move}, this);
+
 	},
 
 	// Called when the plugin layer is removed from the map
 	onRemove : function(map) {
+
+		// Destroy the svg container
 		this._destroyContainer();
 
 		// Remove events
@@ -97,32 +81,6 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 		this._data = null;
 	},
 
-	/*
-	 * Method by which to "add" pings
-	 */
-	ping : function(data, cssClass) {
-		this._add(data, cssClass);
-		this._expire();
-
-		// Start timer if not active
-		if (!this._running && this._data.length > 0) {
-			this._running = true;
-			this._lastUpdate = Date.now();
-
-			var that = this;
-			d3.timer(function() { return that._update.apply(that); });
-		}
-
-		return this;
-	},
-
-	getFps : function() {
-		return this._fps;
-	},
-
-	getCount : function() {
-		return this._data.length;
-	},
 
 	/*
 	 * Private Methods
@@ -130,20 +88,23 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 	// Initialize the Container - creates the svg pane
 	_initContainer : function() {
-		var container = null;
 
 		// If the container is null or the overlay pane is empty, create the svg element for drawing
 		if (null == this._container) {
+
+			// The svg is in the overlay pane so it's drawn on top of other base layers
 			var overlayPane = this._map.getPanes().overlayPane;
-			container = d3.select(overlayPane).append('svg')
+
+			// The leaflet-zoom-hide class hides the svg layer when zooming
+			this._container = d3.select(overlayPane).append('svg')
 				.attr('class', 'leaflet-layer leaflet-zoom-hide');
 		}
 
-		return container;
 	},
 
 	// Update the container - Updates the dimensions of the svg pane
 	_updateContainer : function() {
+
 		var bounds = this._getMapBounds();
 		this._mapBounds = bounds;
 
@@ -153,15 +114,19 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 			.style('margin-top', bounds.top + 'px');
 
 		this._update(true);
+
 	},
 
 	// Cleanup the svg pane
 	_destroyContainer: function() {
+
 		// Remove the svg element
 		if(null != this._container) {
 			this._container.remove();
 		}
+
 	},
+
 
 	// Calculate the current map bounds
 	_getMapBounds: function() {
@@ -187,8 +152,6 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 	// Update the map based on zoom/pan/move
 	_move: function() {
-		/* eslint-disable no-console */
-		console.log('move');
 		this._updateContainer();
 	},
 
@@ -198,11 +161,12 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 		if (null == this._data) this._data = [];
 
 		// Derive the spatial data
-		var geo = [ this.options.lat(data), this.options.lng(data) ];
+		var geo = [ this._fn.lat(data), this._fn.lng(data) ];
 		var coords = this._getCircleCoords(geo);
 
 		// Add the data to the list of pings
 		var circle = {
+			data: data,
 			geo: geo,
 			ts: Date.now(),
 			nts: 0
@@ -211,7 +175,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 			.attr('class', (null != cssClass)? 'ping ' + cssClass : 'ping')
 			.attr('cx', coords.x)
 			.attr('cy', coords.y)
-			.attr('r', this.radiusScale().range()[0]);
+			.attr('r', this._fn.radiusScaleFactor.call(this, data) * this._scale.radius.range()[0]);
 
 		// Push new circles
 		this._data.push(circle);
@@ -246,9 +210,9 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 					d.c.attr('cx', coords.x)
 					   .attr('cy', coords.y)
-					   .attr('r', this.radiusScale()(age))
-					   .attr('fill-opacity', this.opacityScale()(age))
-					   .attr('stroke-opacity', this.opacityScale()(age));
+					   .attr('r', this._fn.radiusScaleFactor.call(this, d.data) * this._scale.radius(age))
+					   .attr('fill-opacity', this._scale.opacity(age))
+					   .attr('stroke-opacity', this._scale.opacity(age));
 					d.nts = Math.round(nowTs + 1000/this.options.fps);
 
 				}
@@ -295,7 +259,103 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 		if (maxIndex > -1) {
 			this._data.splice(0, maxIndex + 1);
 		}
-	}
+	},
+
+	/*
+	 * Public Methods
+	 */
+
+	duration: function(v) {
+		if (!arguments.length) { return this.options.duration; }
+		this.options.duration = v;
+
+		return this;
+	},
+
+	fps: function(v) {
+		if (!arguments.length) { return this.options.fps; }
+		this.options.fps = v;
+
+		return this;
+	},
+
+	lng: function(v) {
+		if (!arguments.length) { return this._fn.lng; }
+		this._fn.lng = v;
+
+		return this;
+	},
+
+	lat: function(v) {
+		if (!arguments.length) { return this._fn.lat; }
+		this._fn.lat = v;
+
+		return this;
+	},
+
+	radiusRange: function(v) {
+		if (!arguments.length) { return this.options.radiusRange; }
+		this.options.radiusRange = v;
+		this._scale.radius().range(v);
+
+		return this;
+	},
+
+	opacityRange: function(v) {
+		if (!arguments.length) { return this.options.opacityRange; }
+		this.options.opacityRange = v;
+		this._scale.opacity().range(v);
+
+		return this;
+	},
+
+	radiusScale: function(v) {
+		if (!arguments.length) { return this._scale.radius; }
+		this._scale.radius = v;
+
+		return this;
+	},
+
+	opacityScale: function(v) {
+		if (!arguments.length) { return this._scale.opacity; }
+		this._scale.opacity = v;
+
+		return this;
+	},
+
+	radiusScaleFactor: function(v) {
+		if (!arguments.length) { return this._fn.radiusScaleFactor; }
+		this._fn.radiusScaleFactor = v;
+
+		return this;
+	},
+
+	/*
+	 * Method by which to "add" pings
+	 */
+	ping : function(data, cssClass) {
+		this._add(data, cssClass);
+		this._expire();
+
+		// Start timer if not active
+		if (!this._running && this._data.length > 0) {
+			this._running = true;
+			this._lastUpdate = Date.now();
+
+			var that = this;
+			d3.timer(function() { that._update.call(that, false) });
+		}
+
+		return this;
+	},
+
+	getActualFps : function() {
+		return this._fps;
+	},
+
+	data : function() {
+		return this._data;
+	},
 
 });
 

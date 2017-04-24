@@ -13,6 +13,11 @@
 <style>
 	circle.ping {
 		stroke: #222;
+	}
+	circle.ping.red {
+		fill: red;
+	}
+	circle.ping.blue {
 		fill: steelblue;
 	}
 </style>
@@ -35,19 +40,26 @@
 		});
 
 
-		// Create the ping layer and configure it
-		var options = {
-			fps: 8
-		};
+		// Create the ping layer and add it to the map
+		var pingLayer = L.pingLayer({
+		    duration: 1000,
+			fps: 32
+		});
 
-		var pingLayer = L.pingLayer(options).addTo(map);
+		pingLayer
+			.lng(function(d) { return d.lng; })
+			.lat(function(d) { return d.lat; })
+			.radiusScaleFactor(function(d) { return d.scaleFactor });
+
+		pingLayer.addTo(map);
 
 
 		// Demo code that will randomly generate pings
 		var latFn = d3.randomNormal(center[0], 1);
 		var longFn = d3.randomNormal(center[1], 1);
-		var update = function() {
-			pingLayer.ping([ longFn(), latFn() ]);
+		var update = function(){
+			// Randomly change the pingLayer class:
+			pingLayer.ping({ lng: longFn(), lat: latFn(), scaleFactor: (Math.random()*2 + 1) }, (Math.random() > 0.3) ? 'red' : 'blue');
 			window.setTimeout(update, 100 + Math.random()*300);
 		};
 		window.setTimeout(update);

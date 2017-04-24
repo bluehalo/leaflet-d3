@@ -43,49 +43,8 @@
 		});
 
 
-		// Options for the Hexbin
-		var options = {
-
-			// Size of the hexagons
-			radius : 12,
-
-			// Default opacity of the hexagons
-			opacity: 0.5,
-
-			// Transition duration for animations
-			duration: 500,
-
-			// Accessor functions for lat/long
-			lng: function(d) {
-				return d[0];
-			},
-			lat: function(d) {
-				return d[1];
-			},
-
-			// Value accessor function for deriving the color of the hexagons
-			value: function(d) { return d.length; },
-
-			// Override the extent of the value domain
-			valueFloor: undefined,
-			valueCeil: undefined,
-
-			onmouseover: function(d, node, layer) {
-				console.log('mouseover: ' + d.length);
-			},
-			onmouseout: function(d, node, layer) {
-				console.log('mouseout: ' + d.length);
-			},
-			onclick: function(d, node, layer) {
-				console.log('click: ' + d.length);
-			}
-		};
-
 		// Create the hexlayer
-		var hexLayer = L.hexbinLayer(options).addTo(map);
-
-		// Set the colorScale range - colorScale() returns a reference to the scale used to map the color of each hexbin
-		hexLayer.colorScale().range([ 'green', 'red' ]);
+		var hexLayer = L.hexbinLayer().addTo(map);
 
 
 		// Random data generators
@@ -101,6 +60,8 @@
 			}
 			hexLayer.data(data);
 		}
+
+		generateData();
 
 	</script>
 </body>

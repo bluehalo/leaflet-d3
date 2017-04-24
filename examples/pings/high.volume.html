@@ -38,20 +38,8 @@
 		});
 
 
-		// Create the ping layer and configure it
-		var options = {
-			lng: function(d) {
-				return d[0];
-			},
-			lat: function(d) {
-				return d[1];
-			},
-			duration: 800,
-			fps: 32
-		};
-		var pingLayer = L.pingLayer(options).addTo(map);
-		pingLayer.radiusScale().range([ 2, 18 ]);
-		pingLayer.opacityScale().range([ 1, 0 ]);
+		// Create the ping layer and add it to the map
+		var pingLayer = L.pingLayer().addTo(map);
 
 
 		// Demo code that will randomly generate pings
@@ -66,8 +54,8 @@
 		function update() {
 			for(var i=0; i<10; i++) {
 				pingLayer.ping([ longFn(), latFn() ]);
-				fpsField.value = pingLayer.getFps();
-				count.value = pingLayer.getCount();
+				fpsField.value = pingLayer.getActualFps();
+				count.value = pingLayer.data().length;
 			}
 			setTimeout(update);
 		}
