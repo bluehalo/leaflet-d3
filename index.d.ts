@@ -71,7 +71,7 @@ declare namespace L {
 		getLatLngs(): any[];
 		toGeoJSON(): any[];
 
-		redraw();
+		redraw(): void;
 	}
 
 
