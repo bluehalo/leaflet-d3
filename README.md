@@ -109,8 +109,12 @@ See the following example:
 
 ## Hexbins API
 
-### L.hexbinLayer(options): L.HexbinLayer
+### L.hexbinLayer(options?: {}): L.HexbinLayer
 Create a Leaflet map layer for visualizing data using colored/sized hexbin-based bins. 
+
+```js
+var hexLayer = L.hexbinLayer().addTo(map);
+```
 
 ### options
 Set of options for customizing the appearance/behavior of the hexbin layer.
@@ -133,28 +137,44 @@ var options = {
 ```
 
 #### radius
+**Default:** 12
+
 Sets the radius on the hexbin layer (see below for details).
 
 #### opacity
+**Default:** 0.6
+
 Sets the opacity on the hexbin layer (see below for details).
 
 #### duration
+**Default:** 200
+
 Sets the transition duration for the hexbin layer (see below for details).
 
 #### colorScaleExtent
+**Default:** [ 1, undefined ]
+
 Sets the extent of the color scale for the hexbin layer (see below for details).
 
 #### radiusScaleExtent
+**Default:** [ 1, undefined ]
+
 This is the same exact configuration option as ```colorScaleExtent```, only applied to the radius extent.
 
 #### colorRange
+**Default:** [ '#f7fbff', '#08306b' ]
+
 Sets the range of the color scale used to fill the hexbins on the layer. 
 
 #### radiusRange
+**Default:** [ 4, 12 ]
+
 Sets the range of the radius scale used to size the hexbins on the layer.
 
 #### pointerEvents
-This value is passed directly to an element-level css style for ```pointer-events```. **Default:** 'all'
+**Default:** 'all'
+
+This value is passed directly to an element-level css style for ```pointer-events```.
 
 You should only modify this config option if you want to change the mouse event behavior on hexbins.
 This will modify when the events are propagated based on the visibility state and/or part of the hexbin being hovered.
@@ -164,7 +184,6 @@ This will modify when the events are propagated based on the visibility state an
 
 #### hexbinLayer.data(value?: any[])
 Setter/getter for the data bound to the hexbin layer.
-
 The default data schema for the hexin layer is:
 
 ```[ [ lng1, lat1 ], [ lng2, lat2 ], [ lng3, lat3 ]... [ lngN, latN ] ]```
@@ -174,8 +193,7 @@ Where the hexbin size is fixed at the radius and the color is linearly scaled an
 
 #### hexbinLayer.radius(value?: number)
 Setter/getter for the radius configuration option.
-
-Radius of the hexagon grid cells in pixels. **Default:** 12
+Radius of the hexagon grid cells in pixels.
 
 This value should be a positive number.
 This radius controls the radius of the hexagons used to bin the data but not necessarily to draw each individual hexbin.  
@@ -183,8 +201,7 @@ This radius controls the radius of the hexagons used to bin the data but not nec
 
 #### hexbinLayer.opacity(value?: number)
 Setter/getter for the opacity configuration option.
-
-The opacity of the visible hexagons. **Default:** 0.6
+The opacity of the visible hexagons.
 
 This value should be a number between 0 and 1.
 Since we are transitioning opacity as part of d3 rendering the hexbins, this is not currently controlled by CSS.
@@ -192,10 +209,7 @@ Future iterations may make this purely CSS based with the transitions applied to
 
 
 #### hexbinLayer.duration(value?: number)
-Setter/getter for the durations configuration option.
-
-The millisecond duration of d3 transitions between states. **Default:** 200
-
+Setter/getter for the durations configuration option. The millisecond duration of d3 transitions between states.
 This value should be a non-negative number.
 A value of 0 means that transitions will be instantaneous.
 
@@ -206,8 +220,7 @@ The consequence of not doing this is that hexbins will not fully complete their 
 
 #### hexbinLayer.colorScaleExtent(value?: [ number, number ])
 Setter/getter for the colorScaleExtent configuration option.
-
-This is used to override the derived extent of the color values and is specified as a tuple of the form [ min: number, max: number ]. **Default:** [ 1, undefined ]
+This is used to override the derived extent of the color values and is specified as a tuple of the form [ min: number, max: number ].
 A value of  ```undefined`` for either min or max indicates that the derived value should be retained.
  
 What this means is we derive the color value extent of the data (the min/max values in the data array) as an array of the form [ min, max ].
@@ -219,14 +232,12 @@ For example, when you want consistent color scales between multiple maps or with
 
 #### hexbinLayer.radiusScaleExtent(value?: [ number, number ])
 Setter/getter for the radiusScaleExtent configuration option.
-
-This is the same exact configuration option as ```colorScaleExtent```, only applied to the radius extent. **Default:** [ 1, undefined ]
+This is the same exact configuration option as ```colorScaleExtent```, only applied to the radius extent.
 
 
 #### hexbinLayer.colorRange(value?: [ number, number ])
 Setter/getter for the colorRange configuration option.
-
-This value is used to specify the range of the color scale used to determine the fill colors of the hexbins. **Default:** [ '#f7fbff', '#08306b' ]
+This value is used to specify the range of the color scale used to determine the fill colors of the hexbins.
 
 There are a lot of different ways you can specify the color range.
 One option is monotone: ```[ '#f7fbff', '#f7fbff' ]```.
@@ -236,37 +247,48 @@ You can also create divering and discrete color scales by providing more than tw
 
 #### hexbinLayer.radiusRange(value?: [ number, number ])
 Setter/getter for the radiusRange configuration option.
-
-This value is used to specify the range of the radius scale used to size the drawn hexbins.  **Default:** [ 4, 12 ]
+This value is used to specify the range of the radius scale used to size the drawn hexbins.
 This is relevant if you are providing a custom ```radiusValue``` function and want to specify the minimum and maximum drawn hexbin size. 
 
 *Note:* Overriding this value will have no effect unless you provide a custom ```radiusValue``` function.
 
 
 #### hexbinLayer.colorScale(value?: d3.scale)
-Setter/getter for the d3 scale used to map the color of each hexbin from the color value. **Default:** d3.scaleLinear
+**Default:** d3.scaleLinear
+
+Setter/getter for the d3 scale used to map the color of each hexbin from the color value.
 If you override the scale, the color range will be ignored.
 
 
 #### hexbinLayer.radiusScale(value?: d3.scale)
-Setter/getter for the d3 scale used to map the radius of each hexbin from the radius value. **Default:** d3.scaleLinear
+**Default:** d3.scaleLinear
+
+Setter/getter for the d3 scale used to map the radius of each hexbin from the radius value.
 If you override the scale, the radius range will be ignored.
 
 
 #### hexbinLayer.lng(value?: function(d, i) {})
-Setter/getter for the function used to derive the value of the longitude for each object in the data array. **Default:** function(d) { return d[0]; }
+**Default:** function(d) { return d[0]; }
+
+Setter/getter for the function used to derive the value of the longitude for each object in the data array.
 
 
 #### hexbinLayer.lat(value?: function(d, i) {})
-Setter/getter for the function used to derive the value of the latitude for each object in the data array. **Default:** function(d) { return d[1]; }
+**Default:** function(d) { return d[1]; }
+ 
+Setter/getter for the function used to derive the value of the latitude for each object in the data array.
 
 
 #### hexbinLayer.colorValue(value?: function(d, i) {})
-Setter/getter for the function used to derive the value of the color for each object in the data array. **Default:** function(d) { return d.length; }
+**Default:** function(d) { return d.length; }
+
+Setter/getter for the function used to derive the value of the color for each object in the data array.
 
 
 #### hexbinLayer.radiusValue(value?: function(d, i) {})
-Setter/getter for the function used to derive the value of the radius for each object in the data array. **Default:** function(d) { return 1; }
+**Default:** function(d) { return 1; }
+
+Setter/getter for the function used to derive the value of the radius for each object in the data array.
 
 
 #### hexbinLayer.fill(value?: function(d, i) {})
@@ -295,9 +317,12 @@ hexLayer.dispatch()
 
 ### Pings
 
-### L.pingLayer(options): L.PingLayer
+### L.pingLayer(options?: {}): L.PingLayer
 Create a Leaflet map layer for visualizing transient event data using animated expanding circles. 
 
+```js
+var pingLayer = L.pingLayer().addTo(map);
+```
 
 ### options
 Set of options for customizing the appearance/behavior of the ping layer.
@@ -314,16 +339,23 @@ var options = {
 ```
 
 #### duration
+**Default:** 800
+
 Sets the transition duration for the ping layer (see below for details).
 
 #### fps
-Sets the target framerate for the ping animation. **Default:** 800
-The animation loop will limit DOM changes to this frequency in order to reduce the impact to the CPU.
+**Default:** 32
+
+Sets the target framerate for the ping animation (see below for details).
 
 #### opacityRange
+**Default:** [ 1, 0 ]
+
 Sets the range of the opacity scale used to fade out the pings as they age (see below for details). 
 
 #### radiusRange
+**Default:** [ 3, 15 ]
+
 Sets the range of the radius scale used to size the pings as they age (see below for details).
 
 
@@ -331,14 +363,16 @@ Sets the range of the radius scale used to size the pings as they age (see below
 
 #### pingLayer.ping(value: {})
 Submit a ping to the layer.
+The default data schema for the ping layer is:
 
+```[ [ lng1, lat1 ], [ lng2, lat2 ], [ lng3, lat3 ]... [ lngN, latN ] ]```
 
+Where the ping radius scale factor is fixed at 1.
 
 
 #### pingLayer.duration(value?: number)
 Setter/getter for the durations configuration option.
-
-The millisecond duration of each ping's lifecycle. **Default:** 800
+The millisecond duration of each ping's lifecycle.
 
 This value should be a non-negative number.
 The pings will grow from their initial size/opacity to their final size/opacity over this period of time.
@@ -346,48 +380,56 @@ After this duration, the pings are removed from the map.
 
 
 #### pingLayer.fps(value?: number)
-Setter/getter for the durations configuration option.
+Setter/getter for the fps configuration option.
+The animation loop will limit DOM changes to this frequency in order to reduce the impact to the CPU.
 
-The millisecond duration of each ping's lifecycle. **Default:** 800
 
-This value should be a non-negative number.
-The pings will grow from their initial size/opacity to their final size/opacity over this period of time.
-After this duration, the pings are removed from the map.
+#### pingLayer.radiusRange(value?: [ number, number ])
+Setter/getter for the radiusRange configuration option.
+The start/end radius applied during each ping's lifecycle.
+
+This value should be a tuple of size two.
+The pings will start at a pixel radius equal to the first number in the tuple and animate to the second number in the tuple.
 
 
 #### pingLayer.opacityRange(value?: [ number, number ])
 Setter/getter for the opacityRange configuration option.
-
-The start/end opacity state applied during each ping's lifecycle. **Default:** [ 1, 0 ]
+The start/end opacity state applied during each ping's lifecycle.
 
 This value should be a tuple of size two.
 The pings will start at an opacity equal to the first number in the tuple and animate to the second number in the tuple.
 
 
-#### pingLayer.radiusRange(value?: [ number, number ])
-Setter/getter for the radiusRange configuration option.
+#### pingLayer.radiusScale(value?: d3.scale)
+**Default:** d3.scalePow().exponent(0.35)
 
-The start/end radius applied during each ping's lifecycle. **Default:** [ 3, 15 ]
-
-This value should be a tuple of size two.
-The pings will start at a pixel radius equal to the first number in the tuple and animate to the second number in the tuple.
+Setter/getter for the scale used to determine the radius during the ping lifecycle. 
+If you override the scale, the radius range will be ignored.
 
 
-#### pingLayer.radiusRange(value?: [ number, number ])
-Setter/getter for the radiusRange configuration option.
+#### pingLayer.opacityScale(value?: d3.scale)
+**Default:** d3.scaleLinear()
 
-The start/end radius applied during each ping's lifecycle. **Default:** [ 3, 15 ]
+Setter/getter for the scale used to determine the opacity during the ping lifecycle.
+If you override the scale, the opacity range will be ignored.
 
-This value should be a tuple of size two.
-The pings will start at a pixel radius equal to the first number in the tuple and animate to the second number in the tuple.
+#### pingLayer.radiusScaleFactor(function(d) {})
+**Default:** function(d) { return 1; }
+
+Setter/getter for the scale factor applied to the radius of each ping.
+This can be used to differentiate different events by size.
 
 
-#### pingLayer.lng(value?: function(d, i) {})
-Setter/getter for the function used to derive the value of the longitude for each object in the data array. **Default:** function(d) { return d[0]; }
+#### pingLayer.lng(value?: function(d) {})
+**Default:** function(d) { return d[0]; }
+
+Setter/getter for the function used to derive the value of the longitude for each object in the data array.
 
 
-#### pingLayer.lat(value?: function(d, i) {})
-Setter/getter for the function used to derive the value of the latitude for each object in the data array. **Default:** function(d) { return d[1]; }
+#### pingLayer.lat(value?: function(d) {})
+**Default:** function(d) { return d[1]; }
+
+Setter/getter for the function used to derive the value of the latitude for each object in the data array.
 
 
 #### pingLayer.data()
@@ -406,10 +448,10 @@ Getter for the actual fps (based on the actual time between the last two animati
 Read through the API changes.
 A lot of things were moved from config options to being configurable via chained function call.
 
-#### Data-bound Hexbin Radius
+#### You can now bind data to the radius of Hexbins!
 You can now provide a radius value function to map a dimension of your data to the size of each hexbin.
 
-#### Hexbin event dispatch
+#### We changed the Hexbin event dispatch
 For Hexbins, we've changed the way that events are handled. Previously, you provided callback methods.
 Now, we expose a d3 dispatch object:
 
@@ -424,9 +466,12 @@ hexLayer.dispatch()
 	.on('click', function(d, i) { });
 ```
 
-#### Pings now track the map
+#### Pings now track the map when panning!
 We've changed pings so that they track the map when as it pans.
 The pan changes are applied immediately even when manually setting a low fps.
+
+#### You can now size pings independently using a scale factor callback function
+We've added a configurable option (pingLayer.radiusScaleFactor(...)) to provide a function that returns a data element-specific scale factor for the ping radius.
 
 
 ## Contribute
