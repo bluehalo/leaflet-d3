@@ -191,6 +191,12 @@ The default data schema for the hexin layer is:
 Where the hexbin size is fixed at the radius and the color is linearly scaled and based on the bin count (the number of points contained in the bin).
 
 
+#### hexbinLayer.redraw()
+Triggers a redraw of the hexbin layer.
+You should only need to use this function if you are modifying several aspects of the layer.
+The only function in the API that automatically redraws is ```.data()```
+
+
 #### hexbinLayer.radius(value?: number)
 Setter/getter for the radius configuration option.
 Radius of the hexagon grid cells in pixels.

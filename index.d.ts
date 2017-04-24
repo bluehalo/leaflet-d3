@@ -70,6 +70,8 @@ declare namespace L {
 
 		getLatLngs(): any[];
 		toGeoJSON(): any[];
+
+		redraw();
 	}
 
 
@@ -78,8 +80,8 @@ declare namespace L {
 		opacity?: number,
 		duration?: number,
 
-		colorScaleExtent: [ number, number ],
-		radiusScaleExtent: [ number, number ],
+		colorScaleExtent?: [ number, number ],
+		radiusScaleExtent?: [ number, number ],
 		colorRange?: string[],
 		radiusRange?: [ number, number ],
 
