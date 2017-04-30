@@ -37,28 +37,6 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		pointerEvents: 'all'
 	},
 
-	_fn: {
-		lng: function(d) { return d[0]; },
-		lat: function(d) { return d[1]; },
-		colorValue: function(d) { return d.length; },
-		radiusValue: function(d) { return Number.MAX_VALUE; },
-
-		fill: function(d) {
-			var val = this._fn.colorValue(d);
-			return (null != val) ? this._scale.color(val) : 'none';
-		}
-	},
-
-	_scale: {
-		color: d3.scaleLinear(),
-		radius: d3.scaleLinear()
-	},
-
-	/**
-	 * Dispatcher for managing events and callbacks
-	 */
-	_dispatch: d3.dispatch('mouseover', 'mouseout', 'click'),
-
 
 	/**
 	 * Standard Leaflet initialize function, accepting an options argument provided by the
@@ -68,7 +46,30 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	initialize : function(options) {
 		L.setOptions(this, options);
 
-		// Create the hex layout
+		// Set up the various overrideable functions
+		this._fn = {
+			lng: function(d) { return d[0]; },
+			lat: function(d) { return d[1]; },
+			colorValue: function(d) { return d.length; },
+			radiusValue: function(d) { return Number.MAX_VALUE; },
+
+			fill: function(d) {
+				var val = this._fn.colorValue(d);
+				return (null != val) ? this._scale.color(val) : 'none';
+			}
+		};
+
+		// Set up the customizable scale
+		this._scale = {
+			color: d3.scaleLinear(),
+				radius: d3.scaleLinear()
+		};
+
+		// Set up the Dispatcher for managing events and callbacks
+		this._dispatch = d3.dispatch('mouseover', 'mouseout', 'click');
+
+
+			// Create the hex layout
 		this._hexLayout = d3_hexbin()
 			.radius(this.options.radius)
 			.x(function(d) { return d.point[0]; })
@@ -394,7 +395,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	colorRange: function(v) {
 		if (!arguments.length) { return this.options.colorRange; }
 		this.options.colorRange = v;
-		this._scale.color().range(v);
+		this._scale.color.range(v);
 
 		return this;
 	},
@@ -402,7 +403,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	radiusRange: function(v) {
 		if (!arguments.length) { return this.options.radiusRange; }
 		this.options.radiusRange = v;
-		this._scale.radius().range(v);
+		this._scale.radius.range(v);
 
 		return this;
 	},

@@ -19,25 +19,25 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 		radiusRange: [ 3, 15 ]
 	},
 
-	_fn: {
-		lng: function(d) { return d[0]; },
-		lat: function(d) { return d[1]; },
-		radiusScaleFactor: function(d) { return 1; }
-	},
-
-	_scale: {
-		radius: d3.scalePow().exponent(0.35),
-		opacity: d3.scaleLinear()
-	},
-
-	_lastUpdate: Date.now(),
-	_fps: 0,
-
-	_mapBounds: undefined,
 
 	// Initialization of the plugin
 	initialize : function(options) {
 		L.setOptions(this, options);
+
+		this._fn = {
+			lng: function(d) { return d[0]; },
+			lat: function(d) { return d[1]; },
+			radiusScaleFactor: function(d) { return 1; }
+		};
+
+		this._scale = {
+			radius: d3.scalePow().exponent(0.35),
+				opacity: d3.scaleLinear()
+		};
+
+		this._lastUpdate = Date.now();
+		this._fps = 0;
+		this._mapBounds = undefined;
 
 		this._scale.radius
 			.domain([ 0, this.options.duration ])
