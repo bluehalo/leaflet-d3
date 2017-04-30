@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Leaflet d3 HexBin Layer</title>
+
+	<link rel="stylesheet" href="../../node_modules/leaflet/dist/leaflet.css" />
+
+	<script src="../../node_modules/d3/build/d3.js" charset="utf-8"></script>
+	<script src="../../node_modules/d3-hexbin/build/d3-hexbin.js" charset="utf-8"></script>
+	<script src="../../node_modules/leaflet/dist/leaflet-src.js"></script>
+
+	<script src="../../dist/leaflet-d3.js" charset="utf-8"></script>
+
+<style>
+	.hexbin-hexagon {
+		stroke: #000;
+		stroke-width: .5px;
+	}
+</style>
+
+</head>
+
+	<h2>Leaflet d3 Hexbin Example</h2>
+	<p>Demonstrates using multiple layers</p>
+
+	<!-- The map element -->
+	<div id="map" style="width: 600px; height: 400px; border: 1px solid #ccc"></div>
+	<br/>
+
+	<script>
+
+		var center = [ 38.991709, -76.886109 ];
+		var layer = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			maxZoom: 18,
+			attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+		});
+
+		var map = L.map('map', {
+			layers: [ layer ],
+			center: L.latLng(center[0], center[1]), zoom: 7
+		});
+
+
+		var latFn = function(c) { return d3.randomNormal(c[0], 0.3); }
+		var longFn = function(c) { return d3.randomNormal(c[1], 0.3); }
+
+
+		var layerSpecs = [
+			{
+			    center: [ 39.59, -76.39 ],
+				colorRange: [ 'white', 'teal' ]
+			},
+			{
+				center: [ 39.59, -77.39 ],
+				colorRange: [ 'white', 'steelblue' ]
+			},
+			{
+				center: [ 38.59, -77.39 ],
+				colorRange: [ 'white', 'firebrick' ]
+			},
+			{
+				center: [ 38.59, -76.39 ],
+				colorRange: [ 'white', 'tomato' ]
+			}
+		];
+
+		var layers = layerSpecs.map(function(e) {
+
+			var hexLayer = L.hexbinLayer();
+			hexLayer.colorRange(e.colorRange);
+			hexLayer.addTo(map);
+
+			var data = generateData(e.center);
+			hexLayer.data(data);
+
+			return hexLayer;
+		});
+
+		function generateData(c) {
+			var data = [];
+			for(var i = 0; i < 500; i++) {
+				data.push([ longFn(c)(), latFn(c)() ]);
+			}
+			return data;
+		}
+
+	</script>
+</body>
+</html>
+
