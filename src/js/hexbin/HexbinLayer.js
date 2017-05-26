@@ -26,6 +26,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 */
 	options : {
 		radius : 12,
+		radiusUnits: 'pixels', // acceptable values are 'pixels' and 'meters'
 		opacity: 0.6,
 		duration: 200,
 
@@ -68,13 +69,6 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		// Set up the Dispatcher for managing events and callbacks
 		this._dispatch = d3.dispatch('mouseover', 'mouseout', 'click');
 
-
-			// Create the hex layout
-		this._hexLayout = d3_hexbin()
-			.radius(this.options.radius)
-			.x(function(d) { return d.point[0]; })
-			.y(function(d) { return d.point[1]; });
-
 		// Initialize the data array to be empty
 		this._data = [];
 
@@ -86,6 +80,9 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 			.range(this.options.radiusRange)
 			.clamp(true);
 
+		// Set up a placeholder value for radii converted from meters
+		this._convertedRadius = 0;
+
 	},
 
 	/**
@@ -96,6 +93,21 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 		// Store a reference to the map for later use
 		this._map = map;
+
+		this._convertedRadius = this.options.radius;
+
+		// if we're using a fixed radius in meters, calculate pixel value based on map latitude and zoom
+		if (this.options.radiusUnits === 'meters') {
+			this._convertedRadius = this._calcMPP(map);
+			map.on({ 'zoomend': function() {
+				// Recalculate radius in pixels when zooming, and set up the grid again
+				this._convertedRadius = this._calcMPP(map);
+				this._setupGrid(this._convertedRadius);
+			} }, this);
+		}
+
+		// Set up underlying hex grid
+		this._setupGrid(this._convertedRadius);
 
 		// Create a container for svg
 		this._initContainer();
@@ -253,7 +265,12 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 			.attr('fill-opacity', that.options.opacity)
 			.attr('stroke-opacity', that.options.opacity)
 			.attr('d', function(d) {
-				return that._hexLayout.hexagon(that._scale.radius(that._fn.radiusValue.call(that, d)));
+				if (that.options.radiusUnits === 'pixels') {
+					return that._hexLayout.hexagon(that._scale.radius(that._fn.radiusValue.call(that, d)));
+				}
+				else {
+					return that._hexLayout.hexagon(that._convertedRadius);
+				}
 			});
 
 
@@ -280,7 +297,12 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 				.attr('fill-opacity', that.options.opacity)
 				.attr('stroke-opacity', that.options.opacity)
 				.attr('d', function(d) {
-					return that._hexLayout.hexagon(that._scale.radius(that._fn.radiusValue.call(that, d)));
+					if (that.options.radiusUnits === 'pixels') {
+						return that._hexLayout.hexagon(that._scale.radius(that._fn.radiusValue.call(that, d)));
+					}
+					else {
+						return that._hexLayout.hexagon(that._convertedRadius);
+					}
 				});
 
 
@@ -348,6 +370,18 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		}
 
 		return arr;
+	},
+
+	_setupGrid: function(radius) {
+		this._hexLayout = d3_hexbin()
+			.radius(radius)
+			.x(function(d) { return d.point[0]; })
+			.y(function(d) { return d.point[1]; });
+	},
+
+	_calcMPP: function(map) {
+		// See: https://stackoverflow.com/questions/27545098/leaflet-calculating-meters-per-pixel-at-zoom-level
+		return this.options.radius / (40075016.686 * Math.abs(Math.cos(map.getCenter().lat * 180/Math.PI)) / Math.pow(2, map.getZoom()+8));
 	},
 
 
