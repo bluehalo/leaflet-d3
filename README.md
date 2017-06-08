@@ -310,8 +310,8 @@ Example:
 ```js
 var options = {
 	duration: 800,
-    fps : 32,
-    opacityRange: [ 1, 0 ],
+	fps : 32,
+	opacityRange: [ 1, 0 ],
 	radiusRange: [ 5, 12 ]
 };
 ```
