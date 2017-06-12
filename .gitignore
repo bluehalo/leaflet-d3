@@ -62,3 +62,7 @@ tmp/
 ###################
 # Tests
 ###################
+
+examples/hexbins/radius_in_meters_aurora.html
+*.old
+
