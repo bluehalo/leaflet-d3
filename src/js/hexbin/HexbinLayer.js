@@ -95,6 +95,13 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		// Set up a placeholder value for radii converted from meters
 		this._convertedRadius = 0;
 
+        // Set up object to hold the colorRangeExtent for use in the calling function
+        // This is useful for helping the user manipulate the range extent
+        this._calculatedColorRangeExtent = {
+            min: 0,
+            max: 0
+        }
+
 	},
 
 	/**
@@ -110,10 +117,12 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 		// if we're using a fixed radius in meters, calculate pixel value based on map latitude and zoom
 		if (this.options.radiusUnits === 'meters') {
-			this._convertedRadius = this.options.radius / this._calcMPPX(map);
+			//this._convertedRadius = this.options.radius / this._calcMPPX(map);
+            this._convertedRadius = this.options.radius / this._calcMPPY(map);
 			map.on({ 'zoomend': function() {
 				// Recalculate radius in pixels when zooming, and set up the grid again
-				this._convertedRadius = this.options.radius / this._calcMPPX(map);
+				//this._convertedRadius = this.options.radius / this._calcMPPX(map);
+                this._convertedRadius = this.options.radius / this._calcMPPY(map);
 				this._setupGrid(this._convertedRadius);
 			} }, this);
 		}
@@ -202,9 +211,11 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
         //now add in tags storing the lat lng for each hexbin
         for (var binCnt=0; binCnt<rawBins.length; binCnt++) {
             var bin = rawBins[binCnt];
+            var val = this._fn.colorValue(bin);
             var unprojected = this._unproject([ bin.x, bin.y ]);
             bin.lat = unprojected[0];
             bin.lng = unprojected[1];
+            bin.val = val;
         }
         that._bins = rawBins;
 
@@ -218,6 +229,9 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		// Set the scale domains
 		that._scale.color.domain(colorDomain);
 		that._scale.radius.domain(radiusExtent);
+
+        that._calculatedColorRangeExtent.min = colorExtent[0];
+        that._calculatedColorRangeExtent.max = colorExtent[1];
 
         // Determine the bounds from the data and project to lon lat
         var margin = 512; // We're adding a large margin to avoid clipping during transitions
