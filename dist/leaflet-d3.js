@@ -29,7 +29,9 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 */
 	options : {
 		radius : 12,
+		radiusUnits: 'pixels', // acceptable values are 'pixels' and 'meters'
 		opacity: 0.6,
+		strokeOpacity: 0.6,
 		duration: 200,
 
 		colorScaleExtent: [ 1, undefined ],
@@ -65,21 +67,25 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		// Set up the customizable scale
 		this._scale = {
 			color: d3.scaleLinear(),
-				radius: d3.scaleLinear()
+			radius: d3.scaleLinear()
 		};
 
 		// Set up the Dispatcher for managing events and callbacks
 		this._dispatch = d3.dispatch('mouseover', 'mouseout', 'click');
 
-
-			// Create the hex layout
-		this._hexLayout = d3_hexbin()
-			.radius(this.options.radius)
-			.x(function(d) { return d.point[0]; })
-			.y(function(d) { return d.point[1]; });
-
 		// Initialize the data array to be empty
 		this._data = [];
+        //same for the grid
+        this._bins = [];
+        //same for bounds
+        this._width = 0.0;
+        this._widthMeters = 0.0;
+        this._height = 0.0;
+        this._heightMeters = 0.0;
+        this.marginTop = 0.0;
+        this.marginLeft = 0.0;
+        this._marginTopMap = 0.0;
+        this._marginLeftMap = 0.0;
 
 		this._scale.color
 			.range(this.options.colorRange)
@@ -88,6 +94,16 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		this._scale.radius
 			.range(this.options.radiusRange)
 			.clamp(true);
+
+		// Set up a placeholder value for radii converted from meters
+		this._convertedRadius = 0;
+
+        // Set up object to hold the colorRangeExtent for use in the calling function
+        // This is useful for helping the user manipulate the range extent
+        this._calculatedColorRangeExtent = {
+            min: 0,
+            max: 0
+        };
 
 	},
 
@@ -100,11 +116,31 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		// Store a reference to the map for later use
 		this._map = map;
 
+		this._convertedRadius = this.options.radius;
+
+		// if we're using a fixed radius in meters, calculate pixel value based on map latitude and zoom
+		if (this.options.radiusUnits === 'meters') {
+			//this._convertedRadius = this.options.radius / this._calcMPPX(map);
+            this._convertedRadius = this.options.radius / this._calcMPPY(map);
+			map.on({ 'zoomend': function() {
+				// Recalculate radius in pixels when zooming, and set up the grid again
+				//this._convertedRadius = this.options.radius / this._calcMPPX(map);
+                this._convertedRadius = this.options.radius / this._calcMPPY(map);
+				this._setupGrid(this._convertedRadius);
+			} }, this);
+		}
+
+		// Set up underlying hex grid
+		this._setupGrid(this._convertedRadius);
+
 		// Create a container for svg
 		this._initContainer();
 
 		// Redraw on moveend
 		map.on({ 'moveend': this.redraw }, this);
+
+        //Initial bin calculation
+        this.makeBins();
 
 		// Initial draw
 		this.redraw();
@@ -162,7 +198,89 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		}
 
 	},
+    makeBins : function() {
+        var that = this;
+        //project data into map pixel space
+        var data = [];
+        for (var dcnt = 0; dcnt < that._data.length; dcnt++) {
+            var d = that._data[dcnt];
+            var lng = that._fn.lng(d);
+            var lat = that._fn.lat(d);
+            var point = that._project([ lng, lat ]);
+            data.push({ o: d, point: point });
+        }
+        var rawBins = that._hexLayout(data);
 
+        //now add in tags storing the lat lng for each hexbin
+        for (var binCnt=0; binCnt<rawBins.length; binCnt++) {
+            var bin = rawBins[binCnt];
+            var val = this._fn.colorValue(bin);
+            var unprojected = this._unproject([ bin.x, bin.y ]);
+            bin.lat = unprojected[0];
+            bin.lng = unprojected[1];
+            bin.val = val;
+        }
+        that._bins = rawBins;
+
+        // Derive the extents of the data values for each dimension
+		var colorExtent = that._getExtent(rawBins, that._fn.colorValue, that.options.colorScaleExtent);
+		var radiusExtent = that._getExtent(rawBins, that._fn.radiusValue, that.options.radiusScaleExtent);
+
+		// Match the domain cardinality to that of the color range, to allow for a polylinear scale
+		var colorDomain = that._linearlySpace(colorExtent[0], colorExtent[1], that._scale.color.range().length);
+
+		// Set the scale domains
+		that._scale.color.domain(colorDomain);
+		that._scale.radius.domain(radiusExtent);
+
+        that._calculatedColorRangeExtent.min = colorExtent[0];
+        that._calculatedColorRangeExtent.max = colorExtent[1];
+
+        // Determine the bounds from the data and project to lon lat
+        var margin = 512; // We're adding a large margin to avoid clipping during transitions
+
+        var bounds = this._getBounds(data);
+        var mppX = that._calcMPPX(that._map);
+        var mppY = that._calcMPPY(that._map);
+        var width = (bounds.max[0] - bounds.min[0]);
+        that._widthMeters = mppX * width;
+        that._width = width + (2 * margin);
+        var height = (bounds.max[1] - bounds.min[1]);
+        that._heightMeters = mppY * height;
+        that._height = height  + (2 * margin);
+        var marginTop = bounds.min[1];
+        that._marginTop = marginTop  - margin;
+        var marginLeft = bounds.min[0];
+        that._marginLeft = marginLeft - margin;
+
+        var marginLoc = this._unproject([ marginLeft, marginTop ]);
+        that._marginLeftMap = marginLoc[0]; //x
+        that._marginTopMap = marginLoc[1]; //y
+
+    },
+    updateBins : function() {
+        var that = this;
+        var currentBins = that._bins;
+        for (var binCnt=0; binCnt<currentBins.length; binCnt++) {
+            //update this bin center location
+            var bin = currentBins[binCnt];
+            var point = that._project([ bin.lng, bin.lat ]);
+            bin.x = point[0];
+            bin.y = point[1];
+        }
+    },
+    updateBounds : function() {
+        var that = this;
+        var margin = 512;
+        var mppX = that._calcMPPX(that._map);
+        var mppY = that._calcMPPY(that._map);
+        that._width = that._widthMeters / mppX + (2 * margin);
+        that._height = that._heightMeters / mppY + (2 * margin);
+
+        var marginLoc = that._project([ that._marginTopMap, that._marginLeftMap ]);
+        that._marginTop = marginLoc[1] - margin;
+        that._marginLeft = marginLoc[0] - margin;
+    },
 	/**
 	 * (Re)draws the hexbins data on the container
 	 * @private
@@ -174,28 +292,12 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 			return;
 		}
 
-		// Generate the mapped version of the data
-		var data = that._data.map(function(d) {
-			var lng = that._fn.lng(d);
-			var lat = that._fn.lat(d);
-
-			var point = that._project([ lng, lat ]);
-			return { o: d, point: point };
-		});
-
-		// Determine the bounds from the data and scale the overlay
-		var margin = 512; // We're adding a large margin to avoid clipping during transitions
-		var bounds = this._getBounds(data);
-		var width = (bounds.max[0] - bounds.min[0]) + (2 * margin),
-			height = (bounds.max[1] - bounds.min[1]) + (2 * margin),
-			marginTop = bounds.min[1] - margin,
-			marginLeft = bounds.min[0] - margin;
-
+        this.updateBounds();
 
 		this._container
-			.attr('width', width).attr('height', height)
-			.style('margin-left', marginLeft + 'px')
-			.style('margin-top', marginTop + 'px');
+			.attr('width', that._width).attr('height', that._height)
+			.style('margin-left', that._marginLeft + 'px')
+			.style('margin-top', that._marginTop + 'px');
 
 		// Select the hex group for the current zoom level. This has
 		// the effect of recreating the group if the zoom level has changed
@@ -208,33 +310,26 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 		// enter + update
 		var enterUpdate = enter.merge(join);
-		enterUpdate.attr('transform', 'translate(' + -marginLeft + ',' + -marginTop + ')');
+		enterUpdate.attr('transform', 'translate(' + -that._marginLeft + ',' + -that._marginTop + ')');
 
 		// exit
 		join.exit().remove();
 
 		// add the hexagons to the select
-		this._createHexagons(enterUpdate, data);
+        if (that.options.radiusUnits === 'meters') {
+            this.updateBins();
+        }
+        else {
+            this.makeBins();
+        }
+		this._createHexagons(enterUpdate);
 
 	},
 
-	_createHexagons : function(g, data) {
+	_createHexagons : function(g) {
 		var that = this;
 
-		// Create the bins using the hexbin layout
-		var bins = that._hexLayout(data);
-
-		// Derive the extents of the data values for each dimension
-		var colorExtent = that._getExtent(bins, that._fn.colorValue, that.options.colorScaleExtent);
-		var radiusExtent = that._getExtent(bins, that._fn.radiusValue, that.options.radiusScaleExtent);
-
-		// Match the domain cardinality to that of the color range, to allow for a polylinear scale
-		var colorDomain = that._linearlySpace(colorExtent[0], colorExtent[1], that._scale.color.range().length);
-
-		// Set the scale domains
-		that._scale.color.domain(colorDomain);
-		that._scale.radius.domain(radiusExtent);
-
+        var bins = that._bins;
 
 		/*
 		 * Join
@@ -243,7 +338,6 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		 */
 		var join = g.selectAll('path.hexbin-hexagon')
 			.data(bins, function(d) { return d.x + ':' + d.y; });
-
 
 		/*
 		 * Update
@@ -254,9 +348,14 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		join.transition().duration(that.options.duration)
 			.attr('fill', that._fn.fill.bind(that))
 			.attr('fill-opacity', that.options.opacity)
-			.attr('stroke-opacity', that.options.opacity)
+			.attr('stroke-opacity', that.options.strokeOpacity)
 			.attr('d', function(d) {
-				return that._hexLayout.hexagon(that._scale.radius(that._fn.radiusValue.call(that, d)));
+				if (that.options.radiusUnits === 'pixels') {
+					return that._hexLayout.hexagon(that._scale.radius(that._fn.radiusValue.call(that, d)));
+				}
+				else {
+					return that._hexLayout.hexagon(that._convertedRadius);
+				}
 			});
 
 
@@ -274,24 +373,29 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 				return that._hexLayout.hexagon(0);
 			})
 			.attr('fill', that._fn.fill.bind(that))
-			.attr('fill-opacity', 0.01)
-			.attr('stroke-opacity', 0.01)
+			.attr('fill-opacity', that.options.opacity)
+			.attr('stroke-opacity', that.options.strokeOpacity)
 			.on('mouseover', function(d, i) { that._dispatch.call('mouseover', this, d, i); })
 			.on('mouseout', function(d, i) { that._dispatch.call('mouseout', this, d, i); })
 			.on('click', function(d, i) { that._dispatch.call('click', this, d, i); })
 			.transition().duration(that.options.duration)
 				.attr('fill-opacity', that.options.opacity)
-				.attr('stroke-opacity', that.options.opacity)
+				.attr('stroke-opacity', that.options.strokeOpacity)
 				.attr('d', function(d) {
-					return that._hexLayout.hexagon(that._scale.radius(that._fn.radiusValue.call(that, d)));
+					if (that.options.radiusUnits === 'pixels') {
+						return that._hexLayout.hexagon(that._scale.radius(that._fn.radiusValue.call(that, d)));
+					}
+					else {
+						return that._hexLayout.hexagon(that._convertedRadius);
+					}
 				});
 
 
 		// Exit
 		join.exit()
 			.transition().duration(that.options.duration)
-				.attr('fill-opacity', 0.01)
-				.attr('stroke-opacity', 0.01)
+				.attr('fill-opacity', that.options.opacity)
+				.attr('stroke-opacity', that.options.strokeOpacity)
 				.attr('d', function(d) {
 					return that._hexLayout.hexagon(0);
 				})
@@ -316,8 +420,14 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 	},
 
+    _unproject : function(coord) {
+        var latlngPoint = this._map.layerPointToLatLng(L.point(coord[0], coord[1]));
+        return [ latlngPoint.lat, latlngPoint.lng ]
+    },
 	_project : function(coord) {
-		var point = this._map.latLngToLayerPoint([ coord[1], coord[0] ]);
+                var projectedPoint = this._map.project([ coord[1], coord[0] ]);
+                var point = projectedPoint._subtract(this._map.getPixelOrigin());
+
 		return [ point.x, point.y ];
 	},
 
@@ -338,7 +448,6 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 			bounds[1][0] = Math.max(bounds[1][0], x);
 			bounds[1][1] = Math.max(bounds[1][1], y);
 		});
-
 		return { min: bounds[0], max: bounds[1] };
 	},
 
@@ -353,6 +462,33 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		return arr;
 	},
 
+	_setupGrid: function(radius) {
+		this._hexLayout = d3_hexbin()
+			.radius(radius)
+			.x(function(d) { return d.point[0]; })
+			.y(function(d) { return d.point[1]; });
+	},
+    _calcMPPX: function(map) {
+            var centerLatLng = map.getCenter(); // get map center
+            var pointC = map.latLngToContainerPoint(centerLatLng); // convert to containerpoint (pixels)
+            var pointX = [ pointC.x + 1, pointC.y ]; // add one pixel to x
+
+            // convert containerpoints to latlng's
+            var latLngC = map.containerPointToLatLng(pointC);
+            var latLngX = map.containerPointToLatLng(pointX);
+            return latLngC.distanceTo(latLngX); // calculate distance between c and x (latitude)
+    },
+    _calcMPPY: function(map) {
+            var pointAdjust = map.getZoom() + 8;
+            var centerLatLng = map.getCenter(); // get map center
+            var pointC = map.latLngToContainerPoint(centerLatLng); // convert to containerpoint (pixels)
+            var pointY = [ pointC.x, pointC.y + pointAdjust ]; // add one pixel to y
+
+            // convert containerpoints to latlng's
+            var latLngC = map.containerPointToLatLng(pointC);
+            var latLngY = map.containerPointToLatLng(pointY);
+            return latLngC.distanceTo(latLngY) / pointAdjust; // calculate distance between c and y (longitude)
+    },
 
 	// ------------------------------------
 	// Public API
