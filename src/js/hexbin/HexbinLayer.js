@@ -476,14 +476,15 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
             return latLngC.distanceTo(latLngX); // calculate distance between c and x (latitude)
     },
     _calcMPPY: function(map) {
+            var pointAdjust = map.getZoom() + 8;
             var centerLatLng = map.getCenter(); // get map center
             var pointC = map.latLngToContainerPoint(centerLatLng); // convert to containerpoint (pixels)
-            var pointY = [ pointC.x, pointC.y + 1 ]; // add one pixel to y
+            var pointY = [ pointC.x, pointC.y + pointAdjust ]; // add one pixel to y
 
             // convert containerpoints to latlng's
             var latLngC = map.containerPointToLatLng(pointC);
             var latLngY = map.containerPointToLatLng(pointY);
-            return latLngC.distanceTo(latLngY); // calculate distance between c and y (longitude)
+            return latLngC.distanceTo(latLngY) / pointAdjust; // calculate distance between c and y (longitude)
     },
 
 	// ------------------------------------
