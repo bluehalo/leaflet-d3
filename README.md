@@ -69,7 +69,7 @@ Second, you can leverage the built-in hover handlers, which try to encapsulate a
 
 ```
 var hexLayer = L.hexbinLayer()
-	.hoverHandler(L.HexbinHoverHandler.Tooltip());
+	.hoverHandler(L.HexbinHoverHandler.tooltip());
 ```
 
 This handler, combined with CSS, can be used to show a tooltip and highlight the hovered hexbin.
@@ -349,7 +349,7 @@ Here's a basic example:
 // current radius up to the maximum radius (in this case 11)
 var hexLayer = L.hexbinLayer({ duration: 400, radiusRange: [ 5, 11 ] })
 	.radiusValue(function(d) { return d.length; })
-	.hoverHandler(L.HexbinHoverHandler.ResizeFill());
+	.hoverHandler(L.HexbinHoverHandler.resizeFill());
 ```
 
 You can combine hover handlers with CSS to achieve interesting effects.
@@ -368,35 +368,35 @@ and will change the stroke to orange.
 
 There are several provided hover handlers and they each may take options. They are described below.
 
-#### Tooltip
+#### HoverHandler.tooltip(options)
 Shows a basic tooltip centered above the hexbin.
 
 Options:
 * **tooltipContent** - function(d) { return 'tooltip content here'; }
 
 
-#### ResizeFill
+#### HoverHandler.resizeFill()
 Resize the hovered hexagon to fill the current hexbin.
 
 No options required.
 
-#### ResizeScale
+#### HoverHandler.resizeScale(options)
 Resize the hovered hexagon by scaling it to be a percentage larger than the maximum drawn hexagon radius.
 
 Options:
 * **radiusScale** - provides the scale factor by which to increase the radius of the hexbin. Example: ```radiusScale: 0.5``` will result in a hovered hexbin radius that is 50% larger than the maximum hexagon radius.  
 
-#### Compound
+#### HoverHandler.compound(options)
 Combine multiple hover handlers.
 
 Options:
-* **handlers** - Array of hover handlers to invoke.
+* **handlers** - Array of hover handlers to combine.
 
 #### Customizing your own Hover Handler
 If you want to implement (or contribute) your own hover handler, the interface is pretty simple:
 
 ```js
-L.HexbinHoverHandler.HoverHandler = function() {
+L.HexbinHoverHandler.myHoverHandler = function() {
 
 	// return the handler instance
 	return {
@@ -407,6 +407,7 @@ L.HexbinHoverHandler.HoverHandler = function() {
 		},
 		mouseout: function (hexLayer, data) {}
 	};
+
 };
 ```
 

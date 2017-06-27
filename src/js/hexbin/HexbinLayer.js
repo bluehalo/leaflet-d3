@@ -122,7 +122,6 @@ L.HexbinLayer = L.SVG.extend({
 		// Remove events
 		map.off({ 'moveend': this.redraw }, this);
 
-		// this._container = null;
 		this._map = null;
 
 		// Explicitly will leave the data array alone in case the layer will be shown again
@@ -513,7 +512,7 @@ L.HexbinLayer = L.SVG.extend({
 // Hover Handlers modify the hexagon and can be combined
 L.HexbinHoverHandler = {
 
-	Tooltip: function(options) {
+	tooltip: function(options) {
 
 		// merge options with defaults
 		options = options || {};
@@ -559,7 +558,7 @@ L.HexbinHoverHandler = {
 
 	},
 
-	ResizeFill: function() {
+	resizeFill: function() {
 
 		// return the handler instance
 		return {
@@ -581,7 +580,7 @@ L.HexbinHoverHandler = {
 
 	},
 
-	ResizeScale: function(options) {
+	resizeScale: function(options) {
 
 		// merge options with defaults
 		options = options || {};
@@ -607,7 +606,7 @@ L.HexbinHoverHandler = {
 
 	},
 
-	Compound: function(options) {
+	compound: function(options) {
 
 		options = options || {};
 		if (null == options.handlers) options.handlers = [ L.HexbinHoverHandler.None() ];
@@ -625,7 +624,7 @@ L.HexbinHoverHandler = {
 
 	},
 
-	None: function() {
+	none: function() {
 		return {
 			mouseover: function () {},
 			mouseout: function () {}

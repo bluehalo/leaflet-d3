@@ -59,10 +59,10 @@
 		// Create the hexlayer
 		var hexLayer = L.hexbinLayer({ duration: 400, radiusRange: [ 5, 11 ] })
 			.radiusValue(function(d) { return d.length; })
-			.hoverHandler(L.HexbinHoverHandler.Compound({
+			.hoverHandler(L.HexbinHoverHandler.compound({
 				handlers: [
-					//L.HexbinHoverHandler.ResizeFill(),
-					L.HexbinHoverHandler.Tooltip()
+					L.HexbinHoverHandler.resizeFill(),
+					L.HexbinHoverHandler.tooltip()
 				]
 			}));
 
