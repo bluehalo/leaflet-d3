@@ -61,7 +61,6 @@ L.PingLayer = L.SVG.extend({
 		// Set up events
 		map.on({'move': this._updateContainer}, this);
 
-		//this._updateContainer();
 	},
 
 	// Called when the plugin layer is removed from the map

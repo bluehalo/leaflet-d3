@@ -520,9 +520,32 @@ Getter for the actual fps (based on the actual time between the last two animati
 
 ## Changelog
 
+### Version 3.x
+
+#### Dropping Support for Leaflet 0.7.x
+We added some functionality that made it hard to backward support Leaflet 0.7.x.
+You can continue to use our 2.x release for Leaflet 0.7.x support, but it's unlikely that branch will see any further development/releases.
+This is the primary reason for increasing the major version as this is the only change that is not backwards compatible.
+
+#### Hexbins/Pings now Zoom with Map Before Redrawing
+We switched the HebinLayer to extend the built-in Leaflet SVG layer.
+This provides a bunch of advantages, including that the SVG layer is zoom-transformed with the other layers on the map.
+This allowed us to leave the hexbins on the map until the zoom animation is complete, at which point the hexbin grid is recalculated and redrawn.
+
+#### Automatic Filtering of Off-Map Hexbins
+We updated the Hexbin layer code to automatically filter out points that fall outside of the visible bounds of the map.
+This _dramatically_ improves performance at high zoom levels where we used to draw A LOT of paths off the map for no reason.
+
+#### Built-in Support for Tooltips and Other Hover Events
+While you could always manually manage a tooltip or some kind of hexbin hover event, we've added some code to make it easier.
+Now, you can pretty easily enable some built-in tooltip/highlight behavior or implement your own.
+See the API docs on HoverHandlers and the advanced hexbin example for details.
+
+
+
 ### Version 2.x
 
-### Lots of API changes
+#### Lots of API changes
 Read through the API changes.
 A lot of things were moved from config options to being configurable via chained function call.
 

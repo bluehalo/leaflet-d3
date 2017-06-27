@@ -1,4 +1,4 @@
-/*! @asymmetrik/leaflet-d3 - 2.1.0 - Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation */
+/*! @asymmetrik/leaflet-d3 - 3.0.0 - Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('d3'), require('d3-hexbin'), require('leaflet')) :
 	typeof define === 'function' && define.amd ? define(['exports', 'd3', 'd3-hexbin', 'leaflet'], factory) :
@@ -699,7 +699,6 @@ L.PingLayer = L.SVG.extend({
 		// Set up events
 		map.on({'move': this._updateContainer}, this);
 
-		//this._updateContainer();
 	},
 
 	// Called when the plugin layer is removed from the map
