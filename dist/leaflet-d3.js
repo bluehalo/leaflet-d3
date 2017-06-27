@@ -71,7 +71,7 @@ L.HexbinLayer = L.SVG.extend({
 		this._dispatch = d3.dispatch('mouseover', 'mouseout', 'click');
 
 		// Set up the default hover handler
-		this._hoverHandler = L.HexbinHoverHandler.None();
+		this._hoverHandler = L.HexbinHoverHandler.none();
 
 		// Create the hex layout
 		this._hexLayout = d3_hexbin()
@@ -612,7 +612,7 @@ L.HexbinHoverHandler = {
 	compound: function(options) {
 
 		options = options || {};
-		if (null == options.handlers) options.handlers = [ L.HexbinHoverHandler.None() ];
+		if (null == options.handlers) options.handlers = [ L.HexbinHoverHandler.none() ];
 
 		return {
 			mouseover: function (hexLayer, data) {
