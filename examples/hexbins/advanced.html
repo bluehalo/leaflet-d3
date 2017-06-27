@@ -16,6 +16,19 @@
 		stroke: #000;
 		stroke-width: .5px;
 	}
+	.hexbin-container:hover .hexbin-hexagon {
+		transition: 200ms;
+		stroke: orange;
+		stroke-width: 1px;
+		stroke-opacity: 1;
+	}
+
+	.hexbin-tooltip {
+		padding: 8px;
+		border-radius: 4px;
+		border: 1px solid black;
+		background-color: white;
+	}
 </style>
 
 </head>
@@ -44,10 +57,28 @@
 
 
 		// Create the hexlayer
-		var hexLayer = L.hexbinLayer({ duration: 400, radiusRange: [ 3, 11 ] })
-			.radiusValue(function(d) { return d.length; });
+		var hexLayer = L.hexbinLayer({ duration: 400, radiusRange: [ 5, 11 ] })
+			.radiusValue(function(d) { return d.length; })
+			.hoverHandler(L.HexbinHoverHandler.Compound({
+				handlers: [
+					//L.HexbinHoverHandler.ResizeFill(),
+					L.HexbinHoverHandler.Tooltip()
+				]
+			}));
 
 		hexLayer.addTo(map);
+
+		// Set up events
+		hexLayer.dispatch()
+			.on('mouseover', function(d, i) {
+				console.log({ type: 'mouseover', event: d, index: i, context: this });
+			})
+			.on('mouseout', function(d, i) {
+				console.log({ type: 'mouseout', event: d, index: i, context: this });
+			})
+			.on('click', function(d, i) {
+				console.log({ type: 'click', event: d, index: i, context: this });
+			});
 
 
 		// Random data generators
