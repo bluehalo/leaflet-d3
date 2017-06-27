@@ -478,7 +478,7 @@ L.HexbinLayer = L.SVG.extend({
 
 	hoverHandler: function(v) {
 		if (!arguments.length) { return this._hoverHandler; }
-		this._hoverHandler = (null != v) ? v : L.HexbinHoverHandler.None(this);
+		this._hoverHandler = (null != v) ? v : L.HexbinHoverHandler.none();
 
 		this.redraw();
 
