@@ -92,7 +92,7 @@ declare namespace L {
 
 	interface HoverHandler {
 		mouseover(hexLayer: HexbinLayer, data: any);
-		mouseover(hexLayer: HexbinLayer, data: any);
+		mouseout(hexLayer: HexbinLayer, data: any);
 	}
 
 	namespace HoverHandler {
