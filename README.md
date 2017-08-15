@@ -61,6 +61,39 @@ See the following example:
 }
 ```
 
+#### Tooltips
+
+You have a couple options when it comes to providing tooltips for your users.
+First, you can register for the appropriate hover events and manually access/manipulate the dom to show/hide tooltips.
+Second, you can leverage the built-in hover handlers, which try to encapsulate a lot of this behavior.
+
+```
+var hexLayer = L.hexbinLayer()
+	.hoverHandler(L.HexbinHoverHandler.tooltip());
+```
+
+This handler, combined with CSS, can be used to show a tooltip and highlight the hovered hexbin.
+In the following example, we change the stroke color and show a tooltip.
+
+```
+.hexbin-container:hover .hexbin-hexagon {
+	transition: 200ms;
+	stroke: orange;
+	stroke-width: 1px;
+	stroke-opacity: 1;
+}
+
+.hexbin-tooltip {
+	padding: 8px;
+	border-radius: 4px;
+	border: 1px solid black;
+	background-color: white;
+}
+```
+
+There's more documentation on how to customize the behavior of the hover handlers in the API docs below.
+
+
 #### Special Notes
 
 **Applying Durations:**
@@ -292,6 +325,91 @@ hexLayer.dispatch()
 	});
 ```
 
+#### hexbinLayer.hoverHandler()
+Default: None - Setter/getter for the hover behavior.
+
+Hover handlers help you customize hexbin hover behavior.
+Examples include growing the size of the hexbin in various ways or showing a tooltip.
+If the hover handlers don't do what you want, you can always handle events yourself or implement your own hover handler.
+For more details, see the section on hover handlers below.
+
+
+### L.HexbinHoverHandler
+All handlers are under the ```L.HexbinHoverHandler``` namespace.
+
+Handlers are created as follows:
+
+```js
+L.HexbinHoverHandler.ResizeFill(options)
+```
+
+Here's a basic example:
+```js
+// Create a hexbin layer where hexbins that are hovered will grow from their 
+// current radius up to the maximum radius (in this case 11)
+var hexLayer = L.hexbinLayer({ duration: 400, radiusRange: [ 5, 11 ] })
+	.radiusValue(function(d) { return d.length; })
+	.hoverHandler(L.HexbinHoverHandler.resizeFill());
+```
+
+You can combine hover handlers with CSS to achieve interesting effects.
+The above hover handler combined with the below CSS will grow hexbins on hover using a smooth animation 
+and will change the stroke to orange.
+
+```css
+.hexbin-container:hover .hexbin-hexagon {
+	transition: 200ms;
+	stroke: orange;
+	stroke-width: 1px;
+	stroke-opacity: 1;
+}
+```
+
+
+There are several provided hover handlers and they each may take options. They are described below.
+
+#### HoverHandler.tooltip(options)
+Shows a basic tooltip centered above the hexbin.
+
+Options:
+* **tooltipContent** - function(d) { return 'tooltip content here'; }
+
+
+#### HoverHandler.resizeFill()
+Resize the hovered hexagon to fill the current hexbin.
+
+No options required.
+
+#### HoverHandler.resizeScale(options)
+Resize the hovered hexagon by scaling it to be a percentage larger than the maximum drawn hexagon radius.
+
+Options:
+* **radiusScale** - provides the scale factor by which to increase the radius of the hexbin. Example: ```radiusScale: 0.5``` will result in a hovered hexbin radius that is 50% larger than the maximum hexagon radius.  
+
+#### HoverHandler.compound(options)
+Combine multiple hover handlers.
+
+Options:
+* **handlers** - Array of hover handlers to combine.
+
+#### Customizing your own Hover Handler
+If you want to implement (or contribute) your own hover handler, the interface is pretty simple:
+
+```js
+L.HexbinHoverHandler.myHoverHandler = function() {
+
+	// return the handler instance
+	return {
+		mouseover: function (hexLayer, data) {
+			// hexLayer - reference to the L.HexbinLayer instance
+			// data - reference to the data bound to the hovered hexbin
+			// this - D3 wrapped DOM element for hovered hexbin
+		},
+		mouseout: function (hexLayer, data) {}
+	};
+
+};
+```
 
 ## Pings API
 
@@ -402,9 +520,32 @@ Getter for the actual fps (based on the actual time between the last two animati
 
 ## Changelog
 
+### Version 3.x
+
+#### Dropping Support for Leaflet 0.7.x
+We added some functionality that made it hard to backward support Leaflet 0.7.x.
+You can continue to use our 2.x release for Leaflet 0.7.x support, but it's unlikely that branch will see any further development/releases.
+This is the primary reason for increasing the major version as this is the only change that is not backwards compatible.
+
+#### Hexbins/Pings now Zoom with Map Before Redrawing
+We switched the HebinLayer to extend the built-in Leaflet SVG layer.
+This provides a bunch of advantages, including that the SVG layer is zoom-transformed with the other layers on the map.
+This allowed us to leave the hexbins on the map until the zoom animation is complete, at which point the hexbin grid is recalculated and redrawn.
+
+#### Automatic Filtering of Off-Map Hexbins
+We updated the Hexbin layer code to automatically filter out points that fall outside of the visible bounds of the map.
+This _dramatically_ improves performance at high zoom levels where we used to draw A LOT of paths off the map for no reason.
+
+#### Built-in Support for Tooltips and Other Hover Events
+While you could always manually manage a tooltip or some kind of hexbin hover event, we've added some code to make it easier.
+Now, you can pretty easily enable some built-in tooltip/highlight behavior or implement your own.
+See the API docs on HoverHandlers and the advanced hexbin example for details.
+
+
+
 ### Version 2.x
 
-### Lots of API changes
+#### Lots of API changes
 Read through the API changes.
 A lot of things were moved from config options to being configurable via chained function call.
 

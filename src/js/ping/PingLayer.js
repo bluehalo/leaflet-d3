@@ -3,10 +3,9 @@ import 'leaflet';
 
 /**
  * L is defined by the Leaflet library, see git://github.com/Leaflet/Leaflet.git for documentation
- * We extent L.Layer if it exists, L.Class otherwise. This is for backwards-compatibility with
- * Leaflet < 1.x
+ * We extend L.SVG to take advantage of built-in zoom animations.
  */
-L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
+L.PingLayer = L.SVG.extend({
 	includes: [ L.Mixin.Events ],
 
 	/*
@@ -32,12 +31,11 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 		this._scale = {
 			radius: d3.scalePow().exponent(0.35),
-				opacity: d3.scaleLinear()
+			opacity: d3.scaleLinear()
 		};
 
 		this._lastUpdate = Date.now();
 		this._fps = 0;
-		this._mapBounds = undefined;
 
 		this._scale.radius
 			.domain([ 0, this.options.duration ])
@@ -52,33 +50,33 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 	// Called when the plugin layer is added to the map
 	onAdd : function(map) {
 
+		L.SVG.prototype.onAdd.call(this);
+
 		// Store a reference to the map for later use
 		this._map = map;
 
 		// Init the state of the simulation
 		this._running = false;
 
-		// Create a container for svg
-		this._initContainer();
-		this._updateContainer();
-
 		// Set up events
-		map.on({'move': this._move}, this);
+		map.on({'move': this._updateContainer}, this);
 
 	},
 
 	// Called when the plugin layer is removed from the map
 	onRemove : function(map) {
 
+		L.SVG.prototype.onRemove.call(this);
+
 		// Destroy the svg container
 		this._destroyContainer();
 
 		// Remove events
-		map.off({'move': this._move}, this);
+		map.off({'move': this._updateContainer}, this);
 
-		this._container = null;
 		this._map = null;
 		this._data = null;
+
 	},
 
 
@@ -89,74 +87,35 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 	// Initialize the Container - creates the svg pane
 	_initContainer : function() {
 
-		// If the container is null or the overlay pane is empty, create the svg element for drawing
-		if (null == this._container) {
-
-			// The svg is in the overlay pane so it's drawn on top of other base layers
-			var overlayPane = this._map.getPanes().overlayPane;
-
-			// The leaflet-zoom-hide class hides the svg layer when zooming
-			this._container = d3.select(overlayPane).append('svg')
-				.attr('class', 'leaflet-layer leaflet-zoom-hide');
-		}
+		L.SVG.prototype._initContainer.call(this);
+		this._d3Container = d3.select(this._container).select('g');
 
 	},
 
 	// Update the container - Updates the dimensions of the svg pane
 	_updateContainer : function() {
 
-		var bounds = this._getMapBounds();
-		this._mapBounds = bounds;
-
-		this._container
-			.attr('width', bounds.width).attr('height', bounds.height)
-			.style('margin-left', bounds.left + 'px')
-			.style('margin-top', bounds.top + 'px');
-
-		this._update(true);
+		this._updatePings(true);
 
 	},
 
 	// Cleanup the svg pane
 	_destroyContainer: function() {
 
-		// Remove the svg element
-		if(null != this._container) {
-			this._container.remove();
-		}
+		// Don't do anything
 
 	},
 
-
-	// Calculate the current map bounds
-	_getMapBounds: function() {
-		var latLongBounds = this._map.getBounds();
-		var ne = this._map.latLngToLayerPoint(latLongBounds.getNorthEast());
-		var sw = this._map.latLngToLayerPoint(latLongBounds.getSouthWest());
-
-		var bounds = {
-			width: ne.x - sw.x,
-			height: sw.y - ne.y,
-			left: sw.x,
-			top: ne.y
-		};
-
-		return bounds;
-	},
 
 	// Calculate the circle coordinates for the provided data
 	_getCircleCoords: function(geo) {
 		var point = this._map.latLngToLayerPoint(geo);
-		return { x: point.x - this._mapBounds.left, y: point.y - this._mapBounds.top };
+		return { x: point.x, y: point.y };
 	},
 
-	// Update the map based on zoom/pan/move
-	_move: function() {
-		this._updateContainer();
-	},
 
 	// Add a ping to the map
-	_add : function(data, cssClass) {
+	_addPing : function(data, cssClass) {
 		// Lazy init the data array
 		if (null == this._data) this._data = [];
 
@@ -171,7 +130,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 			ts: Date.now(),
 			nts: 0
 		};
-		circle.c = this._container.append('circle')
+		circle.c = this._d3Container.append('circle')
 			.attr('class', (null != cssClass)? 'ping ' + cssClass : 'ping')
 			.attr('cx', coords.x)
 			.attr('cy', coords.y)
@@ -182,7 +141,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 	},
 
 	// Main update loop
-	_update : function(immediate) {
+	_updatePings : function(immediate) {
 		var nowTs = Date.now();
 		if (null == this._data) this._data = [];
 
@@ -236,7 +195,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 	},
 
 	// Expire old pings
-	_expire : function() {
+	_expirePings : function() {
 		var maxIndex = -1;
 		var nowTs = Date.now();
 
@@ -334,8 +293,8 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 * Method by which to "add" pings
 	 */
 	ping : function(data, cssClass) {
-		this._add(data, cssClass);
-		this._expire();
+		this._addPing(data, cssClass);
+		this._expirePings();
 
 		// Start timer if not active
 		if (!this._running && this._data.length > 0) {
@@ -343,7 +302,7 @@ L.PingLayer = (L.Layer ? L.Layer : L.Class).extend({
 			this._lastUpdate = Date.now();
 
 			var that = this;
-			d3.timer(function() { that._update.call(that, false) });
+			d3.timer(function() { that._updatePings.call(that, false) });
 		}
 
 		return this;

@@ -68,12 +68,14 @@ declare namespace L {
 
 		dispatch(): any;
 
+		hoverHandler(): HoverHandler;
+		hoverHandler(v: HoverHandler): this;
+
 		getLatLngs(): any[];
 		toGeoJSON(): any[];
 
 		redraw(): void;
 	}
-
 
 	interface HexbinLayerConfig {
 		radius?: number,
@@ -86,6 +88,38 @@ declare namespace L {
 		radiusRange?: [ number, number ],
 
 		pointerEvents?: string
+	}
+
+	interface HoverHandler {
+		mouseover(hexLayer: HexbinLayer, data: any);
+		mouseout(hexLayer: HexbinLayer, data: any);
+	}
+
+	namespace HoverHandler {
+
+		interface TooltipHoverHandler extends HoverHandler {}
+		interface TooltipOptions {
+			tooltipContent: (d: any) => string;
+		}
+		function tooltip(v: TooltipOptions): TooltipHoverHandler;
+
+		interface ResizeFillHoverHandler extends HoverHandler {}
+		function resizeFill(): ResizeFillHoverHandler;
+
+		interface ResizeScaleHoverHandler extends HoverHandler {}
+		interface ResizeScaleOptions {
+			radiusScale: number;
+		}
+		function resizeScale(v: ResizeScaleOptions): ResizeScaleHoverHandler;
+
+		interface CompoundHoverHandler extends HoverHandler {}
+		interface CompoundOptions {
+			handlers: HoverHandler[];
+		}
+		function compound(v: CompoundOptions): CompoundHoverHandler;
+
+		interface NoneHoverHandler extends HoverHandler {}
+		function none(): NoneHoverHandler;
 	}
 
 	function hexbinLayer(config?: HexbinLayerConfig): HexbinLayer;

@@ -3,7 +3,7 @@
 	"artifactName": "leaflet-d3",
 	"moduleName": "leafletD3",
 	"description": "Custom d3 layers for leaflet",
-	"version": "2.0.3",
+	"version": "3.0.0",
 	"author": "Asymmetrik, Ltd.",
 	"copyright": "Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation",
 	"license": "MIT",
@@ -28,21 +28,21 @@
 	},
 
 	"devDependencies": {
-		"d3": "4.6",
-		"@types/d3": "4.5",
+		"d3": "4.9",
+		"@types/d3": "4.9",
 
 		"d3-hexbin": "0.2",
 
-		"leaflet": "1.0",
+		"leaflet": "1.1",
 		"@types/leaflet": "1.0",
 
-		"rollup": "0.41",
+		"rollup": "0.43",
 
 		"gulp": "3.9",
 		"gulp-eslint": "3.0",
 		"gulp-load-plugins": "1.5",
 		"gulp-rename": "1.2",
-		"gulp-sourcemaps": "2.4",
+		"gulp-sourcemaps": "2.6",
 		"gulp-uglify": "2.0",
 		"run-sequence": "1.2"
 	}

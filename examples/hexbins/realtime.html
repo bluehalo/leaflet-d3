@@ -60,7 +60,7 @@
 		var data = [];
 		var paused = false;
 
-		function doPings() {
+		function epoch() {
 			if(!paused) {
 
 				// Modify the data array
@@ -73,9 +73,9 @@
 				hexLayer.data(data);
 			}
 
-		    setTimeout(doPings, 100);
+		    setTimeout(epoch, 100);
 		}
-		doPings();
+		epoch();
 
 		function togglePlay() {
 			paused = !paused;

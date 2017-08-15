@@ -15,10 +15,9 @@ var d3_hexbin = (null != d3.hexbin)? d3.hexbin : (null != d3Hexbin)? d3Hexbin.he
 
 /**
  * L is defined by the Leaflet library, see git://github.com/Leaflet/Leaflet.git for documentation
- * We extent L.Layer if it exists, L.Class otherwise. This is for backwards-compatibility with
- * Leaflet < 1.x
+ * We extend L.SVG to take advantage of built-in zoom animations.
  */
-L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
+L.HexbinLayer = L.SVG.extend({
 	includes: [ L.Mixin.Events ],
 
 	/**
@@ -62,14 +61,16 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		// Set up the customizable scale
 		this._scale = {
 			color: d3.scaleLinear(),
-				radius: d3.scaleLinear()
+			radius: d3.scaleLinear()
 		};
 
 		// Set up the Dispatcher for managing events and callbacks
 		this._dispatch = d3.dispatch('mouseover', 'mouseout', 'click');
 
+		// Set up the default hover handler
+		this._hoverHandler = L.HexbinHoverHandler.none();
 
-			// Create the hex layout
+		// Create the hex layout
 		this._hexLayout = d3_hexbin()
 			.radius(this.options.radius)
 			.x(function(d) { return d.point[0]; })
@@ -94,11 +95,10 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 */
 	onAdd : function(map) {
 
+		L.SVG.prototype.onAdd.call(this);
+
 		// Store a reference to the map for later use
 		this._map = map;
-
-		// Create a container for svg
-		this._initContainer();
 
 		// Redraw on moveend
 		map.on({ 'moveend': this.redraw }, this);
@@ -114,13 +114,14 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 */
 	onRemove : function(map) {
 
+		L.SVG.prototype.onRemove.call(this);
+
 		// Destroy the svg container
 		this._destroyContainer();
 
 		// Remove events
 		map.off({ 'moveend': this.redraw }, this);
 
-		this._container = null;
 		this._map = null;
 
 		// Explicitly will leave the data array alone in case the layer will be shown again
@@ -134,17 +135,8 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 */
 	_initContainer : function() {
 
-		// If the container is null or the overlay pane is empty, create the svg element for drawing
-		if (null == this._container) {
-
-			// The svg is in the overlay pane so it's drawn on top of other base layers
-			var overlayPane = this._map.getPanes().overlayPane;
-
-			// The leaflet-zoom-hide class hides the svg layer when zooming
-			this._container = d3.select(overlayPane).append('svg')
-				.attr('class', 'leaflet-layer leaflet-zoom-hide');
-		}
-
+		L.SVG.prototype._initContainer.call(this);
+		this._d3Container = d3.select(this._container).select('g');
 	},
 
 	/**
@@ -153,10 +145,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	 */
 	_destroyContainer: function() {
 
-		// Remove the svg element
-		if (null != this._container) {
-			this._container.remove();
-		}
+		// Don't do anything
 
 	},
 
@@ -180,23 +169,9 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 			return { o: d, point: point };
 		});
 
-		// Determine the bounds from the data and scale the overlay
-		var margin = 512; // We're adding a large margin to avoid clipping during transitions
-		var bounds = this._getBounds(data);
-		var width = (bounds.max[0] - bounds.min[0]) + (2 * margin),
-			height = (bounds.max[1] - bounds.min[1]) + (2 * margin),
-			marginTop = bounds.min[1] - margin,
-			marginLeft = bounds.min[0] - margin;
-
-
-		this._container
-			.attr('width', width).attr('height', height)
-			.style('margin-left', marginLeft + 'px')
-			.style('margin-top', marginTop + 'px');
-
 		// Select the hex group for the current zoom level. This has
 		// the effect of recreating the group if the zoom level has changed
-		var join = this._container.selectAll('g.hexbin')
+		var join = this._d3Container.selectAll('g.hexbin')
 			.data([ this._map.getZoom() ], function(d) { return d; });
 
 		// enter
@@ -205,7 +180,6 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 
 		// enter + update
 		var enterUpdate = enter.merge(join);
-		enterUpdate.attr('transform', 'translate(' + -marginLeft + ',' + -marginTop + ')');
 
 		// exit
 		join.exit().remove();
@@ -219,6 +193,8 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		var that = this;
 
 		// Create the bins using the hexbin layout
+		var bounds = that._map.getBounds();
+
 		var bins = that._hexLayout(data);
 
 		// Derive the extents of the data values for each dimension
@@ -238,8 +214,13 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		 *    Join the Hexagons to the data
 		 *    Use a deterministic id for tracking bins based on position
 		 */
-		var join = g.selectAll('path.hexbin-hexagon')
-			.data(bins, function(d) { return d.x + ':' + d.y; });
+		bins = bins.filter(function(d) {
+			return bounds.contains(that._map.layerPointToLatLng(L.point(d.x, d.y)));
+		});
+		var join = g.selectAll('g.hexbin-container')
+			.data(bins, function(d) {
+				return d.x + ':' + d.y;
+			});
 
 
 		/*
@@ -248,7 +229,7 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		 *    opacity is re-applied in case the enter transition was cancelled
 		 *    the path is applied as well to resize the bins
 		 */
-		join.transition().duration(that.options.duration)
+		join.select('path.hexbin-hexagon').transition().duration(that.options.duration)
 			.attr('fill', that._fn.fill.bind(that))
 			.attr('fill-opacity', that.options.opacity)
 			.attr('stroke-opacity', that.options.opacity)
@@ -262,20 +243,18 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		 *    Establish the path, size, fill, and the initial opacity
 		 *    Transition to the final opacity and size
 		 */
-		join.enter().append('path').attr('class', 'hexbin-hexagon')
-			.style('pointer-events', that.options.pointerEvents)
+		var enter = join.enter().append('g').attr('class', 'hexbin-container');
+
+		enter.append('path').attr('class', 'hexbin-hexagon')
 			.attr('transform', function(d) {
 				return 'translate(' + d.x + ',' + d.y + ')';
 			})
 			.attr('d', function(d) {
-				return that._hexLayout.hexagon(0);
+				return that._hexLayout.hexagon(that._scale.radius.range()[0]);
 			})
 			.attr('fill', that._fn.fill.bind(that))
 			.attr('fill-opacity', 0.01)
 			.attr('stroke-opacity', 0.01)
-			.on('mouseover', function(d, i) { that._dispatch.call('mouseover', this, d, i); })
-			.on('mouseout', function(d, i) { that._dispatch.call('mouseout', this, d, i); })
-			.on('click', function(d, i) { that._dispatch.call('click', this, d, i); })
 			.transition().duration(that.options.duration)
 				.attr('fill-opacity', that.options.opacity)
 				.attr('stroke-opacity', that.options.opacity)
@@ -283,16 +262,40 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 					return that._hexLayout.hexagon(that._scale.radius(that._fn.radiusValue.call(that, d)));
 				});
 
+		// Grid
+		enter.append('path').attr('class', 'hexbin-grid')
+			.attr('transform', function(d) {
+				return 'translate(' + d.x + ',' + d.y + ')';
+			})
+			.attr('d', function(d) {
+				return that._hexLayout.hexagon(that.options.radius);
+			})
+			.attr('fill', 'none')
+			.attr('stroke', 'none')
+			.style('pointer-events', that.options.pointerEvents)
+			.on('mouseover', function(d, i) {
+				that._hoverHandler.mouseover.call(this, that, d, i);
+				that._dispatch.call('mouseover', this, d, i);
+			})
+			.on('mouseout', function(d, i) {
+				that._dispatch.call('mouseout', this, d, i);
+				that._hoverHandler.mouseout.call(this, that, d, i);
+			})
+			.on('click', function(d, i) {
+				that._dispatch.call('click', this, d, i);
+			});
+
 
 		// Exit
-		join.exit()
-			.transition().duration(that.options.duration)
-				.attr('fill-opacity', 0.01)
-				.attr('stroke-opacity', 0.01)
-				.attr('d', function(d) {
-					return that._hexLayout.hexagon(0);
-				})
-				.remove();
+		var exit = join.exit();
+
+		exit.transition().duration(that.options.duration)
+			.attr('fill-opacity', 0.01)
+			.attr('stroke-opacity', 0.01)
+			.attr('d', function(d) {
+				return that._hexLayout.hexagon(0);
+			})
+			.remove();
 
 	},
 
@@ -473,6 +476,14 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 		return this._dispatch;
 	},
 
+	hoverHandler: function(v) {
+		if (!arguments.length) { return this._hoverHandler; }
+		this._hoverHandler = (null != v) ? v : L.HexbinHoverHandler.none();
+
+		this.redraw();
+
+		return this;
+	},
 
 	/*
 	 * Returns an array of the points in the path, or nested arrays of points in case of multi-polyline.
@@ -497,6 +508,129 @@ L.HexbinLayer = (L.Layer ? L.Layer : L.Class).extend({
 	}
 
 });
+
+// Hover Handlers modify the hexagon and can be combined
+L.HexbinHoverHandler = {
+
+	tooltip: function(options) {
+
+		// merge options with defaults
+		options = options || {};
+		if (null == options.tooltipContent) { options.tooltipContent = function(d) { return 'Count: ' + d.length; }; }
+
+		// Generate the tooltip
+		var tooltip = d3.select('body').append('div')
+			.attr('class', 'hexbin-tooltip')
+			.style('z-index', 9999)
+			.style('pointer-events', 'none')
+			.style('visibility', 'hidden')
+			.style('position', 'absolute');
+
+		tooltip.append('div').attr('class', 'tooltip-content');
+
+		// return the handler instance
+		return {
+			mouseover: function (hexLayer, data) {
+				var event = d3.event;
+				var gCoords = d3.mouse(this);
+
+				tooltip
+					.style('visibility', 'visible')
+					.html(options.tooltipContent(data, hexLayer));
+
+				var div = null;
+				if (null != tooltip._groups && tooltip._groups.length > 0 && tooltip._groups[0].length > 0) {
+					div = tooltip._groups[0][0];
+				}
+				var h = div.clientHeight, w = div.clientWidth;
+
+				tooltip
+					.style('top', '' + event.clientY - gCoords[1] - h - 16 + 'px')
+					.style('left', '' + event.clientX - gCoords[0] - w/2 + 'px');
+
+			},
+			mouseout: function (hexLayer, data) {
+				tooltip
+					.style('visibility', 'hidden')
+					.html();
+			}
+		};
+
+	},
+
+	resizeFill: function() {
+
+		// return the handler instance
+		return {
+			mouseover: function (hexLayer, data) {
+				var o = d3.select(this.parentNode);
+				o.select('path.hexbin-hexagon')
+					.attr('d', function (d) {
+						return hexLayer._hexLayout.hexagon(hexLayer.options.radius);
+					});
+			},
+			mouseout: function (hexLayer, data) {
+				var o = d3.select(this.parentNode);
+				o.select('path.hexbin-hexagon')
+					.attr('d', function (d) {
+						return hexLayer._hexLayout.hexagon(hexLayer._scale.radius(hexLayer._fn.radiusValue.call(hexLayer, d)));
+					});
+			}
+		};
+
+	},
+
+	resizeScale: function(options) {
+
+		// merge options with defaults
+		options = options || {};
+		if (null == options.radiusScale) options.radiusScale = 0.5;
+
+		// return the handler instance
+		return {
+			mouseover: function (hexLayer, data) {
+				var o = d3.select(this.parentNode);
+				o.select('path.hexbin-hexagon')
+					.attr('d', function (d) {
+						return hexLayer._hexLayout.hexagon(hexLayer._scale.radius.range()[1] * (1 + options.radiusScale));
+					});
+			},
+			mouseout: function (hexLayer, data) {
+				var o = d3.select(this.parentNode);
+				o.select('path.hexbin-hexagon')
+					.attr('d', function (d) {
+						return hexLayer._hexLayout.hexagon(hexLayer._scale.radius(hexLayer._fn.radiusValue.call(hexLayer, d)));
+					});
+			}
+		};
+
+	},
+
+	compound: function(options) {
+
+		options = options || {};
+		if (null == options.handlers) options.handlers = [ L.HexbinHoverHandler.none() ];
+
+		return {
+			mouseover: function (hexLayer, data) {
+				var that = this;
+				options.handlers.forEach(function(h) { h.mouseover.call(that, hexLayer, data); });
+			},
+			mouseout: function (hexLayer, data) {
+				var that = this;
+				options.handlers.forEach(function(h) { h.mouseout.call(that, hexLayer, data); });
+			}
+		};
+
+	},
+
+	none: function() {
+		return {
+			mouseover: function () {},
+			mouseout: function () {}
+		};
+	}
+};
 
 L.hexbinLayer = function(options) {
 	return new L.HexbinLayer(options);
