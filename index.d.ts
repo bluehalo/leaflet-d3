@@ -68,8 +68,8 @@ declare namespace L {
 
 		dispatch(): any;
 
-		hoverHandler(): HoverHandler;
-		hoverHandler(v: HoverHandler): this;
+		hoverHandler(): HexbinHoverHandler;
+		hoverHandler(v: HexbinHoverHandler): this;
 
 		getLatLngs(): any[];
 		toGeoJSON(): any[];
@@ -90,35 +90,35 @@ declare namespace L {
 		pointerEvents?: string
 	}
 
-	interface HoverHandler {
+	interface HexbinHoverHandler {
 		mouseover(hexLayer: HexbinLayer, data: any): void;
 		mouseout(hexLayer: HexbinLayer, data: any): void;
 	}
 
-	namespace HoverHandler {
+	namespace HexbinHoverHandler {
 
-		interface TooltipHoverHandler extends HoverHandler {}
+		interface TooltipHoverHandler extends HexbinHoverHandler {}
 		interface TooltipOptions {
 			tooltipContent: (d: any) => string;
 		}
 		function tooltip(v: TooltipOptions): TooltipHoverHandler;
 
-		interface ResizeFillHoverHandler extends HoverHandler {}
+		interface ResizeFillHoverHandler extends HexbinHoverHandler {}
 		function resizeFill(): ResizeFillHoverHandler;
 
-		interface ResizeScaleHoverHandler extends HoverHandler {}
+		interface ResizeScaleHoverHandler extends HexbinHoverHandler {}
 		interface ResizeScaleOptions {
 			radiusScale: number;
 		}
 		function resizeScale(v: ResizeScaleOptions): ResizeScaleHoverHandler;
 
-		interface CompoundHoverHandler extends HoverHandler {}
+		interface CompoundHoverHandler extends HexbinHoverHandler {}
 		interface CompoundOptions {
-			handlers: HoverHandler[];
+			handlers: HexbinHoverHandler[];
 		}
 		function compound(v: CompoundOptions): CompoundHoverHandler;
 
-		interface NoneHoverHandler extends HoverHandler {}
+		interface NoneHoverHandler extends HexbinHoverHandler {}
 		function none(): NoneHoverHandler;
 	}
 
