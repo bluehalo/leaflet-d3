@@ -292,12 +292,15 @@ L.HexbinLayer = L.SVG.extend({
 		// Exit
 		var exit = join.exit();
 
-		exit.transition().duration(that.options.duration)
-			.attr('fill-opacity', 0.01)
-			.attr('stroke-opacity', 0.01)
+		exit.select('path.hexbin-hexagon')
+			.transition().duration(that.options.duration)
+			.attr('fill-opacity', 0)
+			.attr('stroke-opacity', 0)
 			.attr('d', function(d) {
 				return that._hexLayout.hexagon(0);
-			})
+			});
+
+		exit.transition().duration(that.options.duration)
 			.remove();
 
 	},
