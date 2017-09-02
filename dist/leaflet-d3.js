@@ -2,7 +2,7 @@
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('d3'), require('d3-hexbin'), require('leaflet')) :
 	typeof define === 'function' && define.amd ? define(['exports', 'd3', 'd3-hexbin', 'leaflet'], factory) :
-	(factory((global.leafletD3 = global.leafletD3 || {}),global.d3,global.d3.hexbin));
+	(factory((global.leafletD3 = {}),global.d3,global.d3.hexbin));
 }(this, (function (exports,d3,d3Hexbin) { 'use strict';
 
 /**

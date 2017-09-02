@@ -28,22 +28,22 @@
 	},
 
 	"devDependencies": {
-		"d3": "4.9",
-		"@types/d3": "4.9",
+		"d3": "4.10",
+		"@types/d3": "4.10",
 
 		"d3-hexbin": "0.2",
 
-		"leaflet": "1.1",
-		"@types/leaflet": "1.0",
+		"leaflet": "1.2",
+		"@types/leaflet": "1.2",
 
-		"rollup": "0.43",
+		"rollup": "0.49",
 
 		"gulp": "3.9",
-		"gulp-eslint": "3.0",
+		"gulp-eslint": "4.0",
 		"gulp-load-plugins": "1.5",
 		"gulp-rename": "1.2",
 		"gulp-sourcemaps": "2.6",
-		"gulp-uglify": "2.0",
-		"run-sequence": "1.2"
+		"gulp-uglify": "3.0",
+		"run-sequence": "2.1"
 	}
 }
