@@ -1,8 +1,8 @@
-/*! @asymmetrik/leaflet-d3 - 3.0.2 - Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation */
+/*! @asymmetrik/leaflet-d3 - 3.1.0 - Copyright (c) 2007-2017 Asymmetrik Ltd, a Maryland Corporation */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('d3'), require('d3-hexbin'), require('leaflet')) :
 	typeof define === 'function' && define.amd ? define(['exports', 'd3', 'd3-hexbin', 'leaflet'], factory) :
-	(factory((global.leafletD3 = global.leafletD3 || {}),global.d3,global.d3.hexbin));
+	(factory((global.leafletD3 = {}),global.d3,global.d3.hexbin));
 }(this, (function (exports,d3,d3Hexbin) { 'use strict';
 
 /**
@@ -292,12 +292,15 @@ L.HexbinLayer = L.SVG.extend({
 		// Exit
 		var exit = join.exit();
 
-		exit.transition().duration(that.options.duration)
-			.attr('fill-opacity', 0.01)
-			.attr('stroke-opacity', 0.01)
+		exit.select('path.hexbin-hexagon')
+			.transition().duration(that.options.duration)
+			.attr('fill-opacity', 0)
+			.attr('stroke-opacity', 0)
 			.attr('d', function(d) {
 				return that._hexLayout.hexagon(0);
-			})
+			});
+
+		exit.transition().duration(that.options.duration)
 			.remove();
 
 	},

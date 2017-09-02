@@ -57,7 +57,8 @@ gulp.task('build-js', [ 'rollup-js' ], () => {
 
 	// Uglify
 	return gulp.src(path.join(assets.dist.dir, `${pkg.artifactName}.js`))
-		.pipe(plugins.uglify({ preserveComments: 'license' }))
+		.pipe(plugins.uglify({ output: { comments: 'license' } }))
+		.on('error', (err) => { plugins.util.log(plugins.util.colors.red('[Uglify]'), err.toString()); })
 		.pipe(plugins.rename(pkg.artifactName + '.min.js'))
 		.pipe(gulp.dest(assets.dist.dir));
 
@@ -66,7 +67,7 @@ gulp.task('build-js', [ 'rollup-js' ], () => {
 gulp.task('rollup-js', () => {
 
 	return rollup.rollup({
-		entry: assets.src.entry,
+		input: assets.src.entry,
 		external: [
 			'd3',
 			'd3-hexbin',
@@ -75,10 +76,10 @@ gulp.task('rollup-js', () => {
 	})
 		.then((bundle) => {
 			return bundle.write({
-				dest: path.join(assets.dist.dir, `${pkg.artifactName}.js`),
+				file: path.join(assets.dist.dir, `${pkg.artifactName}.js`),
 				format: 'umd',
-				moduleName: pkg.moduleName,
-				sourceMap: true,
+				name: pkg.moduleName,
+				sourcemap: true,
 				banner: bannerString,
 				globals: {
 					'd3': 'd3',
