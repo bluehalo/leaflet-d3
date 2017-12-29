@@ -59,7 +59,7 @@ gulp.task('build-js', [ 'rollup-js' ], () => {
 	return gulp.src(path.join(assets.dist.dir, `${pkg.artifactName}.js`))
 		.pipe(plugins.uglify({ output: { comments: 'license' } }))
 		.on('error', (err) => { plugins.util.log(plugins.util.colors.red('[Uglify]'), err.toString()); })
-		.pipe(plugins.rename(pkg.artifactName + '.min.js'))
+		.pipe(plugins.rename(`${pkg.artifactName}.min.js`))
 		.pipe(gulp.dest(assets.dist.dir));
 
 });
