@@ -527,7 +527,7 @@ L.HexbinHoverHandler = {
 			.style('z-index', 9999)
 			.style('pointer-events', 'none')
 			.style('visibility', 'hidden')
-			.style('position', 'absolute');
+			.style('position', 'fixed');
 
 		tooltip.append('div').attr('class', 'tooltip-content');
 
