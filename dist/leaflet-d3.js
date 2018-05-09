@@ -204,11 +204,15 @@ L.HexbinLayer = L.SVG.extend({
 		var colorExtent = that._getExtent(bins, that._fn.colorValue, that.options.colorScaleExtent);
 		var radiusExtent = that._getExtent(bins, that._fn.radiusValue, that.options.radiusScaleExtent);
 
-		// Match the domain cardinality to that of the color range, to allow for a polylinear scale
-		var colorDomain = that._linearlySpace(colorExtent[0], colorExtent[1], that._scale.color.range().length);
+		if( !that.options.manualColorScaleDomain ) {
+			// Match the domain cardinality to that of the color range, to allow for a polylinear scale
+			var colorDomain = that._linearlySpace(colorExtent[0], colorExtent[1], that._scale.color.range().length);
+
+			// Set the scale domains
+			that._scale.color.domain(colorDomain);
+		}
 
 		// Set the scale domains
-		that._scale.color.domain(colorDomain);
 		that._scale.radius.domain(radiusExtent);
 
 
@@ -530,7 +534,7 @@ L.HexbinHoverHandler = {
 			.style('z-index', 9999)
 			.style('pointer-events', 'none')
 			.style('visibility', 'hidden')
-			.style('position', 'absolute');
+			.style('position', 'fixed');
 
 		tooltip.append('div').attr('class', 'tooltip-content');
 
