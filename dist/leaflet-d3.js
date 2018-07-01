@@ -1,4 +1,4 @@
-/*! @asymmetrik/leaflet-d3 - 4.0.0 - Copyright (c) 2007-2018 Asymmetrik Ltd, a Maryland Corporation + */
+/*! @asymmetrik/leaflet-d3 - 4.1.0 - Copyright (c) 2007-2018 Asymmetrik Ltd, a Maryland Corporation + */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('d3'), require('d3-hexbin'), require('leaflet')) :
 	typeof define === 'function' && define.amd ? define(['d3', 'd3-hexbin', 'leaflet'], factory) :
@@ -33,6 +33,8 @@
 
 			colorScaleExtent: [ 1, undefined ],
 			radiusScaleExtent: [ 1, undefined ],
+			colorDomain: null,
+			radiusDomain: null,
 			colorRange: [ '#f7fbff', '#08306b' ],
 			radiusRange: [ 4, 12 ],
 
@@ -205,11 +207,15 @@
 			var radiusExtent = that._getExtent(bins, that._fn.radiusValue, that.options.radiusScaleExtent);
 
 			// Match the domain cardinality to that of the color range, to allow for a polylinear scale
-			var colorDomain = that._linearlySpace(colorExtent[0], colorExtent[1], that._scale.color.range().length);
+			var colorDomain = this.options.colorDomain;
+			if (null == colorDomain) {
+				colorDomain = that._linearlySpace(colorExtent[0], colorExtent[1], that._scale.color.range().length);
+			}
+			var radiusDomain = this.options.radiusDomain || radiusExtent;
 
 			// Set the scale domains
 			that._scale.color.domain(colorDomain);
-			that._scale.radius.domain(radiusExtent);
+			that._scale.radius.domain(radiusDomain);
 
 
 			/*

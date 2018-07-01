@@ -163,6 +163,8 @@ var options = {
 
 	colorScaleExtent: [ 1, undefined ],
 	radiusScaleExtent: [ 1, undefined ],
+	colorDomain: null,
+	radiusDomain: null,
 	colorRange: [ '#f7fbff', '#08306b' ],
 	radiusRange: [ 5, 12 ],
 	
@@ -184,6 +186,18 @@ Default: [ 1, undefined ] - Sets the extent of the color scale for the hexbin la
 
 #### radiusScaleExtent
 Default: [ 1, undefined ] - This is the same exact configuration option as ```colorScaleExtent```, only applied to the radius extent.
+
+#### colorDomain
+Default: null - This is used to override the default behavior, which is to derive the color domain from the data.
+Normally, you can tweak the generation of the color domain using the colorScaleExtent option.
+However, if you want to set a completely custom domain, you can provide it as an array of values with this option.
+The array of values will be passed directly into the domain of the color scale before rendering. 
+
+#### radiusDomain
+Default: null - This is used to override the default behavior, which is to derive the radius domain from the data.
+Normally, you can tweak the generation of the radius domain using the radiusScaleExtent option.
+However, if you want to set a completely custom domain, you can provide it as an array of values with this option.
+The array of values will be passed directly into the domain of the radius scale before rendering.
 
 #### colorRange
 Default: [ '#f7fbff', '#08306b' ] - Sets the range of the color scale used to fill the hexbins on the layer. 
@@ -522,17 +536,14 @@ Getter for the actual fps (based on the actual time between the last two animati
 
 ### Version 4.x
 
-#### D3 v5
-We now support D3 v5. Only minor changes were required.
+#### 4.1.0
+- Added Hexbin Layer options for colorDomain and radiusDomain. See README docs for details.
 
-#### Fix for Leaflet > 1.2 Mixins Deprecation Warning
-Updated the events include reference to remove the warning about using L.Mixins.Events
-
-#### Fixes for Hover Handlers Data and Tooltip positions
-See Issue #45 and #50, thanks @ninio for finding these.
-
-#### Migrated to npm run based build
-Not really an external facing thing, but matters if you're trying to build the library.
+#### 4.0.0
+- D3 v5: We now support D3 v5. Only minor changes were required.
+- Fix for Leaflet > 1.2 Mixins Deprecation Warning: Updated the events include reference to remove the warning about using L.Mixins.Events
+- Fixes for Hover Handlers Data and Tooltip positions: See Issue #45 and #50, thanks @ninio for finding these.
+- Migrated to npm run based build: Not really an external facing thing, but matters if you're trying to build the library.
 
 
 ### Version 3.x

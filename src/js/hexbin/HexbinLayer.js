@@ -30,6 +30,8 @@ L.HexbinLayer = L.SVG.extend({
 
 		colorScaleExtent: [ 1, undefined ],
 		radiusScaleExtent: [ 1, undefined ],
+		colorDomain: null,
+		radiusDomain: null,
 		colorRange: [ '#f7fbff', '#08306b' ],
 		radiusRange: [ 4, 12 ],
 
@@ -202,11 +204,15 @@ L.HexbinLayer = L.SVG.extend({
 		var radiusExtent = that._getExtent(bins, that._fn.radiusValue, that.options.radiusScaleExtent);
 
 		// Match the domain cardinality to that of the color range, to allow for a polylinear scale
-		var colorDomain = that._linearlySpace(colorExtent[0], colorExtent[1], that._scale.color.range().length);
+		var colorDomain = this.options.colorDomain;
+		if (null == colorDomain) {
+			colorDomain = that._linearlySpace(colorExtent[0], colorExtent[1], that._scale.color.range().length);
+		}
+		var radiusDomain = this.options.radiusDomain || radiusExtent;
 
 		// Set the scale domains
 		that._scale.color.domain(colorDomain);
-		that._scale.radius.domain(radiusExtent);
+		that._scale.radius.domain(radiusDomain);
 
 
 		/*

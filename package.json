@@ -3,7 +3,7 @@
 	"artifactName": "leaflet-d3",
 	"moduleName": "leafletD3",
 	"description": "Custom d3 layers for leaflet",
-	"version": "4.0.0",
+	"version": "4.1.0",
 	"author": "Asymmetrik, Ltd.",
 	"copyright": "Copyright (c) 2007-2018 Asymmetrik Ltd, a Maryland Corporation",
 	"license": "MIT",
