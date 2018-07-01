@@ -6,7 +6,7 @@ import 'leaflet';
  * We extend L.SVG to take advantage of built-in zoom animations.
  */
 L.PingLayer = L.SVG.extend({
-	includes: [ L.Mixin.Events ],
+	includes: L.Evented || L.Mixin.Events,
 
 	/*
 	 * Default options

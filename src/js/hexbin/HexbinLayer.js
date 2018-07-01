@@ -18,7 +18,7 @@ var d3_hexbin = (null != d3.hexbin)? d3.hexbin : (null != d3Hexbin)? d3Hexbin.he
  * We extend L.SVG to take advantage of built-in zoom animations.
  */
 L.HexbinLayer = L.SVG.extend({
-	includes: [ L.Mixin.Events ],
+	includes: L.Evented || L.Mixin.Events,
 
 	/**
 	 * Default options
@@ -263,7 +263,7 @@ L.HexbinLayer = L.SVG.extend({
 				});
 
 		// Grid
-		enter.append('path').attr('class', 'hexbin-grid')
+		var gridEnter = enter.append('path').attr('class', 'hexbin-grid')
 			.attr('transform', function(d) {
 				return 'translate(' + d.x + ',' + d.y + ')';
 			})
@@ -272,7 +272,10 @@ L.HexbinLayer = L.SVG.extend({
 			})
 			.attr('fill', 'none')
 			.attr('stroke', 'none')
-			.style('pointer-events', that.options.pointerEvents)
+			.style('pointer-events', that.options.pointerEvents);
+
+		// Grid enter-update
+		gridEnter.merge(join.select('path.hexbin-grid'))
 			.on('mouseover', function(d, i) {
 				that._hoverHandler.mouseover.call(this, that, d, i);
 				that._dispatch.call('mouseover', this, d, i);
@@ -527,7 +530,7 @@ L.HexbinHoverHandler = {
 			.style('z-index', 9999)
 			.style('pointer-events', 'none')
 			.style('visibility', 'hidden')
-			.style('position', 'absolute');
+			.style('position', 'fixed');
 
 		tooltip.append('div').attr('class', 'tooltip-content');
 
