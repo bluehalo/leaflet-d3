@@ -18,7 +18,7 @@ var d3_hexbin = (null != d3.hexbin)? d3.hexbin : (null != d3Hexbin)? d3Hexbin.he
  * We extend L.SVG to take advantage of built-in zoom animations.
  */
 L.HexbinLayer = L.SVG.extend({
-	includes: L.version[0]==='1' ? L.Evented.prototype : L.Mixin.Events,
+	includes: L.Evented || L.Mixin.Events,
 
 	/**
 	 * Default options

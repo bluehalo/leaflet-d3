@@ -20,8 +20,7 @@
 
 </head>
 <body>
-	<h2>Leaflet d3 Hexbin Example With Discrete Colors</h2>
-	<p>red: 1-2, orange: 3-4, yellow: 5-6, green: 7-8, blue: 9+</p>
+	<h2>Leaflet d3 Hexbin Example With Custom Color Scale</h2>
 
 	<!-- The map element -->
 	<div id="map" style="width: 600px; height: 400px; border: 1px solid #ccc"></div>
@@ -41,19 +40,13 @@
 		});
 
 		// Options for the Hexbin
-		var options = {
-
-			// Provide one color for each integer that falls within the extent of the color scale's domain
-			colorRange: [ 'red', 'red', 'orange', 'orange', 'yellow', 'yellow', 'green', 'green', 'blue', 'blue' ],
-
-			// Set overrides for the colorScale's domain extent
-			colorScaleExtent: [ 1, 10 ]
-
-		};
+		var options = {};
 
 		// Create the hexlayer and add it to the map
 		var hexLayer = L.hexbinLayer(options).addTo(map);
 
+		var colorScale = d3.scaleLog().range(['white', '#ffecb3', '#e85285', '#6a1b9a']).interpolate(d3.interpolateLab);
+		hexLayer.colorScale(colorScale);
 
 		// Random data generators
 		var latFn = d3.randomNormal(center[0], 1);

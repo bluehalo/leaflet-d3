@@ -520,6 +520,18 @@ Getter for the actual fps (based on the actual time between the last two animati
 
 ## Changelog
 
+### Version 4.x
+
+#### D3 v5
+We now support D3 v5. Only minor changes were required.
+
+#### Fix for Leaflet > 1.2 Mixins Deprecation Warning
+Updated the events include reference to remove the warning about using L.Mixins.Events
+
+#### Migrated to npm run based build
+Not really an external facing thing, but matters if you're trying to build the library.
+
+
 ### Version 3.x
 
 #### Dropping Support for Leaflet 0.7.x
