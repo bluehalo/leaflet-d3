@@ -4,7 +4,7 @@
 
 > Leaflet D3
 > Provides a collection of [D3.js](http://d3js.org) based visualization plugins for [Leaflet](http://leafletjs.com/).
-> Now supports D3 v4
+> Now supports D3 v5
 
 ## Table of Contents
 - [Install](#install)
@@ -527,6 +527,9 @@ We now support D3 v5. Only minor changes were required.
 
 #### Fix for Leaflet > 1.2 Mixins Deprecation Warning
 Updated the events include reference to remove the warning about using L.Mixins.Events
+
+#### Fixes for Hover Handlers Data and Tooltip positions
+See Issue #45 and #50, thanks @ninio for finding these.
 
 #### Migrated to npm run based build
 Not really an external facing thing, but matters if you're trying to build the library.
