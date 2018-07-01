@@ -266,7 +266,7 @@
 					});
 
 			// Grid
-			enter.append('path').attr('class', 'hexbin-grid')
+			var gridEnter = enter.append('path').attr('class', 'hexbin-grid')
 				.attr('transform', function(d) {
 					return 'translate(' + d.x + ',' + d.y + ')';
 				})
@@ -275,7 +275,10 @@
 				})
 				.attr('fill', 'none')
 				.attr('stroke', 'none')
-				.style('pointer-events', that.options.pointerEvents)
+				.style('pointer-events', that.options.pointerEvents);
+
+			// Grid enter-update
+			gridEnter.merge(join.select('path.hexbin-grid'))
 				.on('mouseover', function(d, i) {
 					that._hoverHandler.mouseover.call(this, that, d, i);
 					that._dispatch.call('mouseover', this, d, i);
@@ -530,7 +533,7 @@
 				.style('z-index', 9999)
 				.style('pointer-events', 'none')
 				.style('visibility', 'hidden')
-				.style('position', 'absolute');
+				.style('position', 'fixed');
 
 			tooltip.append('div').attr('class', 'tooltip-content');
 

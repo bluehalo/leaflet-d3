@@ -63,6 +63,9 @@
 		// Create the hexlayer
 		var hexLayer = L.hexbinLayer(options);
 
+		// Set up hover handler
+		hexLayer.hoverHandler(L.HexbinHoverHandler.tooltip());
+
 		// Set up events
 		hexLayer.dispatch()
 			.on('mouseover', function(d, i) {
