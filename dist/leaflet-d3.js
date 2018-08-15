@@ -1,4 +1,4 @@
-/*! @asymmetrik/leaflet-d3 - 4.1.0 - Copyright (c) 2007-2018 Asymmetrik Ltd, a Maryland Corporation + */
+/*! @asymmetrik/leaflet-d3 - 4.2.0 - Copyright (c) 2007-2018 Asymmetrik Ltd, a Maryland Corporation + */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('d3'), require('d3-hexbin'), require('leaflet')) :
 	typeof define === 'function' && define.amd ? define(['d3', 'd3-hexbin', 'leaflet'], factory) :
@@ -198,7 +198,11 @@
 			var that = this;
 
 			// Create the bins using the hexbin layout
+
+			// Generate the map bounds (to be used to filter the hexes to what is visible)
 			var bounds = that._map.getBounds();
+			var size = that._map.getSize();
+			bounds = bounds.pad(that.options.radius * 2 / Math.max(size.x, size.y));
 
 			var bins = that._hexLayout(data);
 
