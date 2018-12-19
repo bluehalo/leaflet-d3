@@ -20,11 +20,17 @@
 ## Install 
 Install the package and its peer dependencies via npm:
 ```
-npm install d3
-npm install d3-hexbin
-npm install leaflet
+npm install d3 d3-hexbin leaflet
 ```
 
+If you want to grab the source files directly without using npm, or you want to run the examples, you can build the dist files directly.
+Simply check out the repository, and then build it with the following commands:
+```
+git clone git@github.com:Asymmetrik/leaflet-d3.git
+cd leaflet-d3
+npm install
+npm run build
+```
 
 ## Usage
 
