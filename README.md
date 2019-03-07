@@ -119,7 +119,7 @@ This plugin can be used to indicate a transient event, such as a real-time occur
 
 <img src="https://cloud.githubusercontent.com/assets/480701/4890582/5b6781ae-63a0-11e4-8e45-236eb7c75b85.gif" alt="map with pings"/>
 
-**Live Demo:** [JSFiddle](http://jsfiddle.net/reblace/7jfhLgnq/embedded/result/)
+**Live Demo:** [JSFiddle](http://jsfiddle.net/fx0hznp2/embedded/result/)
 
 To use, simply declare a ping layer and add it to your map.
 You can then add data by calling the ping() method.
