@@ -41,7 +41,7 @@ The primary difference is that this plugin leverages the data-binding power of d
 
 <img src="https://cloud.githubusercontent.com/assets/480701/4594707/d995541a-5091-11e4-9955-5938b1cb977a.png" alt="map with hexbins"/>
 
-Live Demo: [JSFiddle](http://jsfiddle.net/acjnbu8t/embedded/result/)
+Live Demo: [JSFiddle](http://jsfiddle.net/g0sx3mh8/embedded/result/)
 
 To use, simply declare a hexbin layer and add it to your map.
 You can then add data to the layer.
