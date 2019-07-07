@@ -542,6 +542,9 @@ Getter for the actual fps (based on the actual time between the last two animati
 
 ### Version 4.x
 
+#### 4.4.0
+- Minor version updates for d3 and leaflet.
+
 #### 4.2.0
 - Corrected the algorithm that filters out hexbins to avoid drawing those that fall outside of the visible bounds of the map.
 
