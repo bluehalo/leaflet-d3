@@ -11,7 +11,9 @@
 		"build": "npm run bundle",
 		"prebuild": "npm run lint",
 		"bundle": "npm run rollup && npm run uglify",
+		"install": "npm run build",
 		"lint": "eslint 'src/**/*.js'",
+		"prepare": "npm run build",
 		"rollup": "rollup -c rollup.config.js",
 		"uglify": "uglifyjs --comments 'license' -o ./dist/leaflet-d3.min.js -- ./dist/leaflet-d3.js",
 		"watch": " watch 'npm run build' ./src"
