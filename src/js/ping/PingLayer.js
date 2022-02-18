@@ -101,9 +101,8 @@ L.PingLayer = L.SVG.extend({
 
 	// Cleanup the svg pane
 	_destroyContainer: function() {
-
-		// Don't do anything
-
+		this._d3Container.selectAll('circle').remove();
+		d3.select(this._container).remove();
 	},
 
 
@@ -293,6 +292,11 @@ L.PingLayer = L.SVG.extend({
 	 * Method by which to "add" pings
 	 */
 	ping : function(data, cssClass) {
+		// If the layer isn't shown, ignore pings
+		if (null == this._map) {
+			return this;
+		}
+
 		this._addPing(data, cssClass);
 		this._expirePings();
 

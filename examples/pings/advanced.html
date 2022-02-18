@@ -25,6 +25,7 @@
 </head>
 <body>
 	<div id="map" style="width: 600px; height: 400px; border: 1px solid #ccc"></div>
+	<button onclick="toggleLayer()">Toggle Layer</button>
 
 	<script>
 
@@ -51,9 +52,6 @@
 			.lat(function(d) { return d.lat; })
 			.radiusScaleFactor(function(d) { return d.scaleFactor });
 
-		pingLayer.addTo(map);
-
-
 		// Demo code that will randomly generate pings
 		var latFn = d3.randomNormal(center[0], 1);
 		var longFn = d3.randomNormal(center[1], 1);
@@ -63,6 +61,17 @@
 			window.setTimeout(update, 100 + Math.random()*300);
 		};
 		window.setTimeout(update);
+
+		var layerVisible = false;
+		function toggleLayer() {
+			if(layerVisible) {
+				map.removeLayer(pingLayer);
+			}
+			else {
+				map.addLayer(pingLayer);
+			}
+			layerVisible = !layerVisible;
+		}
 
 	</script>
 </body>
