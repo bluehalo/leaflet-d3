@@ -3,9 +3,9 @@
 	"artifactName": "leaflet-d3",
 	"moduleName": "leafletD3",
 	"description": "Custom d3 layers for leaflet",
-	"version": "4.4.0",
-	"author": "Asymmetrik, Ltd.",
-	"copyright": "Copyright (c) 2007-2019 Asymmetrik Ltd, a Maryland Corporation",
+	"version": "4.4.1",
+	"author": "Asymmetrik, Ltd. a BlueHalo Company",
+	"copyright": "Copyright (c) 2007-2022 Asymmetrik Ltd, a BlueHalo Company",
 	"license": "MIT",
 	"scripts": {
 		"build": "npm run bundle",
