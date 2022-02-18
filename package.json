@@ -12,6 +12,7 @@
 		"prebuild": "npm run lint",
 		"bundle": "npm run rollup && npm run uglify",
 		"lint": "eslint 'src/**/*.js'",
+		"prepare": "npm run build",
 		"rollup": "rollup -c rollup.config.js",
 		"uglify": "uglifyjs --comments 'license' -o ./dist/leaflet-d3.min.js -- ./dist/leaflet-d3.js",
 		"watch": " watch 'npm run build' ./src"
@@ -24,18 +25,18 @@
 		"url": "https://github.com/Asymmetrik/leaflet-d3.git"
 	},
 	"peerDependencies": {
-		"d3": "5",
+		"d3": "7",
 		"d3-hexbin": "0.2",
 		"leaflet": "1"
 	},
 	"devDependencies": {
-		"d3": "5.9",
-		"@types/d3": "5.7",
+		"d3": "7.0",
+		"@types/d3": "7.0",
 		"d3-hexbin": "0.2",
-		"leaflet": "1.5",
-		"@types/leaflet": "1.4",
-		"eslint": "6",
-		"rollup": "1",
+		"leaflet": "1.7",
+		"@types/leaflet": "1.7",
+		"eslint": "7",
+		"rollup": "2",
 		"uglify-js": "3",
 		"watch": "1"
 	}

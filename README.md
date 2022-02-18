@@ -4,7 +4,7 @@
 
 > Leaflet D3
 > Provides a collection of [D3.js](http://d3js.org) based visualization plugins for [Leaflet](http://leafletjs.com/).
-> Now supports D3 v5
+> Now supports D3 v7
 
 ## Table of Contents
 - [Install](#install)
@@ -17,7 +17,7 @@
 - [Credits](#credits)
 
 
-## Install 
+## Install
 Install the package and its peer dependencies via npm:
 ```
 npm install d3 d3-hexbin leaflet
@@ -150,7 +150,7 @@ See the following example:
 ## Hexbins API
 
 ### L.hexbinLayer(options?: {}): L.HexbinLayer
-Create a Leaflet map layer for visualizing data using colored/sized hexbin-based bins. 
+Create a Leaflet map layer for visualizing data using colored/sized hexbin-based bins.
 
 ```js
 var hexLayer = L.hexbinLayer().addTo(map);
@@ -173,7 +173,7 @@ var options = {
 	radiusDomain: null,
 	colorRange: [ '#f7fbff', '#08306b' ],
 	radiusRange: [ 5, 12 ],
-	
+
 	pointerEvents: 'all'
 };
 ```
@@ -197,7 +197,7 @@ Default: [ 1, undefined ] - This is the same exact configuration option as ```co
 Default: null - This is used to override the default behavior, which is to derive the color domain from the data.
 Normally, you can tweak the generation of the color domain using the colorScaleExtent option.
 However, if you want to set a completely custom domain, you can provide it as an array of values with this option.
-The array of values will be passed directly into the domain of the color scale before rendering. 
+The array of values will be passed directly into the domain of the color scale before rendering.
 
 #### radiusDomain
 Default: null - This is used to override the default behavior, which is to derive the radius domain from the data.
@@ -206,7 +206,7 @@ However, if you want to set a completely custom domain, you can provide it as an
 The array of values will be passed directly into the domain of the radius scale before rendering.
 
 #### colorRange
-Default: [ '#f7fbff', '#08306b' ] - Sets the range of the color scale used to fill the hexbins on the layer. 
+Default: [ '#f7fbff', '#08306b' ] - Sets the range of the color scale used to fill the hexbins on the layer.
 
 #### radiusRange
 Default: [ 4, 12 ] - Sets the range of the radius scale used to size the hexbins on the layer.
@@ -266,7 +266,7 @@ The consequence of not doing this is that hexbins will not fully complete their 
 Setter/getter for the colorScaleExtent configuration option.
 This is used to override the derived extent of the color values and is specified as a tuple of the form [ min: number, max: number ].
 A value of  ```undefined`` for either min or max indicates that the derived value should be retained.
- 
+
 What this means is we derive the color value extent of the data (the min/max values in the data array) as an array of the form [ min, max ].
 Once we have that tuple, we override those values with the values provided by this config option.
 For example, if the derived min/max is [5, 102] and ```colorScaleExtent``` is [ 1, undefined ], the resulting extent used as the domain of the colorScale will be [ 1, 102 ].
@@ -286,13 +286,13 @@ This value is used to specify the range of the color scale used to determine the
 There are a lot of different ways you can specify the color range.
 One option is monotone: ```[ '#f7fbff', '#f7fbff' ]```.
 The most common option is a linear transition between two colors: ```[ '#f7fbff', '#08306b' ]```
-You can also create divering and discrete color scales by providing more than two values (see the examples for details). 
+You can also create divering and discrete color scales by providing more than two values (see the examples for details).
 
 
 #### hexbinLayer.radiusRange(value?: [ number, number ])
 Setter/getter for the radiusRange configuration option.
 This value is used to specify the range of the radius scale used to size the drawn hexbins.
-This is relevant if you are providing a custom ```radiusValue``` function and want to specify the minimum and maximum drawn hexbin size. 
+This is relevant if you are providing a custom ```radiusValue``` function and want to specify the minimum and maximum drawn hexbin size.
 
 *Note:* Overriding this value will have no effect unless you provide a custom ```radiusValue``` function.
 
@@ -365,7 +365,7 @@ L.HexbinHoverHandler.ResizeFill(options)
 
 Here's a basic example:
 ```js
-// Create a hexbin layer where hexbins that are hovered will grow from their 
+// Create a hexbin layer where hexbins that are hovered will grow from their
 // current radius up to the maximum radius (in this case 11)
 var hexLayer = L.hexbinLayer({ duration: 400, radiusRange: [ 5, 11 ] })
 	.radiusValue(function(d) { return d.length; })
@@ -373,7 +373,7 @@ var hexLayer = L.hexbinLayer({ duration: 400, radiusRange: [ 5, 11 ] })
 ```
 
 You can combine hover handlers with CSS to achieve interesting effects.
-The above hover handler combined with the below CSS will grow hexbins on hover using a smooth animation 
+The above hover handler combined with the below CSS will grow hexbins on hover using a smooth animation
 and will change the stroke to orange.
 
 ```css
@@ -434,7 +434,7 @@ L.HexbinHoverHandler.myHoverHandler = function() {
 ## Pings API
 
 ### L.pingLayer(options?: {}): L.PingLayer
-Create a Leaflet map layer for visualizing transient event data using animated expanding circles. 
+Create a Leaflet map layer for visualizing transient event data using animated expanding circles.
 
 ```js
 var pingLayer = L.pingLayer().addTo(map);
@@ -461,7 +461,7 @@ Default: 800 - Sets the transition duration for the ping layer (see below for de
 Default: 32 - Sets the target framerate for the ping animation (see below for details).
 
 #### opacityRange
-Default: [ 1, 0 ] - Sets the range of the opacity scale used to fade out the pings as they age (see below for details). 
+Default: [ 1, 0 ] - Sets the range of the opacity scale used to fade out the pings as they age (see below for details).
 
 #### radiusRange
 Default: [ 3, 15 ] - Sets the range of the radius scale used to size the pings as they age (see below for details).
@@ -509,7 +509,7 @@ The pings will start at an opacity equal to the first number in the tuple and an
 
 
 #### pingLayer.radiusScale(value?: d3.scale)
-Default: d3.scalePow().exponent(0.35) - Setter/getter for the scale used to determine the radius during the ping lifecycle. 
+Default: d3.scalePow().exponent(0.35) - Setter/getter for the scale used to determine the radius during the ping lifecycle.
 If you override the scale, the radius range will be ignored.
 
 
