@@ -126,6 +126,8 @@ L.HexbinLayer = L.SVG.extend({
 
 		this._map = null;
 
+		d3.select(this._container).remove();
+
 		// Explicitly will leave the data array alone in case the layer will be shown again
 		//this._data = [];
 
