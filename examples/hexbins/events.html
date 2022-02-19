@@ -68,16 +68,16 @@
 
 		// Set up events
 		hexLayer.dispatch()
-			.on('mouseover', function(d, i) {
-				console.log({ type: 'mouseover', event: d, index: i, context: this });
+			.on('mouseover', function(event, d, i) {
+				console.log({ type: 'mouseover', event: event, d: d, index: i, context: this });
 			    setHovered(d);
 			})
-			.on('mouseout', function(d, i) {
-				console.log({ type: 'mouseout', event: d, index: i, context: this });
+			.on('mouseout', function(event, d, i) {
+				console.log({ type: 'mouseout', event: event, d: d, index: i, context: this });
 			    setHovered();
 			})
-			.on('click', function(d, i) {
-				console.log({ type: 'click', event: d, index: i, context: this });
+			.on('click', function(event, d, i) {
+				console.log({ type: 'click', event: event, d: d, index: i, context: this });
 			    setClicked(d);
 			});
 

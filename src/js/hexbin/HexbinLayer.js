@@ -281,16 +281,16 @@ L.HexbinLayer = L.SVG.extend({
 
 		// Grid enter-update
 		gridEnter.merge(join.select('path.hexbin-grid'))
-			.on('mouseover', function(d, i) {
-				that._hoverHandler.mouseover.call(this, that, d, i);
-				that._dispatch.call('mouseover', this, d, i);
+			.on('mouseover', function(event, d, i) {
+				that._hoverHandler.mouseover.call(this, that, event, d, i);
+				that._dispatch.call('mouseover', this, event, d, i);
 			})
-			.on('mouseout', function(d, i) {
-				that._dispatch.call('mouseout', this, d, i);
-				that._hoverHandler.mouseout.call(this, that, d, i);
+			.on('mouseout', function(event, d, i) {
+				that._dispatch.call('mouseout', this, event, d, i);
+				that._hoverHandler.mouseout.call(this, that, event, d, i);
 			})
-			.on('click', function(d, i) {
-				that._dispatch.call('click', this, d, i);
+			.on('click', function(event, d, i) {
+				that._dispatch.call('click', this, event, d, i);
 			});
 
 
@@ -541,9 +541,8 @@ L.HexbinHoverHandler = {
 
 		// return the handler instance
 		return {
-			mouseover: function (hexLayer, data) {
-				var event = d3.event;
-				var gCoords = d3.mouse(this);
+			mouseover: function (hexLayer, event, data) {
+				var gCoords = d3.pointer(event);
 
 				tooltip
 					.style('visibility', 'visible')
@@ -560,7 +559,7 @@ L.HexbinHoverHandler = {
 					.style('left', '' + event.clientX - gCoords[0] - w/2 + 'px');
 
 			},
-			mouseout: function (hexLayer, data) {
+			mouseout: function (hexLayer, event, data) {
 				tooltip
 					.style('visibility', 'hidden')
 					.html();
@@ -573,14 +572,14 @@ L.HexbinHoverHandler = {
 
 		// return the handler instance
 		return {
-			mouseover: function (hexLayer, data) {
+			mouseover: function (hexLayer, event, data) {
 				var o = d3.select(this.parentNode);
 				o.select('path.hexbin-hexagon')
 					.attr('d', function (d) {
 						return hexLayer._hexLayout.hexagon(hexLayer.options.radius);
 					});
 			},
-			mouseout: function (hexLayer, data) {
+			mouseout: function (hexLayer, event, data) {
 				var o = d3.select(this.parentNode);
 				o.select('path.hexbin-hexagon')
 					.attr('d', function (d) {
@@ -599,14 +598,14 @@ L.HexbinHoverHandler = {
 
 		// return the handler instance
 		return {
-			mouseover: function (hexLayer, data) {
+			mouseover: function (hexLayer, event, data) {
 				var o = d3.select(this.parentNode);
 				o.select('path.hexbin-hexagon')
 					.attr('d', function (d) {
 						return hexLayer._hexLayout.hexagon(hexLayer._scale.radius.range()[1] * (1 + options.radiusScale));
 					});
 			},
-			mouseout: function (hexLayer, data) {
+			mouseout: function (hexLayer, event, data) {
 				var o = d3.select(this.parentNode);
 				o.select('path.hexbin-hexagon')
 					.attr('d', function (d) {
@@ -623,13 +622,13 @@ L.HexbinHoverHandler = {
 		if (null == options.handlers) options.handlers = [ L.HexbinHoverHandler.none() ];
 
 		return {
-			mouseover: function (hexLayer, data) {
+			mouseover: function (hexLayer, event, data) {
 				var that = this;
-				options.handlers.forEach(function(h) { h.mouseover.call(that, hexLayer, data); });
+				options.handlers.forEach(function(h) { h.mouseover.call(that, hexLayer, event, data); });
 			},
-			mouseout: function (hexLayer, data) {
+			mouseout: function (hexLayer, event, data) {
 				var that = this;
-				options.handlers.forEach(function(h) { h.mouseout.call(that, hexLayer, data); });
+				options.handlers.forEach(function(h) { h.mouseout.call(that, hexLayer, event, data); });
 			}
 		};
 
