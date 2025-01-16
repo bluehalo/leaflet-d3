@@ -213,6 +213,10 @@ L.HexbinLayer = L.SVG.extend({
 		that._scale.color.domain(colorDomain);
 		that._scale.radius.domain(radiusDomain);
 
+		// Get location of Pixel Origin (which is the reference point of hexbin draw layer).
+		// This is used to transform the absolute bin positions 
+		// to the relative coordinate system of Leaflet custom layers
+		var pixelOrigin = that._map.getPixelOrigin();
 
 		/*
 		 * Join
@@ -220,7 +224,7 @@ L.HexbinLayer = L.SVG.extend({
 		 *    Use a deterministic id for tracking bins based on position
 		 */
 		bins = bins.filter(function(d) {
-			return bounds.contains(that._map.layerPointToLatLng(L.point(d.x, d.y)));
+			return bounds.contains(that._map.layerPointToLatLng(L.point(d.x - pixelOrigin.x, d.y - pixelOrigin.y)));
 		});
 		var join = g.selectAll('g.hexbin-container')
 			.data(bins, function(d) {
@@ -252,7 +256,7 @@ L.HexbinLayer = L.SVG.extend({
 
 		enter.append('path').attr('class', 'hexbin-hexagon')
 			.attr('transform', function(d) {
-				return 'translate(' + d.x + ',' + d.y + ')';
+				return 'translate(' + (d.x - pixelOrigin.x) + ',' + (d.y - pixelOrigin.y) + ')';
 			})
 			.attr('d', function(d) {
 				return that._hexLayout.hexagon(that._scale.radius.range()[0]);
@@ -270,7 +274,7 @@ L.HexbinLayer = L.SVG.extend({
 		// Grid
 		var gridEnter = enter.append('path').attr('class', 'hexbin-grid')
 			.attr('transform', function(d) {
-				return 'translate(' + d.x + ',' + d.y + ')';
+				return 'translate(' + (d.x - pixelOrigin.x) + ',' + (d.y - pixelOrigin.y) + ')';
 			})
 			.attr('d', function(d) {
 				return that._hexLayout.hexagon(that.options.radius);
@@ -328,7 +332,8 @@ L.HexbinLayer = L.SVG.extend({
 	},
 
 	_project : function(coord) {
-		var point = this._map.latLngToLayerPoint([ coord[1], coord[0] ]);
+		// Get (absolute) pixel location relative to the map's CRS
+		var point = this._map.project([ coord[1], coord[0] ]);
 		return [ point.x, point.y ];
 	},
 
