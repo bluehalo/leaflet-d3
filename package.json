@@ -5,7 +5,7 @@
 	"description": "Custom d3 layers for leaflet",
 	"version": "6.1.0",
 	"author": "BlueHalo",
-	"copyright": "Copyright (c) 2007-2026 BlueHalo",
+	"copyright": "Copyright (c) BlueHalo LLC",
 	"license": "MIT",
 	"scripts": {
 		"build": "npm run bundle",
