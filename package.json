@@ -18,7 +18,7 @@
 		"watch": " watch 'npm run build' ./src"
 	},
 	"main": "dist/leaflet-d3.js",
-	"module": "index.js",
+	"module": "src/js/index.js",
 	"typings": "index.d.ts",
 	"repository": {
 		"type": "git",
