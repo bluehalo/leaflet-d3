@@ -36,7 +36,7 @@ npm run build
 
 ### Hexbins
 Create dynamic hexbin-based heatmaps on Leaflet maps.
-This plugin is based on [the work of Steven Hall](http://www.delimited.io/blog/2013/12/1/hexbins-with-d3-and-leaflet-maps).
+This plugin is based on [the work of Steven Hall](https://gist.github.com/sghall/8167665).
 The primary difference is that this plugin leverages the data-binding power of d3 to allow you to dynamically update the data and visualize the transitions.
 
 <img src="https://cloud.githubusercontent.com/assets/480701/4594707/d995541a-5091-11e4-9955-5938b1cb977a.png" alt="map with hexbins"/>
@@ -629,7 +629,7 @@ See LICENSE in repository for details.
 
 
 ## Credits
-The hexbin portion of this plugin was based on [the work of Steven Hall](http://www.delimited.io/blog/2013/12/1/hexbins-with-d3-and-leaflet-maps). Check out his other awesome work at [Delimited](http://www.delimited.io/)
+The hexbin portion of this plugin was based on [the work of Steven Hall](https://gist.github.com/sghall/8167665) ([@sghall](https://github.com/sghall)).
 
 D3.js was created by the legendary [Mike Bostock](https://github.com/mbostock).
 
