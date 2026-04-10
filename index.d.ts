@@ -91,8 +91,8 @@ declare module 'leaflet' {
 	}
 
 	interface HexbinHoverHandler {
-		mouseover(hexLayer: HexbinLayer, data: any): void;
-		mouseout(hexLayer: HexbinLayer, data: any): void;
+		mouseover(hexLayer: HexbinLayer, event: MouseEvent, data: any): void;
+		mouseout(hexLayer: HexbinLayer, event: MouseEvent, data: any): void;
 	}
 
 	namespace HexbinHoverHandler {

@@ -1,11 +1,11 @@
 {
-	"name": "@asymmetrik/leaflet-d3",
+	"name": "@bluehalo/leaflet-d3",
 	"artifactName": "leaflet-d3",
 	"moduleName": "leafletD3",
 	"description": "Custom d3 layers for leaflet",
-	"version": "6.0.1",
-	"author": "Asymmetrik, Ltd. a BlueHalo Company",
-	"copyright": "Copyright (c) 2007-2022 Asymmetrik Ltd, a BlueHalo Company",
+	"version": "6.1.0",
+	"author": "BlueHalo",
+	"copyright": "Copyright (c) 2007-2026 BlueHalo",
 	"license": "MIT",
 	"scripts": {
 		"build": "npm run bundle",
@@ -22,7 +22,7 @@
 	"typings": "index.d.ts",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Asymmetrik/leaflet-d3.git"
+		"url": "https://github.com/bluehalo/leaflet-d3.git"
 	},
 	"peerDependencies": {
 		"d3": "7",
