@@ -332,7 +332,11 @@ L.HexbinLayer = L.SVG.extend({
 	},
 
 	_project : function(coord) {
-		// Get (absolute) pixel location relative to the map's CRS
+		// Use map.project() to get CRS-absolute pixel coordinates.
+		// This is intentional: using latLngToLayerPoint() instead would produce
+		// layer-relative coordinates that shift when the map is panned or zoomed,
+		// causing hexbin positions to drift. CRS-absolute coordinates ensure
+		// deterministic hexbin placement across zoom levels (see #79, fixed in v6.1.0).
 		var point = this._map.project([ coord[1], coord[0] ]);
 		return [ point.x, point.y ];
 	},

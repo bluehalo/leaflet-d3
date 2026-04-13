@@ -14,6 +14,8 @@
 		"lint": "eslint 'src/**/*.js'",
 		"prepare": "npm run build",
 		"rollup": "rollup -c rollup.config.js",
+		"test": "vitest run",
+		"test:coverage": "vitest run --coverage",
 		"uglify": "uglifyjs --comments 'license' -o ./dist/leaflet-d3.min.js -- ./dist/leaflet-d3.js",
 		"watch": " watch 'npm run build' ./src"
 	},
@@ -30,14 +32,17 @@
 		"leaflet": "1"
 	},
 	"devDependencies": {
-		"d3": "7",
 		"@types/d3": "7",
-		"d3-hexbin": "0.2",
-		"leaflet": "1.7",
 		"@types/leaflet": "1.7",
+		"@vitest/coverage-v8": "^3.2.4",
+		"d3": "7",
+		"d3-hexbin": "0.2",
 		"eslint": "8",
+		"jsdom": "^26.1.0",
+		"leaflet": "1.7",
 		"rollup": "2",
 		"uglify-js": "3",
+		"vitest": "^3.2.4",
 		"watch": "1"
 	}
 }

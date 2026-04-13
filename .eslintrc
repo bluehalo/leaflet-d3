@@ -25,6 +25,7 @@
 		"console": true,
 		"require": true,
 		"window": true,
+		"globalThis": true,
 
 		"d3": true,
 		"d3_hexbin": true,

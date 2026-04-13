@@ -254,7 +254,7 @@ L.PingLayer = L.SVG.extend({
 	radiusRange: function(v) {
 		if (!arguments.length) { return this.options.radiusRange; }
 		this.options.radiusRange = v;
-		this._scale.radius().range(v);
+		this._scale.radius.range(v);
 
 		return this;
 	},
@@ -262,7 +262,7 @@ L.PingLayer = L.SVG.extend({
 	opacityRange: function(v) {
 		if (!arguments.length) { return this.options.opacityRange; }
 		this.options.opacityRange = v;
-		this._scale.opacity().range(v);
+		this._scale.opacity.range(v);
 
 		return this;
 	},

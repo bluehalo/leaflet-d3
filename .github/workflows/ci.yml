@@ -5,6 +5,7 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -17,3 +18,12 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run build
+      - name: Run tests
+        run: npm run test:coverage
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage/lcov.info
+          fail_ci_if_error: false
+          verbose: true
