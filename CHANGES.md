@@ -1,5 +1,8 @@
 # Changelog
 
+## 6.1.2
+- Chore: add `files` whitelist to package.json to exclude test, coverage, and config files from the npm tarball (402 kB → 159 kB)
+
 ## 6.1.1
 - Fix: `getLatLngs()` and `toGeoJSON()` now correctly use the configured `lat`/`lng` accessor functions instead of `options.lat`/`options.lng` which were always undefined (#81)
 - Fix: `PingLayer.radiusRange()` and `opacityRange()` setters now correctly update the internal D3 scale range (spurious `()` was invoking the scale as a function)
