@@ -297,22 +297,33 @@ describe('L.HexbinHoverHandler', () => {
 // ---------------------------------------------------------------------------
 // Bug documentation: getLatLngs / toGeoJSON
 //
-// Both methods reference `this.options.lat` / `this.options.lng` but those
-// accessors live on `this._fn`, not `this.options`.  The bug is harmless on
-// empty data (returns []) but throws on non-empty data.
 // ---------------------------------------------------------------------------
-describe('HexbinLayer.getLatLngs — bug documentation', () => {
+describe('HexbinLayer.getLatLngs', () => {
 
 	let layer;
 	beforeEach(() => { layer = newLayer(); });
 
-	it('returns an empty array when data is empty (no crash)', () => {
+	it('returns an empty array when data is empty', () => {
 		expect(layer.getLatLngs()).toEqual([]);
 	});
 
-	it('throws when data is non-empty because options.lat is undefined (documents bug)', () => {
-		layer._data = [ [ 10, 20 ] ];
-		expect(() => layer.getLatLngs()).toThrow();
+	it('maps data through the configured lat/lng accessors to LatLng objects', () => {
+		// Default accessors: lng = d[0], lat = d[1]
+		layer._data = [ [ 10, 20 ], [ -5, 30 ] ];
+		const result = layer.getLatLngs();
+		expect(result.length).toBe(2);
+		expect(result[0].lat).toBe(20);
+		expect(result[0].lng).toBe(10);
+		expect(result[1].lat).toBe(30);
+		expect(result[1].lng).toBe(-5);
+	});
+
+	it('respects custom lat/lng accessor functions', () => {
+		layer.lat((d) => d.y).lng((d) => d.x);
+		layer._data = [ { x: 7, y: 42 } ];
+		const result = layer.getLatLngs();
+		expect(result[0].lat).toBe(42);
+		expect(result[0].lng).toBe(7);
 	});
 
 });

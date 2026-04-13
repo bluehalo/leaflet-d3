@@ -1,5 +1,10 @@
 # Changelog
 
+## 6.1.1
+- Fix: `getLatLngs()` and `toGeoJSON()` now correctly use the configured `lat`/`lng` accessor functions instead of `options.lat`/`options.lng` which were always undefined (#81)
+- Fix: `PingLayer.radiusRange()` and `opacityRange()` setters now correctly update the internal D3 scale range (spurious `()` was invoking the scale as a function)
+- Test: added Vitest test suite with 70 tests covering pure logic, public API, and rendering smoke tests (80% statement / 92% branch coverage)
+
 ## 6.1.0
 - Migrated package to `@bluehalo/leaflet-d3` namespace (previously `@asymmetrik/leaflet-d3`)
 - Fix: hexbin locations are now deterministic across zoom levels — positions are calculated relative to the map CRS rather than the pixel origin (#79)

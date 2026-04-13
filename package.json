@@ -3,7 +3,7 @@
 	"artifactName": "leaflet-d3",
 	"moduleName": "leafletD3",
 	"description": "Custom d3 layers for leaflet",
-	"version": "6.1.0",
+	"version": "6.1.1",
 	"author": "BlueHalo",
 	"copyright": "Copyright (c) BlueHalo LLC",
 	"license": "MIT",

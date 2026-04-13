@@ -513,7 +513,7 @@ L.HexbinLayer = L.SVG.extend({
 
 		// Map the data into an array of latLngs using the configured lat/lng accessors
 		return this._data.map(function(d) {
-			return L.latLng(that.options.lat(d), that.options.lng(d));
+			return L.latLng(that._fn.lat(d), that._fn.lng(d));
 		});
 	},
 
