@@ -1,6 +1,7 @@
 # @bluehalo/leaflet-d3
 
 [![CI](https://github.com/bluehalo/leaflet-d3/actions/workflows/ci.yml/badge.svg)](https://github.com/bluehalo/leaflet-d3/actions/workflows/ci.yml)
+[![Code Coverage](https://codecov.io/gh/bluehalo/leaflet-d3/graph/badge.svg)](https://codecov.io/gh/bluehalo/leaflet-d3)
 
 > Leaflet D3
 > Provides a collection of [D3.js](http://d3js.org) based visualization plugins for [Leaflet](http://leafletjs.com/).
