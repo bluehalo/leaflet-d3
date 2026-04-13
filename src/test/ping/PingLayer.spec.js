@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import '../../js/ping/PingLayer.js';
 
 // ---------------------------------------------------------------------------
@@ -101,6 +101,70 @@ describe('PingLayer.ping() with no map', () => {
 		const layer = newLayer();
 		// _map is null at this point (layer not added to any map)
 		expect(layer.ping([ 0, 0 ])).toBe(layer);
+	});
+
+});
+
+
+// ---------------------------------------------------------------------------
+// Smoke tests — full rendering pipeline with a real Leaflet map
+// ---------------------------------------------------------------------------
+
+describe('PingLayer smoke tests', () => {
+
+	let map, div, layer;
+
+	beforeEach(() => {
+		div = document.createElement('div');
+		document.body.appendChild(div);
+		map = L.map(div, { center: [ 0, 0 ], zoom: 5 });
+		layer = L.pingLayer();
+	});
+
+	afterEach(() => {
+		try { layer.remove(); }
+ catch (e) { /* already removed */ }
+		map.remove();
+		document.body.removeChild(div);
+	});
+
+	it('addTo(map) does not throw', () => {
+		expect(() => layer.addTo(map)).not.toThrow();
+	});
+
+	it('creates an SVG element in the DOM after addTo', () => {
+		layer.addTo(map);
+		expect(div.querySelector('svg')).not.toBeNull();
+	});
+
+	it('ping() with a real map does not throw', () => {
+		layer.addTo(map);
+		expect(() => layer.ping([ 0, 0 ])).not.toThrow();
+	});
+
+	it('ping() populates the data array', () => {
+		layer.addTo(map);
+		layer.ping([ 0, 0 ]);
+		expect(layer.data()).not.toBeNull();
+		expect(layer.data().length).toBe(1);
+	});
+
+	it('ping() with a custom CSS class does not throw', () => {
+		layer.addTo(map);
+		expect(() => layer.ping([ 0, 0 ], 'my-ping')).not.toThrow();
+	});
+
+	it('multiple pings accumulate in the data array', () => {
+		layer.addTo(map);
+		layer.ping([ 0, 0 ]);
+		layer.ping([ 1, 1 ]);
+		layer.ping([ -1, -1 ]);
+		expect(layer.data().length).toBe(3);
+	});
+
+	it('remove() does not throw', () => {
+		layer.addTo(map);
+		expect(() => layer.remove()).not.toThrow();
 	});
 
 });

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import '../../js/hexbin/HexbinLayer.js';
 
 // ---------------------------------------------------------------------------
@@ -313,6 +313,89 @@ describe('HexbinLayer.getLatLngs — bug documentation', () => {
 	it('throws when data is non-empty because options.lat is undefined (documents bug)', () => {
 		layer._data = [ [ 10, 20 ] ];
 		expect(() => layer.getLatLngs()).toThrow();
+	});
+
+});
+
+
+// ---------------------------------------------------------------------------
+// Smoke tests — full rendering pipeline with a real Leaflet map
+//
+// These tests verify the DOM/D3 rendering code does not crash.
+// jsdom provides the DOM; getSize() is mocked to give Leaflet a non-zero
+// container size (jsdom has no layout engine so offsetWidth returns 0).
+// ---------------------------------------------------------------------------
+
+function createMap() {
+	const div = document.createElement('div');
+	document.body.appendChild(div);
+	const map = L.map(div, { center: [ 0, 0 ], zoom: 5 });
+	// jsdom has no layout engine — stub container size so _createHexagons
+	// doesn't divide by zero in its bounds.pad() call.
+	vi.spyOn(map, 'getSize').mockReturnValue(L.point(800, 600));
+	return { map, div };
+}
+
+describe('HexbinLayer smoke tests', () => {
+
+	let map, div, layer;
+
+	beforeEach(() => {
+		({ map, div } = createMap());
+		layer = L.hexbinLayer({ duration: 0 });
+	});
+
+	afterEach(() => {
+		try { layer.remove(); }
+ catch (e) { /* already removed */ }
+		map.remove();
+		document.body.removeChild(div);
+		vi.restoreAllMocks();
+	});
+
+	it('addTo(map) does not throw', () => {
+		expect(() => layer.addTo(map)).not.toThrow();
+	});
+
+	it('creates an SVG element in the DOM after addTo', () => {
+		layer.addTo(map);
+		expect(div.querySelector('svg')).not.toBeNull();
+	});
+
+	it('data() after addTo renders without throwing', () => {
+		layer.addTo(map);
+		expect(() => layer.data([ [ 0, 0 ], [ 1, 1 ], [ -1, -1 ] ])).not.toThrow();
+	});
+
+	it('creates hexbin-container elements after data is set', () => {
+		layer.addTo(map);
+		layer.data([ [ 0, 0 ], [ 1, 1 ], [ -1, -1 ] ]);
+		expect(div.querySelector('.hexbin-container')).not.toBeNull();
+	});
+
+	it('redraw() can be called directly without throwing', () => {
+		layer.addTo(map);
+		layer.data([ [ 0, 0 ] ]);
+		expect(() => layer.redraw()).not.toThrow();
+	});
+
+	it('clearing data with data([]) does not throw', () => {
+		layer.addTo(map);
+		layer.data([ [ 0, 0 ], [ 1, 1 ] ]);
+		expect(() => layer.data([])).not.toThrow();
+	});
+
+	it('remove() does not throw', () => {
+		layer.addTo(map);
+		expect(() => layer.remove()).not.toThrow();
+	});
+
+	it('_project returns coordinates matching map.project()', () => {
+		layer.addTo(map);
+		const result = layer._project([ 10, 20 ]); // [lng, lat]
+		const expected = map.project([ 20, 10 ]);   // Leaflet: [lat, lng]
+		expect(result[0]).toBe(expected.x);
+		expect(result[1]).toBe(expected.y);
 	});
 
 });
