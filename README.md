@@ -5,7 +5,7 @@
 
 > Leaflet D3
 > Provides a collection of [D3.js](http://d3js.org) based visualization plugins for [Leaflet](http://leafletjs.com/).
-> Now supports D3 v7
+> Supports D3 v7
 
 ## Table of Contents
 - [Install](#install)
