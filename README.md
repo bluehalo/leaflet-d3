@@ -169,11 +169,11 @@ See [CHANGES.md](CHANGES.md) for the full version history.
 
 
 ## Contribute
-PRs accepted. Please make contributions on feature branches and open a pull request against ```master```.
+PRs accepted. Please make contributions on feature branches and open a pull request against `master`.
 
 
 ## License
-See LICENSE in repository for details.
+See [LICENSE](LICENSE) for details.
 
 
 ## Credits
