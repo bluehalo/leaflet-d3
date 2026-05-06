@@ -1,5 +1,11 @@
 # Changelog
 
+## 6.1.3
+- Docs: restructured README — extracted Hexbins API and Pings API to docs/
+- CI: upgraded to Node 24, actions/checkout and actions/setup-node to v6
+- Fix: replaced `watch` devDependency with `rollup --watch` directly
+- Chore: added coverage/ to .gitignore; removed stale copy from README
+
 ## 6.1.2
 - Chore: add `files` whitelist to package.json to exclude test, coverage, and config files from the npm tarball (402 kB → 159 kB)
 
